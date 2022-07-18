@@ -23,3 +23,38 @@ termux-setup-package-manager termux-setup-storage termux-wake-lock	\
 termux-wake-unlock
 
 CLEANFILES = $(bin_SCRIPTS)
+
+do_subst = sed -e "s%[@]TERMUX_PREFIX[@]%$(termux_prefix)%g" \
+	       -e "s%[@]TERMUX_APP_PACKAGE[@]%${termux_app_package}%g" \
+	       -e "s%[@]TERMUX_BASE_DIR[@]%${termux_base_dir}%g" \
+	       -e "s%[@]TERMUX_CACHE_DIR[@]%${termux_cache_dir}%g" \
+	       -e "s%[@]TERMUX_HOME[@]%${termux_android_home}%g" \
+	       -e "s%[@]PACKAGE_VERSION[@]%${PACKAGE_VERSION}%g" \
+	       -e "s%[@]TERMUX_PACKAGE_FORMAT[@]%${termux_package_format}%g" \
+	       -e "s%[@]TERMUX_PACKAGE_MANAGER[@]%${termux_package_manager}%g"
+
+define tool-rule
+$1: $1.in Makefile
+	@echo "Creating $1"
+	@$$(do_subst) < $(srcdir)/$1.in > $1
+	@chmod u+x $1
+endef
+
+$(eval $(call tool-rule,chsh))
+$(eval $(call tool-rule,dalvikvm))
+$(eval $(call tool-rule,login))
+$(eval $(call tool-rule,pkg))
+$(eval $(call tool-rule,su))
+$(eval $(call tool-rule,termux-backup))
+$(eval $(call tool-rule,termux-change-repo))
+$(eval $(call tool-rule,termux-fix-shebang))
+$(eval $(call tool-rule,termux-info))
+$(eval $(call tool-rule,termux-open))
+$(eval $(call tool-rule,termux-open-url))
+$(eval $(call tool-rule,termux-reload-settings))
+$(eval $(call tool-rule,termux-reset))
+$(eval $(call tool-rule,termux-restore))
+$(eval $(call tool-rule,termux-setup-package-manager))
+$(eval $(call tool-rule,termux-setup-storage))
+$(eval $(call tool-rule,termux-wake-lock))
+$(eval $(call tool-rule,termux-wake-unlock))

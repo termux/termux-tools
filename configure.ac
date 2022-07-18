@@ -29,11 +29,66 @@ AM_INIT_AUTOMAKE([foreign])
 AC_PROG_MAKE_SET
 
 copyright="Copyright (C) 2022 Termux."
+if test "${TERMUX_APP_PACKAGE+set}" = set; then
+  termux_app_package="$TERMUX_APP_PACKAGE"
+else
+  termux_app_package="com.termux"
+fi
+if test "${TERMUX_BASE_DIR+set}" = set; then
+  termux_base_dir="$TERMUX_BASE_DIR"
+else
+  termux_base_dir="/data/data/$termux_app_package/files"
+fi
+if test "${TERMUX_CACHE_DIR+set}" = set; then
+  termux_cache_dir="$TERMUX_CACHE_DIR"
+else
+  termux_cache_dir="/data/data/$termux_app_package/cache"
+fi
+if test "${TERMUX_PREFIX+set}" = set; then
+  termux_prefix="$TERMUX_PREFIX"
+else
+  termux_prefix="$termux_base_dir/usr"
+fi
+if test "${TERMUX_ANDROID_HOME+set}" = set; then
+  termux_android_home="$TERMUX_ANDROID_HOME"
+else
+  termux_android_home="$termux_base_dir/home"
+fi
+if test "${TERMUX_PACKAGE_FORMAT+set}" = set; then
+  termux_package_format="$TERMUX_PACKAGE_FORMAT"
+else
+  termux_package_format="debian"
+fi
+if test "${TERMUX_PACKAGE_MANAGER+set}" = set; then
+  termux_package_manager="$TERMUX_PACKAGE_MANAGER"
+else
+  termux_package_manager="apt"
+fi
+
 AC_DEFINE_UNQUOTED(COPYRIGHT, ["$copyright"],
   [Short copyright string for this version of termux-tools.])
-termux_prefix="/data/data/com.termux/files/usr"
+AC_DEFINE_UNQUOTED(TERMUX_APP_PACKAGE, ["$termux_app_package"],
+  [Termux namespace])
+AC_DEFINE_UNQUOTED(TERMUX_BASE_DIR, ["$termux_base_dir"],
+  [Base directory of termux application])
+AC_DEFINE_UNQUOTED(TERMUX_CACHE_DIR, ["$termux_cache_dir"],
+  [Cache directory of termux application])
 AC_DEFINE_UNQUOTED(TERMUX_PREFIX, ["$termux_prefix"],
   [Termux prefix])
+AC_DEFINE_UNQUOTED(TERMUX_ANDROID_HOME, ["$termux_android_home"],
+  [Termux home directory])
+AC_DEFINE_UNQUOTED(TERMUX_PACKAGE_FORMAT, ["$termux_package_format"],
+  [Packaging format (debian or pacman)])
+AC_DEFINE_UNQUOTED(TERMUX_PACKAGE_MANAGER, ["$termux_package_manager"],
+  [Package manager (apt or pacman)])
+
+AC_SUBST(termux_app_package)
+AC_SUBST(termux_base_dir)
+AC_SUBST(termux_cache_dir)
+AC_SUBST(termux_prefix)
+AC_SUBST(termux_android_home)
+AC_SUBST(termux_package_format)
+AC_SUBST(termux_package_manager)
 
 AC_CONFIG_FILES([Makefile scripts/Makefile])
 
