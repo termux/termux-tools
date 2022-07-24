@@ -1,1 +1,7 @@
 *~
+Makefile.in
+compile
+configure
+depcomp
+install-sh
+missing
