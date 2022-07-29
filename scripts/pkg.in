@@ -96,6 +96,10 @@ get_mirror_url() {
 
 get_mirror_weight() {
 	source "$1"
+	if [[ ! "$WEIGHT" =~ ^[0-9]+$ ]]; then
+		echo "[!] invalid weight in mirror $1" > /dev/stderr
+		exit
+	fi
 	echo $WEIGHT
 }
 
