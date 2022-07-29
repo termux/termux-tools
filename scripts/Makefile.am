@@ -16,11 +16,16 @@
 # along with termux-tools.  If not, see
 # <https://www.gnu.org/licenses/>.
 
+# shell scripts:
 bin_SCRIPTS = chsh dalvikvm login pkg su termux-backup			\
 termux-change-repo termux-fix-shebang termux-info termux-open		\
 termux-open-url termux-reload-settings termux-reset termux-restore	\
 termux-setup-package-manager termux-setup-storage termux-wake-lock	\
 termux-wake-unlock
+
+# wrappers around tools in /system/bin:
+bin_SCRIPTS += df getprop logcat mount ping ping6 pm settings top	\
+umount cmd
 
 CLEANFILES = $(bin_SCRIPTS)
 
@@ -37,6 +42,20 @@ define tool-rule
 $1: $1.in Makefile
 	@echo "Creating $1"
 	@$$(do_subst) < $(srcdir)/$1.in > $1
+	@chmod u+x $1
+endef
+
+define wrapper-rule
+$1: Makefile
+	@echo "Creating $1 wrapper"
+	@echo '#!/bin/sh' > $1
+# Remove LD_LIBRARY_PATH from environment to avoid conflicting
+# with system libraries that system binaries may link against
+	@echo 'unset LD_LIBRARY_PATH LD_PRELOAD' >> $1
+# Some tools require having /system/bin/app_process in the PATH,
+# at least am&pm on a Nexus 6p running Android 6.0
+	@echo -n 'PATH=$$$$PATH:/system/bin ' >> $1
+	@echo "exec /system/bin/$1 \"\$$$$@\"" >> $1
 	@chmod u+x $1
 endef
 
@@ -58,3 +77,15 @@ $(eval $(call tool-rule,termux-setup-package-manager))
 $(eval $(call tool-rule,termux-setup-storage))
 $(eval $(call tool-rule,termux-wake-lock))
 $(eval $(call tool-rule,termux-wake-unlock))
+
+$(eval $(call wrapper-rule,df))
+$(eval $(call wrapper-rule,getprop))
+$(eval $(call wrapper-rule,logcat))
+$(eval $(call wrapper-rule,mount))
+$(eval $(call wrapper-rule,ping))
+$(eval $(call wrapper-rule,ping6))
+$(eval $(call wrapper-rule,pm))
+$(eval $(call wrapper-rule,settings))
+$(eval $(call wrapper-rule,top))
+$(eval $(call wrapper-rule,umount))
+$(eval $(call wrapper-rule,cmd))
