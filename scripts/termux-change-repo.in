@@ -3,6 +3,8 @@
 # Setup TERMUX_APP_PACKAGE_MANAGER
 source "@TERMUX_PREFIX@/bin/termux-setup-package-manager" || exit 1
 
+MIRROR_BASE_DIR="@TERMUX_PREFIX@/etc/termux/mirrors"
+
 if [ "$1" == "--help" ] || [ "$1" == "-help" ]; then
     echo "Script for choosing a group of mirrors to use."
     echo "All mirrors are listed at"
@@ -19,34 +21,113 @@ unlink_and_link() {
 }
 
 select_repository_group() {
-    if [ "$1" == "Mirrors in Asia" ]; then
+    MIRRORS=()
+    MIRRORS+=("All mirrors" "All in the entire world" "on")
+    MIRRORS+=("Mirrors in Asia" "All in Asia (excl. China and Russia)" "off")
+    MIRRORS+=("Mirrors in China" "All in China" "off")
+    MIRRORS+=("Mirrors in Europe" "All in Europe" "off")
+    MIRRORS+=("Mirrors in North America" "All in North America" "off")
+    MIRRORS+=("Mirrors in Russia" "All in Russia" "off")
+
+    local TEMPFILE="$(mktemp @TERMUX_PREFIX@/tmp/mirror.XXXXXX)"
+    dialog \
+        --title "termux-change-repo" --clear \
+        --radiolist "Which group of mirrors do you want to use? Select with space." 0 0 0 \
+        "${MIRRORS[@]}" --and-widget \
+        2> "$TEMPFILE"
+    retval=$?
+    clear
+
+    case $retval in
+        1)
+            # Cancel pressed
+            exit
+            ;;
+        255)
+            # Esc pressed
+            exit
+            ;;
+    esac
+
+    mirror_group="$(cat "$TEMPFILE")"
+    rm "$TEMPFILE"
+
+    if [ "$mirror_group" == "Mirrors in Asia" ]; then
         echo "[*] Mirrors in Asia (excl. China and Russia) selected"
-        unlink_and_link @TERMUX_PREFIX@/etc/termux/mirrors/asia
+        unlink_and_link ${MIRROR_BASE_DIR}/asia
 
-    elif [ "$1" == "Mirrors in China" ]; then
+    elif [ "$mirror_group" == "Mirrors in China" ]; then
         echo "[*] Mirrors in China selected"
-        unlink_and_link @TERMUX_PREFIX@/etc/termux/mirrors/china
+        unlink_and_link ${MIRROR_BASE_DIR}/china
 
-    elif [ "$1" == "Mirrors in Europe" ]; then
+    elif [ "$mirror_group" == "Mirrors in Europe" ]; then
         echo "[*] Mirrors in Europe selected"
-        unlink_and_link @TERMUX_PREFIX@/etc/termux/mirrors/europe
+        unlink_and_link ${MIRROR_BASE_DIR}/europe
 
-    elif [ "$1" == "Mirrors in North America" ]; then
+    elif [ "$mirror_group" == "Mirrors in North America" ]; then
         echo "[*] Mirrors in North America selected"
-        unlink_and_link @TERMUX_PREFIX@/etc/termux/mirrors/north_america
+        unlink_and_link ${MIRROR_BASE_DIR}/north_america
 
-    elif [ "$1" == "Mirrors in Russia" ]; then
+    elif [ "$mirror_group" == "Mirrors in Russia" ]; then
         echo "[*] Mirrors in Russia selected"
-        unlink_and_link @TERMUX_PREFIX@/etc/termux/mirrors/russia
+        unlink_and_link ${MIRROR_BASE_DIR}/russia
 
-    elif [ "$1" == "All mirrors" ]; then
+    elif [ "$mirror_group" == "All mirrors" ]; then
         echo "[*] All mirrors selected"
-        unlink_and_link @TERMUX_PREFIX@/etc/termux/mirrors/all
+        unlink_and_link ${MIRROR_BASE_DIR}/all
 
     else
         echo "[!] Error: unknown mirror group: '$1'. Exiting"
         exit 1
     fi
+}
+
+get_mirror_url() {
+    basename "$1"
+}
+
+get_mirror_description() {
+    head -n 2 "$1" | tail -n 1 | cut -d" " -f2-
+}
+
+select_individual_mirror() {
+    mirrors=($(find ${MIRROR_BASE_DIR}/{asia,china,europe,north_america,russia}/ -type f ! -name "*\.dpkg-old" ! -name "*~"))
+
+    # Choose default mirror per default
+    MIRRORS=("$(get_mirror_url "${MIRROR_BASE_DIR}/default")" "$(get_mirror_description "${MIRROR_BASE_DIR}/default")" "on")
+    # Special handling of packages.termux.dev mirror to put it on top:
+    MIRRORS+=("$(get_mirror_url "${MIRROR_BASE_DIR}/north_america/packages.termux.dev")" "$(get_mirror_description "${MIRROR_BASE_DIR}/north_america/packages.termux.dev")" "off")
+    for mirror in ${mirrors[@]}; do
+        if [ "$mirror" != "packages.termux.dev" ]; then
+            MIRRORS+=("$(get_mirror_url "$mirror")" "$(get_mirror_description "$mirror")" "off")
+        fi
+    done
+
+    local TEMPFILE="$(mktemp @TERMUX_PREFIX@/tmp/mirror.XXXXXX)"
+    dialog \
+        --title "termux-change-repo" --clear \
+        --radiolist "Which mirror do you want to use? Select with space." 0 0 0 \
+        "${MIRRORS[@]}" --and-widget \
+        2> "$TEMPFILE"
+    retval=$?
+    clear
+
+    case $retval in
+        1)
+            # Cancel pressed
+            exit
+            ;;
+        255)
+            # Esc pressed
+            exit
+            ;;
+    esac
+
+    mirror="$(cat "$TEMPFILE")"
+
+    echo "[*] Mirror $(get_mirror_url "$mirror") selected"
+    unlink_and_link "$(find ${MIRROR_BASE_DIR} -name $mirror)"
+    rm "$TEMPFILE"
 }
 
 if ! command -v apt 1>/dev/null; then
@@ -60,27 +141,29 @@ if [ "$TERMUX_APP_PACKAGE_MANAGER" = "pacman" ]; then
     [[ ${REPLY} =~ ^[Nn]$ ]] && exit
 fi
 
-TEMPFILE="$(mktemp @TERMUX_PREFIX@/tmp/mirror.XXXXXX)"
+TEMPFILE="$(mktemp @TERMUX_PREFIX@/tmp/termux-change-repo.XXXXXX)"
 
-MIRRORS=()
-MIRRORS+=("All mirrors" "All in the entire world" "on")
-MIRRORS+=("Mirrors in Asia" "All in Asia (excl. China and Russia)" "off")
-MIRRORS+=("Mirrors in China" "All in China" "off")
-MIRRORS+=("Mirrors in Europe" "All in Europe" "off")
-MIRRORS+=("Mirrors in North America" "All in North America" "off")
-MIRRORS+=("Mirrors in Russia" "All in Russia" "off")
-
+MODES=()
+MODES+=("Mirror group" "Rotate between several mirrors (recommended)" "on")
+MODES+=("Single mirror" "Choose a single mirror to use" "off")
 dialog \
     --title "termux-change-repo" --clear \
-    --radiolist "Which group of mirrors do you want to use? Select with space." 0 0 0 \
-    "${MIRRORS[@]}" --and-widget \
+    --radiolist "Do you want to select a mirror group or a single mirror?" 0 0 0 \
+    "${MODES[@]}" --and-widget \
     2> "$TEMPFILE"
 retval=$?
 clear
 
 case $retval in
     0)
-        select_repository_group "$(cat $TEMPFILE)"
+        case "$(cat $TEMPFILE)" in
+        "Mirror group")
+            select_repository_group
+            ;;
+        "Single mirror")
+            select_individual_mirror
+            ;;
+        esac
         ;;
     1)
         # Cancel pressed
