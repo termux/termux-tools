@@ -21,7 +21,7 @@ plug-mirror.rcac.purdue.edu dl.kcubeterm.com mirrors.utermux.dev	\
 mirror.mwt.me
 
 # Mirrors in Russia
-pkgdata_RUSSIA_MIRRORS =+ mirror.mephi.ru mirror.surf
+pkgdata_RUSSIA_MIRRORS = mirror.mephi.ru mirror.surf
 
 define install-mirror-rule
 install-$1:
