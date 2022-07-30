@@ -1,0 +1,33 @@
+name: Build termux-tools
+
+on:
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.GITHUB_REF }}
+
+      - name: Prepare
+        run: |
+          autoreconf -vfi
+          mkdir build
+
+      - name: Configure
+        run: |
+          cd build
+          ../configure --prefix $(pwd)/prefix
+
+      - name: Make
+        run: |
+          cd build
+          make
+
+      - name: Make install
+        run: |
+          cd build
+          make install
