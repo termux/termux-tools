@@ -12,6 +12,10 @@ jobs:
         with:
           ref: ${{ env.GITHUB_REF }}
 
+      - name: Install host dependencies
+        run: |
+          sudo apt-get install pandoc
+
       - name: Prepare
         run: |
           autoreconf -vfi
