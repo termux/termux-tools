@@ -130,6 +130,17 @@ select_individual_mirror() {
     rm "$TEMPFILE"
 }
 
+usage() {
+   echo "Usage: termux-change-repo"
+   echo ""
+   echo "termux-change-repo is a utility used to simplify which mirror(s)"
+   echo "pkg (our apt wrapper) should use."
+}
+
+if [ $# -gt 0 ]; then
+    usage
+fi
+
 if ! command -v apt 1>/dev/null; then
     echo "Error: changing mirrors can't execute because apt is not installed."
     exit 1
