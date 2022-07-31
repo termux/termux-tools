@@ -267,6 +267,11 @@ select_mirror() {
 				echo "deb $ROOT root stable" > @TERMUX_PREFIX@/etc/apt/sources.list.d/root.list
 			fi
 		)
+	else
+		# Should not happen unless there is some issue with
+		# the script, or the mirror files
+		echo "Error: None of the mirrors are accessible"
+		exit 1
 	fi
 }
 
