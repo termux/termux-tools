@@ -142,7 +142,7 @@ if [ $# -gt 0 ]; then
 fi
 
 if ! command -v apt 1>/dev/null; then
-    echo "Error: changing mirrors can't execute because apt is not installed."
+    echo "Error: Cannot change mirrors since apt is not installed." > /dev/stderr
     exit 1
 fi
 
@@ -159,7 +159,7 @@ MODES+=("Mirror group" "Rotate between several mirrors (recommended)" "on")
 MODES+=("Single mirror" "Choose a single mirror to use" "off")
 dialog \
     --title "termux-change-repo" --clear \
-    --radiolist "Do you want to select a mirror group or a single mirror?" 0 0 0 \
+    --radiolist "Do you want to choose a mirror group or a single mirror? Select with space." 0 0 0 \
     "${MODES[@]}" --and-widget \
     2> "$TEMPFILE"
 retval=$?
