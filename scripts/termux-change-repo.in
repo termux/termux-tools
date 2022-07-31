@@ -91,7 +91,7 @@ get_mirror_description() {
 }
 
 select_individual_mirror() {
-    mirrors=($(find ${MIRROR_BASE_DIR}/{asia,china,europe,north_america,russia}/ -type f ! -name "*\.dpkg-old" ! -name "*~"))
+    mirrors=($(find ${MIRROR_BASE_DIR}/{asia,china,europe,north_america,russia}/ -type f ! -name "*\.dpkg-old" ! -name "*\.dpkg-new" ! -name "*~"))
 
     # Choose default mirror per default
     MIRRORS=("$(get_mirror_url "${MIRROR_BASE_DIR}/default")" "$(get_mirror_description "${MIRROR_BASE_DIR}/default")" "on")
