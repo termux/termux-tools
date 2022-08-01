@@ -43,15 +43,25 @@ endef
 # Login script
 sysconf_DATA += termux-login.sh
 
+# profile.d script
+pkgdata_PROFILE = init-termux-properties.sh
+
 pkgdata_EXAMPLES = termux.properties
+
+$(eval $(call sed-rule,init-termux-properties.sh))
 
 $(eval $(call sed-rule,termux-login.sh))
 
-install-data-local:
+install-data-local: $(pkgdata_PROFILE)
 	$(MKDIR_P) $(DESTDIR)$(datarootdir)/examples/termux
 	for f in $(pkgdata_EXAMPLES); do \
 		$(INSTALL) -m 644 $(srcdir)/$$f \
 		$(DESTDIR)$(datarootdir)/examples/termux; \
+	done
+	$(MKDIR_P) $(DESTDIR)$(sysconfdir)/profile.d
+	for f in $(pkgdata_PROFILE); do \
+		$(INSTALL) -m 644 $$f \
+		$(DESTDIR)$(sysconfdir)/profile.d; \
 	done
 
 uninstall-local:
@@ -59,5 +69,9 @@ uninstall-local:
 		rm -f $(DESTDIR)$(datarootdir)/examples/termux/$$f; \
 	done
 	-rmdir $(DESTDIR)$(datarootdir)/examples/termux
+	for f in $(pkgdata_PROFILE); do \
+		rm -f $(DESTDIR)$(sysconfdir)/profile.d/$$f; \
+	done
+	-rmdir $(DESTDIR)$(sysconfdir)/profile.d
 
-EXTRA_DIST = $(pkgdata_DATA) $(pkgdata_EXAMPLES)
+EXTRA_DIST = $(pkgdata_DATA) $(pkgdata_PROFILE) $(pkgdata_EXAMPLES)
