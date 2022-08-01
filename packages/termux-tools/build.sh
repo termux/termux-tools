@@ -62,9 +62,6 @@ termux_step_make_install() {
 	pandoc --standalone --to man --output $TERMUX_PREFIX/share/man/man1/termux.1 \
 		$TERMUX_PKG_TMPDIR/termux.1.md
 
-	mkdir -p $TERMUX_PREFIX/share/examples/termux
-	install -Dm600 $TERMUX_PKG_BUILDER_DIR/termux.properties $TERMUX_PREFIX/share/examples/termux/
-
 	mkdir -p $TERMUX_PREFIX/etc/profile.d
 	cat <<- EOF > $TERMUX_PREFIX/etc/profile.d/init-termux-properties.sh
 	if [ ! -f $TERMUX_ANDROID_HOME/.config/termux/termux.properties ] && [ ! -e $TERMUX_ANDROID_HOME/.termux/termux.properties ]; then

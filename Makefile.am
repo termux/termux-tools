@@ -25,4 +25,19 @@ SUBDIRS = scripts
 #      version is very old (like the version found in playstore is)
 sysconf_DATA = motd.sh motd-playstore
 
-EXTRA_DIST = $(pkgdata_DATA)
+pkgdata_EXAMPLES = termux.properties
+
+install-data-local:
+	$(MKDIR_P) $(DESTDIR)$(datarootdir)/examples/termux
+	for f in $(pkgdata_EXAMPLES); do \
+		$(INSTALL) -m 644 $(srcdir)/$$f \
+		$(DESTDIR)$(datarootdir)/examples/termux; \
+	done
+
+uninstall-local:
+	for f in $(pkgdata_EXAMPLES); do \
+		rm -f $(DESTDIR)$(datarootdir)/examples/termux/$$f; \
+	done
+	-rmdir $(DESTDIR)$(datarootdir)/examples/termux
+
+EXTRA_DIST = $(pkgdata_DATA) $(pkgdata_EXAMPLES)
