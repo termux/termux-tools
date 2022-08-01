@@ -25,7 +25,27 @@ SUBDIRS = scripts
 #      version is very old (like the version found in playstore is)
 sysconf_DATA = motd.sh motd-playstore
 
+do_subst = sed -e "s%[@]TERMUX_PREFIX[@]%$(termux_prefix)%g" \
+	       -e "s%[@]TERMUX_APP_PACKAGE[@]%${termux_app_package}%g" \
+	       -e "s%[@]TERMUX_BASE_DIR[@]%${termux_base_dir}%g" \
+	       -e "s%[@]TERMUX_CACHE_DIR[@]%${termux_cache_dir}%g" \
+	       -e "s%[@]TERMUX_HOME[@]%${termux_android_home}%g" \
+	       -e "s%[@]PACKAGE_VERSION[@]%${PACKAGE_VERSION}%g" \
+	       -e "s%[@]TERMUX_PACKAGE_FORMAT[@]%${TERMUX_PACKAGE_FORMAT}%g" \
+	       -e "s%[@]TERMUX_PACKAGE_MANAGER[@]%${TERMUX_PACKAGE_MANAGER}%g"
+
+define sed-rule
+$1: $1.in Makefile
+	echo "Creating $1"
+	$$(do_subst) < $(srcdir)/$1.in > $1
+endef
+
+# Login script
+sysconf_DATA += termux-login.sh
+
 pkgdata_EXAMPLES = termux.properties
+
+$(eval $(call sed-rule,termux-login.sh))
 
 install-data-local:
 	$(MKDIR_P) $(DESTDIR)$(datarootdir)/examples/termux

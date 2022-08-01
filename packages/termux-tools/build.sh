@@ -70,12 +70,6 @@ termux_step_make_install() {
 	fi
 	EOF
 
-	cat <<- EOF > $TERMUX_PREFIX/etc/termux-login.sh
-	##
-	## This script is sourced by $PREFIX/bin/login before executing shell.
-	##
-	EOF
-
 	mkdir -p $TERMUX_PREFIX/etc/termux
 	cp -r $TERMUX_PKG_BUILDER_DIR/mirrors $TERMUX_PREFIX/etc/termux/
 	cd $TERMUX_PREFIX
