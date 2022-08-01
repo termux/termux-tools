@@ -35,6 +35,6 @@ termux_prefix="/data/data/com.termux/files/usr"
 AC_DEFINE_UNQUOTED(TERMUX_PREFIX, ["$termux_prefix"],
   [Termux prefix])
 
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile scripts/Makefile])
 
 AC_OUTPUT

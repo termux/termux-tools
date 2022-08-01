@@ -16,4 +16,10 @@
 # along with termux-tools.  If not, see
 # <https://www.gnu.org/licenses/>.
 
-SUBDIRS = scripts
+bin_SCRIPTS = chsh dalvikvm login pkg su termux-backup			\
+termux-change-repo termux-fix-shebang termux-info termux-open		\
+termux-open-url termux-reload-settings termux-reset termux-restore	\
+termux-setup-package-manager termux-setup-storage termux-wake-lock	\
+termux-wake-unlock
+
+CLEANFILES = $(bin_SCRIPTS)
