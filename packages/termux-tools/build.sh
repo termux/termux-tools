@@ -55,9 +55,4 @@ termux_step_make_install() {
 	done
 
 	ln -sfr $TERMUX_PREFIX/bin/termux-open $TERMUX_PREFIX/bin/xdg-open
-
-	mkdir -p $TERMUX_PREFIX/etc/termux
-	cp -r $TERMUX_PKG_BUILDER_DIR/mirrors $TERMUX_PREFIX/etc/termux/
-	cd $TERMUX_PREFIX
-	TERMUX_PKG_CONFFILES+=" $(find etc/termux/mirrors -type f)"
 }
