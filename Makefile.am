@@ -16,7 +16,7 @@
 # along with termux-tools.  If not, see
 # <https://www.gnu.org/licenses/>.
 
-SUBDIRS = scripts
+SUBDIRS = scripts doc
 
 # We have two variants of our motd message:
 #   1. motd.sh: is sourced and echo'es a motd message with something that looks

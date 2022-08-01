@@ -56,12 +56,6 @@ termux_step_make_install() {
 
 	ln -sfr $TERMUX_PREFIX/bin/termux-open $TERMUX_PREFIX/bin/xdg-open
 
-	mkdir -p $TERMUX_PREFIX/share/man/man1
-	sed -e "s|@TERMUX_PREFIX@|${TERMUX_PREFIX}|g" -e "s|@TERMUX_HOME@|${TERMUX_ANDROID_HOME}|g" \
-		$TERMUX_PKG_BUILDER_DIR/termux.1.md.in > $TERMUX_PKG_TMPDIR/termux.1.md
-	pandoc --standalone --to man --output $TERMUX_PREFIX/share/man/man1/termux.1 \
-		$TERMUX_PKG_TMPDIR/termux.1.md
-
 	mkdir -p $TERMUX_PREFIX/etc/termux
 	cp -r $TERMUX_PKG_BUILDER_DIR/mirrors $TERMUX_PREFIX/etc/termux/
 	cd $TERMUX_PREFIX
