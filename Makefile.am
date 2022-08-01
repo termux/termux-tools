@@ -17,3 +17,12 @@
 # <https://www.gnu.org/licenses/>.
 
 SUBDIRS = scripts
+
+# We have two variants of our motd message:
+#   1. motd.sh: is sourced and echo'es a motd message with something that looks
+#      like termux's logo.
+#   3. motd-playstore: plain text that will only be displayed if the termux-app
+#      version is very old (like the version found in playstore is)
+sysconf_DATA = motd.sh motd-playstore
+
+EXTRA_DIST = $(pkgdata_DATA)

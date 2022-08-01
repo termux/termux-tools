@@ -54,35 +54,6 @@ termux_step_make_install() {
 				$TERMUX_PREFIX/bin/$script
 	done
 
-	{
-		echo 'echo ""'
-		echo 'echo -e " \e[47m                \e[0m  \e[1mWelcome to Termux!\e[0m"'
-		echo 'echo -e " \e[47m  \e[0m            \e[0;37m\e[47m .\e[0m"'
-		echo 'echo -e " \e[47m  \e[0m  \e[47m  \e[0m        \e[47m  \e[0m  \e[1mDocs:\e[0m   \e[4mtermux.dev/docs\e[0m"'
-		echo 'echo -e " \e[47m  \e[0m  \e[47m  \e[0m        \e[47m  \e[0m  \e[1mGitter:\e[0m \e[4mgitter.im/termux/termux\e[0m"'
-		echo 'echo -e " \e[47m  \e[0m            \e[47m  \e[0m  \e[1mCommunity:\e[0m \e[4mtermux.dev/community\e[0m"'
-		echo 'echo -e " \e[47m  \e[0m            \e[0;37m\e[47m .\e[0m"'
-		echo 'echo -e " \e[47m                \e[0m  \e[1mTermux version:\e[0m ${TERMUX_VERSION-Unknown}"'
-		echo 'echo ""'
-		echo 'echo -e "                   \e[1mWorking with packages:\e[0m"'
-		echo 'echo -e "                       \e[1mSearch:\e[0m  pkg search <query>"'
-		echo 'echo -e "                       \e[1mInstall:\e[0m pkg install <package>"'
-		echo 'echo -e "                       \e[1mUpdate:\e[0m  pkg update"'
-		echo 'echo ""'
-		if [ "$TERMUX_PACKAGE_FORMAT" = "debian" ]; then
-			echo 'echo -e "                   \e[1mSubscribing to additional repos:\e[0m"'
-			echo 'echo -e "                       \e[1mRoot:\e[0m pkg install root-repo"'
-			echo 'echo -e "                       \e[1mX11: \e[0m pkg install x11-repo"'
-			echo 'echo ""'
-			echo 'echo "                   For fixing any repository issues,"'
-			echo "echo \"                   try 'termux-change-repo' command.\""
-			echo 'echo ""'
-		fi
-		echo 'echo -e "                   Report issues at \e[4mtermux.dev/issues\e[0m"'
-		echo 'echo ""'
-	} > $TERMUX_PKG_BUILDER_DIR/motd.sh
-	install -Dm600 $TERMUX_PKG_BUILDER_DIR/motd.sh $TERMUX_PREFIX/etc/motd.sh
-	install -Dm600 $TERMUX_PKG_BUILDER_DIR/motd-playstore $TERMUX_PREFIX/etc/motd-playstore
 	ln -sfr $TERMUX_PREFIX/bin/termux-open $TERMUX_PREFIX/bin/xdg-open
 
 	mkdir -p $TERMUX_PREFIX/share/man/man1
