@@ -59,6 +59,9 @@ $1: Makefile
 	@chmod u+x $1
 endef
 
+install-exec-hook:
+	@$(LN_S) termux-open $(DESTDIR)$(bindir)/xdg-open
+
 $(eval $(call tool-rule,chsh))
 $(eval $(call tool-rule,dalvikvm))
 $(eval $(call tool-rule,login))
