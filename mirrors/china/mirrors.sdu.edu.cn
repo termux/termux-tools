@@ -1,0 +1,6 @@
+# This file is sourced by pkg
+# Mirror by Shandong University
+WEIGHT=1
+MAIN="https://mirrors.sdu.edu.cn/termux/termux-main"
+ROOT="https://mirrors.sdu.edu.cn/termux/termux-root"
+X11="https://mirrors.sdu.edu.cn/termux/termux-x11"

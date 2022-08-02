@@ -9,11 +9,14 @@ packages.nscdn.top
 pkgdata_CHINA_MIRRORS = mirrors.tuna.tsinghua.edu.cn		\
 mirror.iscas.ac.cn mirrors.nju.edu.cn mirrors.pku.edu.cn	\
 mirrors.ustc.edu.cn mirrors.hit.edu.cn mirrors.bfsu.edu.cn	\
-mirrors.aliyun.com mirrors.cqupt.edu.cn mirrors.dgut.edu.cn
+mirrors.aliyun.com mirrors.cqupt.edu.cn mirrors.dgut.edu.cn \
+mirror.nyist.edu.cn mirrors.njupt.edu.cn mirrors.sau.edu.cn \
+mirrors.scau.edu.cn mirrors.sdu.edu.cn mirrors.sustech.edu.cn
 
 # Mirrors in Europe
 pkgdata_EUROPE_MIRRORS = grimler.se termux.librehat.com mirror.mwt.me	\
-termux.mentality.rip termux.sahilister.in cdn.lumito.net
+termux.mentality.rip termux.sahilister.in cdn.lumito.net \
+termux.astra.in.ua
 
 # Mirrors in North America
 pkgdata_NORTH_AMERICA_MIRRORS = packages.termux.dev			\
