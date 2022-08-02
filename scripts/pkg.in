@@ -4,6 +4,8 @@ set -eu
 # Setup TERMUX_APP_PACKAGE_MANAGER
 source "@TERMUX_PREFIX@/bin/termux-setup-package-manager" || exit 1
 
+MIRROR_BASE_DIR="@TERMUX_PREFIX@/etc/termux/mirrors"
+
 show_help() {
 	local cache_size
 	local cache_dir=""
@@ -104,7 +106,7 @@ get_mirror_weight() {
 }
 
 select_mirror() {
-	local default_repo="@TERMUX_PREFIX@/etc/termux/mirrors/default"
+	local default_repo="${MIRROR_BASE_DIR}/default"
 
 	if [ -d "@TERMUX_PREFIX@/etc/termux/chosen_mirrors" ]; then
 		# Mirror group selected
@@ -114,12 +116,12 @@ select_mirror() {
 		mirrors=("$(realpath @TERMUX_PREFIX@/etc/termux/chosen_mirrors)")
 	elif [ -L "@TERMUX_PREFIX@/etc/termux/chosen_mirrors" ]; then
 		# Broken symlink, use all mirrors
-		mirrors=("@TERMUX_PREFIX@/etc/termux/mirrors/default")
-		mirrors+=($(find @TERMUX_PREFIX@/etc/termux/mirrors/{asia,china,europe,north_america,russia}/ -type f ! -name "*\.dpkg-old" ! -name "*\.dpkg-new" ! -name "*~"))
+		mirrors=("${MIRROR_BASE_DIR}/default")
+		mirrors+=($(find ${MIRROR_BASE_DIR}/{asia,china,europe,north_america,russia}/ -type f ! -name "*\.dpkg-old" ! -name "*\.dpkg-new" ! -name "*~"))
 	else
 		echo "No mirror or mirror group selected. You might want to select one by running 'termux-change-repo'"
-		mirrors=("@TERMUX_PREFIX@/etc/termux/mirrors/default")
-		mirrors+=($(find @TERMUX_PREFIX@/etc/termux/mirrors/{asia,china,europe,north_america,russia}/ -type f ! -name "*\.dpkg-old" ! -name "*\.dpkg-new" ! -name "*~"))
+		mirrors=("${MIRROR_BASE_DIR}/default")
+		mirrors+=($(find ${MIRROR_BASE_DIR}/{asia,china,europe,north_america,russia}/ -type f ! -name "*\.dpkg-old" ! -name "*\.dpkg-new" ! -name "*~"))
 	fi
 
 	local current_mirror
