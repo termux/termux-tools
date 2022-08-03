@@ -60,7 +60,7 @@ $1: Makefile
 endef
 
 install-exec-hook:
-	@$(LN_S) termux-open $(DESTDIR)$(bindir)/xdg-open
+	@$(LN_S) -f termux-open $(DESTDIR)$(bindir)/xdg-open
 
 $(eval $(call tool-rule,chsh))
 $(eval $(call tool-rule,dalvikvm))
