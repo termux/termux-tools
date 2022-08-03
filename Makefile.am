@@ -36,7 +36,7 @@ do_subst = sed -e "s%[@]TERMUX_PREFIX[@]%$(termux_prefix)%g" \
 
 define sed-rule
 $1: $1.in Makefile
-	echo "Creating $1"
+	@echo "Creating $1"
 	@$$(do_subst) < $(srcdir)/$1.in > $1
 endef
 
