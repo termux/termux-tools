@@ -117,6 +117,13 @@ if [ "$BACKUP_FILE_PATH" != "-" ]; then
 		msg
 		exit 1
 	fi
+else
+	if [ -t 1 ]; then
+		msg
+		msg "[!] Refusing to write archive data to console."
+		msg
+		exit 1
+	fi
 fi
 
 msg "Backing up installed packages..."
