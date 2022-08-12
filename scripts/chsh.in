@@ -33,7 +33,7 @@ while true; do
 done
 
 DEFAULT_SHELL=bash
-if [ ! -x @TERMUX_PREFIX@/bin/$DEFAULT_SHELL ]; then DEFAULT_SHELL=ash; fi
+if [ ! -x @TERMUX_PREFIX@/bin/$DEFAULT_SHELL ]; then DEFAULT_SHELL=sh; fi
 
 echo Changing the login shell
 echo Enter the new value, or press ENTER for the default
