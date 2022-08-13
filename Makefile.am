@@ -16,14 +16,7 @@
 # along with termux-tools.  If not, see
 # <https://www.gnu.org/licenses/>.
 
-SUBDIRS = scripts doc mirrors
-
-# We have two variants of our motd message:
-#   1. motd.sh: is sourced and echo'es a motd message with something that looks
-#      like termux's logo.
-#   3. motd-playstore: plain text that will only be displayed if the termux-app
-#      version is very old (like the version found in playstore is)
-sysconf_DATA = motd.sh motd-playstore
+SUBDIRS = scripts doc mirrors motds
 
 do_subst = sed -e "s%[@]TERMUX_PREFIX[@]%$(termux_prefix)%g" \
 	       -e "s%[@]TERMUX_APP_PACKAGE[@]%${termux_app_package}%g" \
@@ -41,7 +34,7 @@ $1: $1.in Makefile
 endef
 
 # Login script
-sysconf_DATA += termux-login.sh
+sysconf_DATA = termux-login.sh
 
 # profile.d script
 pkgdata_PROFILE = init-termux-properties.sh

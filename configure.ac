@@ -93,6 +93,6 @@ AC_SUBST(termux_package_manager)
 AC_PROG_LN_S
 
 AC_CONFIG_FILES([Makefile scripts/Makefile doc/Makefile
-mirrors/Makefile])
+mirrors/Makefile motds/Makefile])
 
 AC_OUTPUT
