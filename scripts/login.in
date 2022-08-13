@@ -1,9 +1,11 @@
 #!/bin/sh
 
 if tty >/dev/null 2>&1 && [ $# = 0 ] && [ ! -f ~/.hushlogin ] && [ -z "$TERMUX_HUSHLOGIN" ]; then
-	if [ -f @TERMUX_PREFIX@/etc/motd.sh ]; then
-		# Dynamic motd is preferred over plain-text.
-		bash @TERMUX_PREFIX@/etc/motd.sh
+	# Use user defined dynamic motd file if it exists
+	if [ -f ~/.termux/motd.sh ]; then
+		[ ! -x ~/.termux/motd.sh ] && chmod u+x ~/.termux/motd.sh
+		~/.termux/motd.sh
+	# Default to termux-tools package provided static motd file if it exists
 	elif [ -f @TERMUX_PREFIX@/etc/motd ]; then
 		cat @TERMUX_PREFIX@/etc/motd
 	fi

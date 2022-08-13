@@ -24,9 +24,9 @@
 
 # The motd-playstore is an additional motd that will only be displayed
 # if the termux-app version is very old (like the version found on playstore)
-sysconf_DATA = motd.sh motd-playstore
+sysconf_DATA = motd.sh motd motd-playstore
 
-CLEANFILES = motd.sh
+CLEANFILES = motd.sh motd
 
 
 do_subst = sed -e "s%[@]TERMUX_PREFIX[@]%$(termux_prefix)%g"
@@ -38,3 +38,34 @@ $1: $1.in Makefile
 endef
 
 $(eval $(call process-rule,motd.sh))
+
+
+motd:
+	@echo "Creating motd file"
+
+	@echo "Welcome to Termux!" > motd
+	@echo "" >> motd
+	@echo "Docs:       https://termux.dev/docs" >> motd
+	@echo "Donate:     https://termux.dev/donate" >> motd
+	@echo "Community:  https://termux.dev/community" >> motd
+
+	@echo "" >> motd
+	@echo "Working with packages:" >> motd
+	@echo "" >> motd
+	@echo " - Search:  pkg search <query>" >> motd
+	@echo " - Install: pkg install <package>" >> motd
+	@echo " - Upgrade: pkg upgrade" >> motd
+
+    ifeq ($(TERMUX_PACKAGE_MANAGER),apt)
+		@echo "" >> motd
+		@echo "Subscribing to additional repositories:" >> motd
+		@echo "" >> motd
+		@echo " - Root:    pkg install root-repo" >> motd
+		@echo " - X11:     pkg install x11-repo" >> motd
+		@echo "" >> motd
+		@echo "For fixing any repository issues," >> motd
+		@echo "try 'termux-change-repo' command." >> motd
+    endif
+
+	@echo "" >> motd
+	@echo "Report issues at https://termux.dev/issues" >> motd
