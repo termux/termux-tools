@@ -29,10 +29,12 @@ sysconf_DATA = motd.sh motd-playstore
 CLEANFILES = motd.sh
 
 
+do_subst = sed -e "s%[@]TERMUX_PREFIX[@]%$(termux_prefix)%g"
+
 define process-rule
 $1: $1.in Makefile
 	@echo "Creating $1"
-	@cat $(srcdir)/$1.in > $1
+	@$$(do_subst) < $(srcdir)/$1.in > $1
 endef
 
 $(eval $(call process-rule,motd.sh))
