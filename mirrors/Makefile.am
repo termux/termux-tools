@@ -2,8 +2,8 @@
 pkgdata_MIRRORS = default
 
 # Mirrors in Asia (excl. China and Russia)
-pkgdata_ASIA_MIRRORS = mirror.bardia.tech mirrors.cbrx.io	\
-packages.nscdn.top
+pkgdata_ASIA_MIRRORS = mirror.albony.xyz mirror.bardia.tech	\
+mirrors.cbrx.io packages.nscdn.top
 
 # Mirrors in China
 pkgdata_CHINA_MIRRORS = mirrors.tuna.tsinghua.edu.cn		\

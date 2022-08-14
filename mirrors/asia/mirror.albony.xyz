@@ -1,0 +1,6 @@
+# This file is sourced by pkg
+# Mirror by by Albonycal, hosted in India
+WEIGHT=1
+MAIN="https://mirror.albony.xyz/termux/termux-main"
+ROOT="https://mirror.albony.xyz/termux/termux-root"
+X11="https://mirror.albony.xyz/termux/termux-x11"
