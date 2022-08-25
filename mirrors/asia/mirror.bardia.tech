@@ -1,6 +1,6 @@
 # This file is sourced by pkg
 # Mirror by by Bardia Moshiri, hosted in Iran
 WEIGHT=1
-MAIN="https://mirror.bardia.tech/termux/termux-packages-24"
-ROOT="https://mirror.bardia.tech/termux/termux-root-packages-24"
-X11="https://mirror.bardia.tech/termux/x11-packages"
+MAIN="https://mirror.bardia.tech/termux/termux-main"
+ROOT="https://mirror.bardia.tech/termux/termux-root"
+X11="https://mirror.bardia.tech/termux/termux-x11"
