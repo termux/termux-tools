@@ -9,18 +9,19 @@ mirrors.cbrx.io packages.nscdn.top
 pkgdata_CHINA_MIRRORS = mirrors.tuna.tsinghua.edu.cn		\
 mirror.iscas.ac.cn mirrors.nju.edu.cn mirrors.pku.edu.cn	\
 mirrors.ustc.edu.cn mirrors.hit.edu.cn mirrors.bfsu.edu.cn	\
-mirrors.aliyun.com mirrors.cqupt.edu.cn mirrors.dgut.edu.cn	\
-mirror.nyist.edu.cn mirrors.njupt.edu.cn mirrors.sau.edu.cn	\
+mirrors.aliyun.com mirrors.cqupt.edu.cn mirrors.dgut.edu.cn \
+mirror.nyist.edu.cn mirrors.njupt.edu.cn mirrors.sau.edu.cn \
 mirrors.scau.edu.cn mirrors.sdu.edu.cn mirrors.sustech.edu.cn
 
 # Mirrors in Europe
-pkgdata_EUROPE_MIRRORS = termux.librehat.com mirror.mwt.me	\
-termux.mentality.rip mirrors.sahilister.in cdn.lumito.net	\
+pkgdata_EUROPE_MIRRORS = grimler.se termux.librehat.com mirror.mwt.me	\
+termux.mentality.rip mirrors.sahilister.in cdn.lumito.net \
 termux.astra.in.ua
 
 # Mirrors in North America
-pkgdata_NORTH_AMERICA_MIRRORS = plug-mirror.rcac.purdue.edu	\
-dl.kcubeterm.com mirrors.utermux.dev mirror.mwt.me
+pkgdata_NORTH_AMERICA_MIRRORS = packages.termux.dev			\
+plug-mirror.rcac.purdue.edu dl.kcubeterm.com mirrors.utermux.dev	\
+mirror.mwt.me
 
 # Mirrors in Russia
 pkgdata_RUSSIA_MIRRORS = mirror.mephi.ru mirror.surf
