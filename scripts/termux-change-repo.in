@@ -189,4 +189,4 @@ esac
 rm "$TEMPFILE"
 
 echo "[*] pkg --check-mirror update"
-pkg --check-mirror update
+TERMUX_APP_PACKAGE_MANAGER=apt pkg --check-mirror update
