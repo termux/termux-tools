@@ -24,8 +24,7 @@ termux-setup-package-manager termux-setup-storage termux-wake-lock	\
 termux-wake-unlock
 
 # wrappers around tools in /system/bin:
-bin_SCRIPTS += df getprop logcat mount ping ping6 pm settings top	\
-umount cmd
+bin_SCRIPTS += cmd df getprop logcat ping ping6 pm settings top
 
 CLEANFILES = $(bin_SCRIPTS)
 
