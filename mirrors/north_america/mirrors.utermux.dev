@@ -3,4 +3,4 @@
 WEIGHT=1
 MAIN="https://mirrors.utermux.dev/termux/termux-main"
 ROOT="https://mirrors.utermux.dev/termux/termux-root"
-X11="https://mirrors.utermux.dev/termux//termux-x11"
+X11="https://mirrors.utermux.dev/termux/termux-x11"
