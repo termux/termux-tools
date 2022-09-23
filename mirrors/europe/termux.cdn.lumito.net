@@ -1,0 +1,6 @@
+# This file is sourced by pkg
+# Mirror by Lumito, hosted in Germany
+WEIGHT=1
+MAIN="https://termux.cdn.lumito.net/termux-main"
+ROOT="https://termux.cdn.lumito.net/termux-root"
+X11="https://termux.cdn.lumito.net/termux-x11"
