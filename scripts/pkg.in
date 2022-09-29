@@ -353,7 +353,7 @@ case "$TERMUX_APP_PACKAGE_MANAGER" in
 			rei*) pacman -S "$@";;
 			se*) pacman -Sys "$@";;
 			un*|rem*|rm|del*) pacman -Rcns "$@";;
-                        up*) pacman -Sy "$@";;
+                        upd*) pacman -Sy "$@";;
 			upg*) pacman -Syu "$@";;
 			*) ERROR=true;;
 		esac;;
