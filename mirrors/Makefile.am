@@ -22,7 +22,7 @@ termux.astra.in.ua
 # Mirrors in North America
 pkgdata_NORTH_AMERICA_MIRRORS = packages.termux.dev			\
 plug-mirror.rcac.purdue.edu dl.kcubeterm.com mirrors.utermux.dev	\
-mirror.mwt.me
+mirror.mwt.me mirror.vern.cc
 
 # Mirrors in Russia
 pkgdata_RUSSIA_MIRRORS = mirror.mephi.ru mirror.surf
