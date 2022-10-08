@@ -1,0 +1,6 @@
+# This file is sourced by pkg
+# Mirror by Exosunandnet
+WEIGHT=1
+MAIN="https://termux.3san.dev/termux/termux-main"
+ROOT="https://termux.3san.dev/termux/termux-root"
+X11="https://termux.3san.dev/termux/termux-x11"
