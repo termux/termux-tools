@@ -1,0 +1,6 @@
+# This file is sourced by pkg
+# Mirror by Computer Science Club of the University of Waterloo
+WEIGHT=1
+MAIN="https://mirror.csclub.uwaterloo.ca/termux/termux-main"
+ROOT="https://mirror.csclub.uwaterloo.ca/termux/termux-root"
+X11="https://mirror.csclub.uwaterloo.ca/termux/termux-x11"
