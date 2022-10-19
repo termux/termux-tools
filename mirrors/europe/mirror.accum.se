@@ -1,0 +1,6 @@
+# This file is sourced by pkg
+# Mirror by the Academic Computer Club in Umeå, Hosted in Sweden
+WEIGHT=1
+MAIN="https://mirror.accum.se/mirror/termux.dev/termux-main"
+ROOT="https://mirror.accum.se/mirror/termux.dev/termux-root"
+X11="https://mirror.accum.se/mirror/termux.dev/termux-x11"
