@@ -106,6 +106,14 @@ get_mirror_weight() {
 }
 
 select_mirror() {
+	local current_mirror
+	current_mirror=$(grep -m 1 -P "^\s*deb\s+" @TERMUX_PREFIX@/etc/apt/sources.list | grep -oP 'https?://[^\s]+')
+
+	# Do not update mirror if $TERMUX_PKG_NO_MIRROR_SELECT was set.
+	if [ -n "${TERMUX_PKG_NO_MIRROR_SELECT-}" ] && [ -n "$current_mirror" ]; then
+		return
+	fi
+
 	local default_repo="${MIRROR_BASE_DIR}/default"
 
 	if [ -d "@TERMUX_PREFIX@/etc/termux/chosen_mirrors" ]; then
@@ -122,14 +130,6 @@ select_mirror() {
 		echo "No mirror or mirror group selected. You might want to select one by running 'termux-change-repo'"
 		mirrors=("${MIRROR_BASE_DIR}/default")
 		mirrors+=($(find ${MIRROR_BASE_DIR}/{asia,china,europe,north_america,russia}/ -type f ! -name "*\.dpkg-old" ! -name "*\.dpkg-new" ! -name "*~"))
-	fi
-
-	local current_mirror
-	current_mirror=$(grep -m 1 -P "^\s*deb\s+" @TERMUX_PREFIX@/etc/apt/sources.list | grep -oP 'https?://[^\s]+')
-
-	# Do not update mirror if $TERMUX_PKG_NO_MIRROR_SELECT was set.
-	if [ -n "${TERMUX_PKG_NO_MIRROR_SELECT-}" ] && [ -n "$current_mirror" ]; then
-		return
 	fi
 
 	# Mirrors are rotated if 6 hours timeout has been passed or mirror is no longer accessible.
