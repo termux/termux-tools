@@ -338,7 +338,7 @@ case "$TERMUX_APP_PACKAGE_MANAGER" in
 			se*) select_mirror; update_apt_cache; apt search "$@";;
 			un*|rem*|rm|del*) apt remove "$@";;
                         upd*) select_mirror; apt update;;
-			upg*) select_mirror; apt update; apt full-upgrade "$@";;
+			up|upg*) select_mirror; apt update; apt full-upgrade "$@";;
 			*) ERROR=true;;
 		esac;;
 	pacman)
@@ -354,7 +354,7 @@ case "$TERMUX_APP_PACKAGE_MANAGER" in
 			se*) pacman -Sys "$@";;
 			un*|rem*|rm|del*) pacman -Rcns "$@";;
                         upd*) pacman -Sy "$@";;
-			upg*) pacman -Syu "$@";;
+			up|upg*) pacman -Syu "$@";;
 			*) ERROR=true;;
 		esac;;
 esac
