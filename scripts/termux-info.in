@@ -62,7 +62,8 @@ repo_subscriptions_pacman() {
 	if [[ -f $conf ]]; then
 		echo "# $conf"
 		for i in $(pacman-conf -l); do
-			pacman-conf | grep "$i"
+			echo "[$i]"
+			pacman-conf -r "$i"
 		done
 	else
 		echo "$conf file not found"
