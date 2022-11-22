@@ -1,0 +1,6 @@
+# This file is sourced by pkg
+# Geo-based mirror selection with mirrorbits
+WEIGHT=1
+MAIN="https://mirror.termux.dev/termux-main"
+ROOT="https://mirror.termux.dev/termux-root"
+X11="https://mirror.termux.dev/termux-x11"
