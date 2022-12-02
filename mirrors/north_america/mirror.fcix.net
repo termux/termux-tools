@@ -1,0 +1,6 @@
+# This file is sourced by pkg
+# Mirror by Fremont Cabal Internet Exchange
+WEIGHT=1
+MAIN="https://mirror.fcix.net/termux/termux-main"
+ROOT="https://mirror.fcix.net/termux/termux-root"
+X11="https://mirror.fcix.net/termux/termux-x11"
