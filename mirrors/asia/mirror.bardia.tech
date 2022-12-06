@@ -1,5 +1,5 @@
 # This file is sourced by pkg
-# Mirror by by Bardia Moshiri, hosted in Iran
+# Mirror by Bardia Moshiri, hosted in Iran
 WEIGHT=1
 MAIN="https://mirror.bardia.tech/termux/termux-main"
 ROOT="https://mirror.bardia.tech/termux/termux-root"
