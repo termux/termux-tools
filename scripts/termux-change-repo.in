@@ -96,7 +96,7 @@ select_individual_mirror() {
     # Choose default mirror per default
     MIRRORS=("$(get_mirror_url "${MIRROR_BASE_DIR}/default")" "$(get_mirror_description "${MIRROR_BASE_DIR}/default")" "on")
     # Special handling of packages.termux.dev mirror to put it on top:
-    MIRRORS+=("$(get_mirror_url "${MIRROR_BASE_DIR}/north_america/packages.termux.dev")" "$(get_mirror_description "${MIRROR_BASE_DIR}/north_america/packages.termux.dev")" "off")
+    MIRRORS+=("$(get_mirror_url "${MIRROR_BASE_DIR}/europe/packages.termux.dev")" "$(get_mirror_description "${MIRROR_BASE_DIR}/europe/packages.termux.dev")" "off")
     for mirror in ${mirrors[@]}; do
         mirror_url=$(get_mirror_url "$mirror")
         if [ "$mirror_url" == "packages.termux.dev" ]; then continue; fi
