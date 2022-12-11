@@ -15,7 +15,7 @@ mirror.nyist.edu.cn mirrors.njupt.edu.cn mirrors.sau.edu.cn	\
 mirrors.scau.edu.cn mirrors.sdu.edu.cn mirrors.sustech.edu.cn
 
 # Mirrors in Europe
-pkgdata_EUROPE_MIRRORS = grimler.se mirror.termux.dv			\
+pkgdata_EUROPE_MIRRORS = grimler.se mirror.termux.dev			\
 packages.termux.dev termux.librehat.com mirror.mwt.me			\
 termux.mentality.rip mirrors.sahilister.in termux.cdn.lumito.net	\
 termux.astra.in.ua termux.3san.dev mirror.accum.se
