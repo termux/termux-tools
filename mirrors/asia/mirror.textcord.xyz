@@ -1,0 +1,6 @@
+# This file is sourced by pkg
+# Mirror by Dev-Nergis, hosted in Republic of Korea
+WEIGHT=1
+MAIN="https://mirror.textcord.xyz/termux/termux-main"
+ROOT="https://mirror.textcord.xyz/termux/termux-root"
+X11="https://mirror.textcord.xyz/termux/termux-x11"
