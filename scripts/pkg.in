@@ -1,6 +1,12 @@
 #!/bin/bash
 set -eu
 
+# Root Check
+if [[ "$(id -u)" == "0" ]]; then
+	echo "Error: Cannot run 'pkg' command as root"
+	exit 1
+fi
+
 # Setup TERMUX_APP_PACKAGE_MANAGER
 source "@TERMUX_PREFIX@/bin/termux-setup-package-manager" || exit 1
 
