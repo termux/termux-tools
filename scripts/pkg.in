@@ -18,16 +18,17 @@ show_help() {
 
 	echo 'Usage: pkg [--check-mirror] command [arguments]'
 	echo
-	echo 'A tool for managing packages.'
+	echo "A tool for managing $TERMUX_APP_PACKAGE_MANAGER packages."
 	echo '  --check-mirror forces a re-check of availability of mirrors'
 	echo
 	echo 'Commands:'
 	echo
-	echo '  autoclean            - Remove all outdated packages from .deb package'
+	echo "  autoclean            - Remove all outdated packages from $TERMUX_APP_PACKAGE_MANAGER"
 	echo '                         cache.'
 	echo
-	echo '  clean                - Remove all packages from .deb package cache.'
-	[ -n "$cache_size" ] && echo "                         Using $cache_size now."
+	echo "  clean                - Remove all packages from $TERMUX_APP_PACKAGE_MANAGER cache."
+	[ -n "$cache_size" ] &&
+	echo "                         Using $cache_size now."
 	echo
 	echo '  files <packages>     - Show all files installed by packages.'
 	echo
@@ -50,6 +51,9 @@ show_help() {
 	echo
 	echo '  upgrade              - Upgrade all installed packages to the latest'
 	echo '                         version.'
+	echo
+	echo "  update               - Update $TERMUX_APP_PACKAGE_MANAGER databases from configured"
+	echo '                         repositories.'
 	echo
 	exit 1
 }
