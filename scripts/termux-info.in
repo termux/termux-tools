@@ -114,8 +114,9 @@ Device manufacturer:
 $(getprop ro.product.manufacturer)
 Device model:
 $(getprop ro.product.model)
-LD_LIBRARY_PATH variables:
-$LD_LIBRARY_PATH"
+LD Variables:
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH
+LD_PRELOAD=$LD_PRELOAD"
 echo "$output"
 
 if [ -n "$(command -v termux-clipboard-set)" ]; then
