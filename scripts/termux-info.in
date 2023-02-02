@@ -113,7 +113,9 @@ $(uname -a)
 Device manufacturer:
 $(getprop ro.product.manufacturer)
 Device model:
-$(getprop ro.product.model)"
+$(getprop ro.product.model)
+LD_LIBRARY_PATH variables:
+$LD_LIBRARY_PATH"
 echo "$output"
 
 if [ -n "$(command -v termux-clipboard-set)" ]; then
