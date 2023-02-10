@@ -1,0 +1,6 @@
+# This file is sourced by pkg
+# Mirror by wale, hosted in Sydney
+WEIGHT=1
+MAIN="https://mirrors.wale.id.au/termux/termux-main"
+ROOT="https://mirrors.wale.id.au/termux/termux-root"
+X11="https://mirrors.wale.id.au/termux/termux-x11"
