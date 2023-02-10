@@ -135,11 +135,11 @@ select_mirror() {
 	elif [ -L "@TERMUX_PREFIX@/etc/termux/chosen_mirrors" ]; then
 		# Broken symlink, use all mirrors
 		mirrors=("${MIRROR_BASE_DIR}/default")
-		mirrors+=($(find ${MIRROR_BASE_DIR}/{asia,china,europe,north_america,russia}/ -type f ! -name "*\.dpkg-old" ! -name "*\.dpkg-new" ! -name "*~"))
+		mirrors+=($(find ${MIRROR_BASE_DIR}/{asia,china,europe,north_america,oceania,russia}/ -type f ! -name "*\.dpkg-old" ! -name "*\.dpkg-new" ! -name "*~"))
 	else
 		echo "No mirror or mirror group selected. You might want to select one by running 'termux-change-repo'"
 		mirrors=("${MIRROR_BASE_DIR}/default")
-		mirrors+=($(find ${MIRROR_BASE_DIR}/{asia,china,europe,north_america,russia}/ -type f ! -name "*\.dpkg-old" ! -name "*\.dpkg-new" ! -name "*~"))
+		mirrors+=($(find ${MIRROR_BASE_DIR}/{asia,china,europe,north_america,oceania,russia}/ -type f ! -name "*\.dpkg-old" ! -name "*\.dpkg-new" ! -name "*~"))
 	fi
 
 	# Mirrors are rotated if 6 hours timeout has been passed or mirror is no longer accessible.
