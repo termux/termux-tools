@@ -147,7 +147,7 @@ if [ $# -gt 0 ]; then
 fi
 
 if ! command -v apt 1>/dev/null; then
-    echo "Error: Cannot change mirrors since apt is not installed." > /dev/stderr
+    echo "Error: Cannot change mirrors since apt is not installed." >&2
     exit 1
 fi
 
