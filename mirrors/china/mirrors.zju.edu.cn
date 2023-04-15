@@ -1,0 +1,6 @@
+# This file is sourced by pkg
+# Mirror by Information Technology Center, Zhejiang University
+WEIGHT=1
+MAIN="https://mirrors.zju.edu.cn/termux/apt/termux-main"
+ROOT="https://mirrors.zju.edu.cn/termux/apt/termux-root"
+X11="https://mirrors.zju.edu.cn/termux/apt/termux-x11"
