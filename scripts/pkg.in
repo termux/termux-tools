@@ -117,7 +117,7 @@ get_mirror_weight() {
 
 select_mirror() {
 	local current_mirror
-	current_mirror=$(grep -m 1 -P "^\s*deb\s+" @TERMUX_PREFIX@/etc/apt/sources.list | grep -oP 'https?://[^\s]+')
+	current_mirror=$(grep -oP 'https?://[^\s]+' <(grep -m 1 -P "^\s*deb\s+" /data/data/com.termux/files/usr/etc/apt/sources.list) || true)
 
 	# Do not update mirror if $TERMUX_PKG_NO_MIRROR_SELECT was set.
 	if [ -n "${TERMUX_PKG_NO_MIRROR_SELECT-}" ] && [ -n "$current_mirror" ]; then
@@ -289,7 +289,7 @@ select_mirror() {
 
 update_apt_cache() {
 	local current_host
-	current_host=$(sed -nE -e 's|^\s*deb\s+https?://(.+)\s+stable\s+main$|\1|p' @TERMUX_PREFIX@/etc/apt/sources.list | head -n 1)
+	current_host=$(head -n 1 <(sed -nE -e 's|^\s*deb\s+https?://(.+)\s+stable\s+main$|\1|p' @TERMUX_PREFIX@/etc/apt/sources.list) || true)
 
 	if [ -z "$current_host" ]; then
 		# No primary repositories configured?
