@@ -117,7 +117,7 @@ get_mirror_weight() {
 
 select_mirror() {
 	local current_mirror
-	current_mirror=$(grep -oP 'https?://[^\s]+' <(grep -m 1 -P "^\s*deb\s+" /data/data/com.termux/files/usr/etc/apt/sources.list) || true)
+	current_mirror=$(grep -oP 'https?://[^\s]+' <(grep -m 1 -P "^\s*deb\s+" @TERMUX_PREFIX@/etc/apt/sources.list) || true)
 
 	# Do not update mirror if $TERMUX_PKG_NO_MIRROR_SELECT was set.
 	if [ -n "${TERMUX_PKG_NO_MIRROR_SELECT-}" ] && [ -n "$current_mirror" ]; then
