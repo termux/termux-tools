@@ -25,7 +25,7 @@ md.mirrors.hacktegic.com ftp.fau.de
 # Mirrors in North America
 pkgdata_NORTH_AMERICA_MIRRORS = plug-mirror.rcac.purdue.edu		\
 dl.kcubeterm.com mirrors.utermux.dev mirror.fcix.net mirror.mwt.me	\
-mirror.vern.cc mirror.csclub.uwaterloo.ca
+mirror.vern.cc mirror.csclub.uwaterloo.ca mirror.quantum5.ca
 
 # Mirrors in Oceania
 pkgdata_OCEANIA_MIRRORS = mirrors.wale.id.au
