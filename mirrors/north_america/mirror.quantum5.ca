@@ -1,0 +1,6 @@
+# This file is sourced by pkg
+# Mirror by quantum5
+WEIGHT=1
+MAIN="https://mirror.quantum5.ca/termux/termux-main"
+ROOT="https://mirror.quantum5.ca/termux/termux-root"
+X11="https://mirror.quantum5.ca/termux/termux-x11"
