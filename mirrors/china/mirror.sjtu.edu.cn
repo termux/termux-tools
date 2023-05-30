@@ -1,0 +1,6 @@
+# This file is sourced by pkg
+# Mirror by SJTUG, Shanghai Jiao Tong University
+WEIGHT=1
+MAIN="https://mirror.sjtu.edu.cn/termux/termux-main/"
+ROOT="https://mirror.sjtu.edu.cn/termux/termux-root/"
+X11="https://mirror.sjtu.edu.cn/termux/termux-x11/"
