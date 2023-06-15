@@ -1,9 +1,9 @@
 #!/bin/sh
 
-if [ $# != 1 ]; then
-	echo 'usage: termux-open-url <url>'
+if [ $# != 1 ] && [ $# != 2 ]; then
+	echo 'usage: termux-open-url <url> [app_package_or_component]'
 	echo 'Open an URL for viewing.'
 	exit 1
 fi
 
-am start --user 0 -a android.intent.action.VIEW -d "$1" > /dev/null
+am start --user 0 -a android.intent.action.VIEW -d "$@" > /dev/null
