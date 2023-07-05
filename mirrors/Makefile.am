@@ -20,7 +20,8 @@ pkgdata_EUROPE_MIRRORS = grimler.se mirror.termux.dev			\
 packages.termux.dev termux.librehat.com mirror.mwt.me			\
 termux.mentality.rip mirrors.sahilister.in termux.cdn.lumito.net	\
 termux.astra.in.ua termux.3san.dev mirror.accum.se                      \
-md.mirrors.hacktegic.com ftp.fau.de is.mirror.flokinet.net
+md.mirrors.hacktegic.com ftp.fau.de is.mirror.flokinet.net              \
+ro.mirror.flokinet.net
 
 # Mirrors in North America
 pkgdata_NORTH_AMERICA_MIRRORS = plug-mirror.rcac.purdue.edu		\
