@@ -1,0 +1,6 @@
+# This file is sourced by pkg
+# Mirror by M3DZIK, Hosted in Frankfurt, Germany.
+WEIGHT=1
+MAIN="https://mirrors.medzik.dev/termux/termux-main"
+ROOT="https://mirrors.medzik.dev/termux/termux-root"
+X11="https://mirrors.medzik.dev/termux/termux-x11"
