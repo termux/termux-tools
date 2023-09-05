@@ -27,7 +27,6 @@ select_repository_group() {
     MIRRORS+=("Mirrors in China" "All in China" "off")
     MIRRORS+=("Mirrors in Europe" "All in Europe" "off")
     MIRRORS+=("Mirrors in North America" "All in North America" "off")
-    MIRRORS+=("Mirrors in Oceania" "All in Oceania" "off")
     MIRRORS+=("Mirrors in Russia" "All in Russia" "off")
 
     local TEMPFILE="$(mktemp @TERMUX_PREFIX@/tmp/mirror.XXXXXX)"
@@ -69,10 +68,6 @@ select_repository_group() {
         echo "[*] Mirrors in North America selected"
         unlink_and_link ${MIRROR_BASE_DIR}/north_america
 
-    elif [ "$mirror_group" == "Mirrors in Oceania" ]; then
-        echo "[*] Mirrors in Oceania selected"
-        unlink_and_link ${MIRROR_BASE_DIR}/oceania
-
     elif [ "$mirror_group" == "Mirrors in Russia" ]; then
         echo "[*] Mirrors in Russia selected"
         unlink_and_link ${MIRROR_BASE_DIR}/russia
@@ -96,7 +91,7 @@ get_mirror_description() {
 }
 
 select_individual_mirror() {
-    mirrors=($(find ${MIRROR_BASE_DIR}/{asia,china,europe,north_america,oceania,russia}/ -type f ! -name "*\.dpkg-old" ! -name "*\.dpkg-new" ! -name "*~"))
+    mirrors=($(find ${MIRROR_BASE_DIR}/{asia,china,europe,north_america,russia}/ -type f ! -name "*\.dpkg-old" ! -name "*\.dpkg-new" ! -name "*~"))
 
     # Choose default mirror per default
     MIRRORS=("$(get_mirror_url "${MIRROR_BASE_DIR}/default")" "$(get_mirror_description "${MIRROR_BASE_DIR}/default")" "on")
