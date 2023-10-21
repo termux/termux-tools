@@ -131,6 +131,9 @@ else
 	fi
 fi
 
+msg "Ensure that directories are accessible..."
+find "@TERMUX_BASE_DIR@/usr" -type d -print0 | xargs -0 -r chmod u+rx || true
+
 msg "Backing up installed packages..."
 tar --warning=no-file-ignored $TAR_EXTRA_OPTS -c \
 	-f "$BACKUP_FILE_PATH" -C "@TERMUX_BASE_DIR@" ./usr
