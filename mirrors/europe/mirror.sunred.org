@@ -1,0 +1,6 @@
+# This file is sourced by pkg
+# Mirror by SunRed, hosted in Falkenstein, Germany.
+WEIGHT=1
+MAIN="https://mirror.sunred.org/termux/termux-main"
+ROOT="https://mirror.sunred.org/termux/termux-root"
+X11="https://mirror.sunred.org/termux/termux-x11"
