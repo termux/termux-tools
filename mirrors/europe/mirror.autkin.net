@@ -1,0 +1,6 @@
+# This file is sourced by pkg
+# Mirror by Andriy Utkin, hosted in Cambridge, UK, updated nightly
+WEIGHT=1
+MAIN="https://mirror.autkin.net/termux/termux-main"
+ROOT="https://mirror.autkin.net/termux/termux-root"
+X11="https://mirror.autkin.net/termux/termux-x11"
