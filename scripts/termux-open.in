@@ -40,6 +40,27 @@ if [ -f "$FILE" ]; then
 	FILE=$(realpath "$FILE")
 fi
 
+urlencode() {
+  string="$1"
+  length=$(echo "$string" | wc -c)
+  length=$((length - 1))
+  encoded=""
+
+  i=1
+  while [ "$i" -le "$length" ]; do
+    char=$(echo "$string" | cut -c "$i")
+    case "$char" in
+      [a-zA-Z0-9.~_-]) encoded="$encoded$char";;
+      *) encoded="$encoded%$(printf "%02X" "'$char")";;
+    esac
+    i=$((i + 1))
+  done
+
+  echo "$encoded"
+}
+
+FILE=$(urlencode "$FILE")
+
 am broadcast --user 0 \
 	-a $ACTION \
 	-n com.termux/com.termux.app.TermuxOpenReceiver \
