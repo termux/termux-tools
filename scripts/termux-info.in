@@ -73,6 +73,8 @@ repo_subscriptions_pacman() {
 # Setup TERMUX_APP_PACKAGE_MANAGER
 source "@TERMUX_PREFIX@/bin/termux-setup-package-manager" || exit 1
 
+case "$TERMUX__USER_ID" in ''|*[!0-9]*|0[0-9]*) TERMUX__USER_ID=0;; esac
+
 output=""
 
 if [ -n "$TERMUX_VERSION" ]; then
@@ -124,7 +126,7 @@ sdk_version="$(getprop ro.build.version.sdk || :)"
 if [[ "$sdk_version" =~ ^[0-9]+$ ]] && [ "$sdk_version" -ge "26" ]; then
   show_version_code="--show-versioncode"
 fi
-TERMUX_PLUGINS="$(pm list packages --user "${TERMUX__USER_ID:-0}" $show_version_code 2>&1 </dev/null | grep -E "^package:$escaped_package_name\.[a-zA-Z]" | cut -d ":" -f 2- | grep -vE "^$escaped_package_name\.tapm\.[a-zA-Z]")"
+TERMUX_PLUGINS="$(pm list packages --user "$TERMUX__USER_ID" $show_version_code 2>&1 </dev/null | grep -E "^package:$escaped_package_name\.[a-zA-Z]" | cut -d ":" -f 2- | grep -vE "^$escaped_package_name\.tapm\.[a-zA-Z]")"
 if [ -n "$TERMUX_PLUGINS" ]; then
 	        output+="$(printf "\nInstalled termux plugins:\n${TERMUX_PLUGINS}\n")"
 fi
