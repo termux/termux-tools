@@ -53,7 +53,7 @@ $1: Makefile
 	@echo 'unset LD_LIBRARY_PATH LD_PRELOAD' >> $1
 # Some tools require having /system/bin/app_process in the PATH,
 # at least am&pm on a Nexus 6p running Android 6.0
-	@echo -n 'PATH=$$$$PATH:/system/bin ' >> $1
+	@echo -n 'PATH=/system/bin ' >> $1
 	@echo "exec /system/bin/$1 \"\$$$$@\"" >> $1
 	@chmod u+x $1
 endef
