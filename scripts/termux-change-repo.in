@@ -157,6 +157,8 @@ if [ "$TERMUX_APP_PACKAGE_MANAGER" = "pacman" ]; then
     [[ ${REPLY} =~ ^[Nn]$ ]] && exit
 fi
 
+mkdir -p "@TERMUX_PREFIX@/tmp" || exit $?
+
 TEMPFILE="$(mktemp @TERMUX_PREFIX@/tmp/termux-change-repo.XXXXXX)"
 
 MODES=()
