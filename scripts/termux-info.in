@@ -1,9 +1,24 @@
 #!/bin/bash
 
-if [ "$#" != "0" ]; then
+NO_SET_CLIPBOARD=0
+
+show_usage () {
 	echo 'usage: termux-info'
 	echo 'Provides information about Termux, and the current system. Helpful for debugging.'
-	exit
+	exit 0
+
+}
+
+while [ $# -ge 1 ]; do
+	case "$1" in
+		--no-set-clipboard) NO_SET_CLIPBOARD="1"; shift;;
+		-h | --help) show_usage;;
+		*) break;;
+	esac
+done
+
+if [ "$#" != "0" ]; then
+	show_usage
 fi
 
 updates() {
@@ -133,7 +148,7 @@ if [ -n "${TERMUX_PLUGINS:-}" ]; then
 fi
 echo "$output"
 
-if [ -n "$(command -v termux-clipboard-set)" ]; then
+if [ "$NO_SET_CLIPBOARD" != "1" ] && [ -n "$(command -v termux-clipboard-set)" ]; then
 	# Copy to clipboard (requires termux-api)
 	# use timeout in case termux-api is installed but the termux:api app is missing
 	echo "$output" | timeout 3 termux-clipboard-set 2>/dev/null
