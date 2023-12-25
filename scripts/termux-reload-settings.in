@@ -9,6 +9,6 @@ if [ "$#" != "0" ]; then
 	exit
 fi
 
-case "$TERMUX__USER_ID" in ''|*[!0-9]*|0[0-9]*) TERMUX__USER_ID=0;; esac
+case "${TERMUX__USER_ID:-}" in ''|*[!0-9]*|0[0-9]*) TERMUX__USER_ID=0;; esac
 
 am broadcast --user "$TERMUX__USER_ID" -a com.termux.app.reload_style com.termux > /dev/null

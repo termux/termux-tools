@@ -24,7 +24,7 @@ if [ -d "@TERMUX_HOME@/storage" ]; then
 	fi
 fi
 
-case "$TERMUX__USER_ID" in ''|*[!0-9]*|0[0-9]*) TERMUX__USER_ID=0;; esac
+case "${TERMUX__USER_ID:-}" in ''|*[!0-9]*|0[0-9]*) TERMUX__USER_ID=0;; esac
 
 am broadcast --user "$TERMUX__USER_ID" \
 		 --es com.termux.app.reload_style storage \

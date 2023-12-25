@@ -73,11 +73,12 @@ repo_subscriptions_pacman() {
 # Setup TERMUX_APP_PACKAGE_MANAGER
 source "@TERMUX_PREFIX@/bin/termux-setup-package-manager" || exit 1
 
-case "$TERMUX__USER_ID" in ''|*[!0-9]*|0[0-9]*) TERMUX__USER_ID=0;; esac
+case "${TERMUX__USER_ID:-}" in ''|*[!0-9]*|0[0-9]*) TERMUX__USER_ID=0;; esac
+export TERMUX__USER_ID
 
 output=""
 
-if [ -n "$TERMUX_VERSION" ]; then
+if [ -n "${TERMUX_VERSION:-}" ]; then
 # Application version is exported in Termux v0.107 or higher only.
 output+="Termux Variables:
 $(compgen -e TERMUX_ | while read v; do echo "${v}=${!v}"; done)
@@ -127,7 +128,7 @@ if [[ "$sdk_version" =~ ^[0-9]+$ ]] && [ "$sdk_version" -ge "26" ]; then
   show_version_code="--show-versioncode"
 fi
 TERMUX_PLUGINS="$(pm list packages --user "$TERMUX__USER_ID" $show_version_code 2>&1 </dev/null | grep -E "^package:$escaped_package_name\.[a-zA-Z]" | cut -d ":" -f 2- | grep -vE "^$escaped_package_name\.tapm\.[a-zA-Z]")"
-if [ -n "$TERMUX_PLUGINS" ]; then
+if [ -n "${TERMUX_PLUGINS:-}" ]; then
 	        output+="$(printf "\nInstalled termux plugins:\n${TERMUX_PLUGINS}\n")"
 fi
 echo "$output"
