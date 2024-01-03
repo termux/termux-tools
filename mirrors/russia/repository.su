@@ -1,0 +1,6 @@
+# This file is sourced by pkg
+# Mirror by dmitry
+WEIGHT=1
+MAIN="https://repository.su/termux/termux-main/"
+ROOT="https://repository.su/termux/termux-root/"
+X11="https://repository.su/termux/termux-x11/"
