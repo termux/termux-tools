@@ -33,7 +33,7 @@ mirror.vern.cc mirror.csclub.uwaterloo.ca mirror.quantum5.ca
 pkgdata_SOUTH_AMERICA_MIRRORS = mirrors.rda.run
 
 # Mirrors in Russia
-pkgdata_RUSSIA_MIRRORS = mirror.mephi.ru mirror.surf
+pkgdata_RUSSIA_MIRRORS = mirror.mephi.ru repository.su
 
 define install-mirror-rule
 install-$1:
