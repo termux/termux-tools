@@ -29,6 +29,9 @@ pkgdata_NORTH_AMERICA_MIRRORS = plug-mirror.rcac.purdue.edu		\
 dl.kcubeterm.com mirrors.utermux.dev mirror.fcix.net mirror.mwt.me	\
 mirror.vern.cc mirror.csclub.uwaterloo.ca mirror.quantum5.ca
 
+# Mirrors in Oceania
+pkgdata_OCEANIA_MIRRORS = mirror.endianness.com
+
 # Mirrors in South America
 pkgdata_SOUTH_AMERICA_MIRRORS = mirrors.rda.run
 
@@ -56,6 +59,7 @@ $(eval $(call install-mirror-rule,asia,ASIA))
 $(eval $(call install-mirror-rule,china,CHINA))
 $(eval $(call install-mirror-rule,europe,EUROPE))
 $(eval $(call install-mirror-rule,north_america,NORTH_AMERICA))
+$(eval $(call install-mirror-rule,oceania,OCEANIA))
 $(eval $(call install-mirror-rule,south_america,SOUTH_AMERICA))
 $(eval $(call install-mirror-rule,russia,RUSSIA))
 
@@ -63,6 +67,7 @@ $(eval $(call uninstall-mirror-rule,asia,ASIA))
 $(eval $(call uninstall-mirror-rule,china,CHINA))
 $(eval $(call uninstall-mirror-rule,europe,EUROPE))
 $(eval $(call uninstall-mirror-rule,north_america,NORTH_AMERICA))
+$(eval $(call uninstall-mirror-rule,oceania,OCEANIA))
 $(eval $(call uninstall-mirror-rule,south_america,SOUTH_AMERICA))
 $(eval $(call uninstall-mirror-rule,russia,RUSSIA))
 
@@ -79,10 +84,11 @@ uninstall-default:
 	done
 	-rmdir $(DESTDIR)$(sysconfdir)/termux/mirrors
 
-install-data-local: install-default install-asia install-china install-europe install-north_america install-south_america install-russia
+install-data-local: install-default install-asia install-china install-europe install-north_america install-oceania install-south_america install-russia
 
-uninstall-local: uninstall-default uninstall-asia uninstall-china uninstall-europe uninstall-north_america uninstall-south_america uninstall-russia
+uninstall-local: uninstall-default uninstall-asia uninstall-china uninstall-europe uninstall-north_america uninstall-oceania uninstall-south_america uninstall-russia
 
-EXTRA_DIST = $(pkgdata_MIRRORS) $(pkgdata_ASIA_MIRRORS)	\
-$(pkgdata_CHINA_MIRRORS) $(pkgdata_EUROPE_MIRRORS)	\
-$(pkgdata_NORTH_AMERICA_MIRRORS) $(pkgdata_SOUTH_AMERICA_MIRRORS) 
+EXTRA_DIST = $(pkgdata_MIRRORS) $(pkgdata_ASIA_MIRRORS)		\
+$(pkgdata_CHINA_MIRRORS) $(pkgdata_EUROPE_MIRRORS)		\
+$(pkgdata_NORTH_AMERICA_MIRRORS) $(pkgdata_OCEANIA_MIRRORS)	\
+$(pkgdata_SOUTH_AMERICA_MIRRORS)
