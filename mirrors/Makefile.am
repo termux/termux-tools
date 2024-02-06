@@ -3,8 +3,8 @@ pkgdata_MIRRORS = default
 
 # Mirrors in Asia (excl. China and Russia)
 pkgdata_ASIA_MIRRORS = mirror.albony.xyz mirror.bardia.tech	\
-mirrors.cbrx.io linux.domainesia.com         \
-mirror.nevacloud.com mirror.textcord.xyz
+mirrors.cbrx.io linux.domainesia.com mirror.nevacloud.com	\
+mirror.textcord.xyz tmx.xvx.my.id
 
 # Mirrors in China
 pkgdata_CHINA_MIRRORS = mirrors.tuna.tsinghua.edu.cn		\
