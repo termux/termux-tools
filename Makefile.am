@@ -59,6 +59,7 @@ create-deb-control-files:
 	for f in $(CONFFILES); do \
 		printf "%s\n" "$$f" >> conffiles; \
 	done
+	printf "#!%s/bin/bash\n\n" "${termux_prefix}" > preinst
 
 
 

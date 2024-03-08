@@ -38,6 +38,28 @@ pkgdata_SOUTH_AMERICA_MIRRORS = mirrors.rda.run
 # Mirrors in Russia
 pkgdata_RUSSIA_MIRRORS = mirror.mephi.ru repository.su
 
+
+# Removed, renamed or moved mirrors
+# Mirrors files are marked as conffiles and they are manually deleted
+# in preinst step of package upgrade as conffiles removed in a newer
+# version of the package are only deleted if package is purged and
+# would otherwise be left as is after package upgrades and would still
+# get used during mirror selection.
+pkgdata_MIRRORS_REMOVED = \
+asia/packages.nscdn.top \
+china/mirrors.dgut.edu.cn \
+china/mirrors.hit.edu.cn \
+china/mirrors.njupt.edu.cn \
+china/mirrors.scau.edu.cn \
+europe/cdn.lumito.net \
+europe/mirror.termux.dv \
+europe/termux.sahilister.in \
+north_america/packages.termux.dev \
+oceania/mirrors.wale.id.au \
+russia/mirror.surf
+
+
+
 define install-mirror-rule
 install-$1:
 	$$(MKDIR_P) $$(DESTDIR)$$(sysconfdir)/termux/mirrors/$1
@@ -71,6 +93,8 @@ $(eval $(call uninstall-mirror-rule,oceania,OCEANIA))
 $(eval $(call uninstall-mirror-rule,south_america,SOUTH_AMERICA))
 $(eval $(call uninstall-mirror-rule,russia,RUSSIA))
 
+
+
 install-default: $(pkgdata_MIRRORS)
 	$(MKDIR_P) $(DESTDIR)$(sysconfdir)/termux/mirrors
 	for f in $(pkgdata_MIRRORS); do \
@@ -84,15 +108,24 @@ uninstall-default:
 	done
 	-rmdir $(DESTDIR)$(sysconfdir)/termux/mirrors
 
-install-data-local: install-default install-asia install-china install-europe install-north_america install-oceania install-south_america install-russia
+
+
+uninstall-removed-mirrors:
+	for f in $(pkgdata_MIRRORS_REMOVED); do \
+		rm -f $(DESTDIR)$(sysconfdir)/termux/mirrors/$$f; \
+	done
+
+
+
 create-deb-control-files:
 	sh -c "cd $$(dirname $(DESTDIR)$(sysconfdir)); find $$(basename $(DESTDIR)$(sysconfdir))/termux/mirrors -type f" >> ../conffiles;
+	printf "# Delete removed mirrors\nfor f in %s; do\n    if test -f \"%s/etc/termux/mirrors/\$$f\"; then\n        echo \"Deleting removed mirror: \$$f\"; rm -f \"%s/etc/termux/mirrors/\$$f\";\n    fi\ndone" "$(pkgdata_MIRRORS_REMOVED)" "$(termux_prefix)" "$(termux_prefix)" >> ../preinst;
 
 
 
-install-data-local: install-default install-asia install-china install-europe install-north_america install-oceania install-south_america install-russia create-deb-control-files
+install-data-local: uninstall-removed-mirrors install-default install-asia install-china install-europe install-north_america install-oceania install-south_america install-russia create-deb-control-files
 
-uninstall-local: uninstall-default uninstall-asia uninstall-china uninstall-europe uninstall-north_america uninstall-oceania uninstall-south_america uninstall-russia
+uninstall-local: uninstall-removed-mirrors uninstall-default uninstall-asia uninstall-china uninstall-europe uninstall-north_america uninstall-oceania uninstall-south_america uninstall-russia
 
 EXTRA_DIST = $(pkgdata_MIRRORS) $(pkgdata_ASIA_MIRRORS)		\
 $(pkgdata_CHINA_MIRRORS) $(pkgdata_EUROPE_MIRRORS)		\
