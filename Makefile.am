@@ -16,7 +16,14 @@
 # along with termux-tools.  If not, see
 # <https://www.gnu.org/licenses/>.
 
-SUBDIRS = scripts doc mirrors motds
+SUBDIRS = . scripts doc mirrors motds
+
+CONFFILES = \
+etc/motd \
+etc/motd.sh \
+etc/motd-playstore \
+etc/profile.d/init-termux-properties.sh \
+etc/termux-login.sh
 
 do_subst = sed -e "s%[@]TERMUX_PREFIX[@]%$(termux_prefix)%g" \
 	       -e "s%[@]TERMUX_APP_PACKAGE[@]%${termux_app_package}%g" \
@@ -45,7 +52,17 @@ $(eval $(call sed-rule,init-termux-properties.sh))
 
 $(eval $(call sed-rule,termux-login.sh))
 
-install-data-local: $(pkgdata_PROFILE)
+
+
+create-deb-control-files:
+	printf "" > conffiles
+	for f in $(CONFFILES); do \
+		printf "%s\n" "$$f" >> conffiles; \
+	done
+
+
+
+install-data-local: create-deb-control-files $(pkgdata_PROFILE)
 	$(MKDIR_P) $(DESTDIR)$(datarootdir)/examples/termux
 	for f in $(pkgdata_EXAMPLES); do \
 		$(INSTALL) -m 644 $(srcdir)/$$f \

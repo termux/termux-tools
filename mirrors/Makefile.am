@@ -85,6 +85,12 @@ uninstall-default:
 	-rmdir $(DESTDIR)$(sysconfdir)/termux/mirrors
 
 install-data-local: install-default install-asia install-china install-europe install-north_america install-oceania install-south_america install-russia
+create-deb-control-files:
+	sh -c "cd $$(dirname $(DESTDIR)$(sysconfdir)); find $$(basename $(DESTDIR)$(sysconfdir))/termux/mirrors -type f" >> ../conffiles;
+
+
+
+install-data-local: install-default install-asia install-china install-europe install-north_america install-oceania install-south_america install-russia create-deb-control-files
 
 uninstall-local: uninstall-default uninstall-asia uninstall-china uninstall-europe uninstall-north_america uninstall-oceania uninstall-south_america uninstall-russia
 
