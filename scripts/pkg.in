@@ -101,18 +101,61 @@ has_repo() {
 	fi
 }
 
+unset_mirror_variables() {
+	unset MAIN
+	unset X11
+	unset ROOT
+	unset WEIGHT
+}
+
 get_mirror_url() {
-	source "$1"
-	echo $MAIN
+	local -r _mirror="$1"
+	local -r _has_repo_x11="$2"
+	local -r _has_repo_root="$3"
+
+	unset_mirror_variables
+	source "$_mirror"
+
+	if [[ -z "${MAIN:-}" ]]; then
+		echo "Warn: Ignoring mirror '$_mirror' without main channel url" >&2
+		return 0
+	elif [[ ! "${MAIN:-}" =~ ^https?://[^[:space:]]+$ ]]; then
+		echo "Warn: Ignoring mirror '$_mirror' with invalid main channel url '${MAIN:-}'" >&2
+		return 0
+	fi
+
+	if [[ "$_has_repo_x11" == "true" ]]; then
+		if [[ -z "${X11:-}" ]]; then
+			echo "Warn: Ignoring mirror '$_mirror' without x11 channel url" >&2
+			return 0
+		elif [[ ! "${X11:-}" =~ ^https?://[^[:space:]]+$ ]]; then
+			echo "Warn: Ignoring mirror '$_mirror' with invalid x11 channel url '${X11:-}'" >&2
+			return 0
+		fi
+	fi
+
+	if [[ "$_has_repo_root" == "true" ]]; then
+		if [[ -z "${ROOT:-}" ]]; then
+			echo "Warn: Ignoring mirror '$_mirror' without root channel url" >&2
+			return 0
+		elif [[ ! "${ROOT:-}" =~ ^https?://[^[:space:]]+$ ]]; then
+			echo "Warn: Ignoring mirror '$_mirror' with invalid root channel url '${ROOT:-}'" >&2
+			return 0
+		fi
+	fi
+
+	if [[ ! "${WEIGHT:-}" =~ ^[0-9]+$ ]]; then
+		echo "Warn: Ignoring mirror '$_mirror' with invalid weight '${WEIGHT:-}'" >&2
+		return 0
+	fi
+
+	echo "$MAIN"
 }
 
 get_mirror_weight() {
+	unset_mirror_variables
 	source "$1"
-	if [[ ! "$WEIGHT" =~ ^[0-9]+$ ]]; then
-		echo "Error: Invalid weight in mirror $1" >&2
-		exit 1
-	fi
-	echo $WEIGHT
+	echo "$WEIGHT"
 }
 
 select_mirror() {
@@ -178,10 +221,17 @@ select_mirror() {
 	local total_mirrors=${#mirrors[@]}
 	local parallel_jobs_current_count=1
 
+	has_repo_x11="$(has_repo x11)"
+	has_repo_root="$(has_repo root)"
+
 	set +e
 	i=0
 	for mirror in "${!mirrors[@]}"; do
-		url="$(get_mirror_url ${mirrors[$mirror]})"
+		url="$(get_mirror_url "${mirrors[$mirror]}" "$has_repo_x11" "$has_repo_root")"
+		if [ -z "$url" ]; then
+			unset "mirrors[$mirror]"
+			continue
+		fi
 
 		job_number=$parallel_jobs_current_count
 		parallel_jobs_current_count=$((parallel_jobs_current_count + 1))
@@ -270,12 +320,13 @@ select_mirror() {
 
 	if [ -n "$selected_mirror" ]; then
 		(
+			unset_mirror_variables
 			source "$selected_mirror"
 			echo "deb $MAIN stable main" > @TERMUX_PREFIX@/etc/apt/sources.list
-			if [ "$(has_repo x11)" == "true" ]; then
+			if [[ "$has_repo_x11" == "true" ]]; then
 				echo "deb $X11 x11 main" > @TERMUX_PREFIX@/etc/apt/sources.list.d/x11.list
 			fi
-			if [ "$(has_repo root)" == "true" ]; then
+			if [[ "$has_repo_root" == "true" ]]; then
 				echo "deb $ROOT root stable" > @TERMUX_PREFIX@/etc/apt/sources.list.d/root.list
 			fi
 		)
