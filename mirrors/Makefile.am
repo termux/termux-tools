@@ -2,12 +2,12 @@
 pkgdata_MIRRORS = default
 
 # Mirrors in Asia (excl. China and Russia)
-pkgdata_ASIA_MIRRORS = mirror.albony.xyz mirror.bardia.tech	\
-mirrors.cbrx.io linux.domainesia.com mirror.nevacloud.com	\
+pkgdata_ASIA_MIRRORS = mirror.albony.xyz mirror.bardia.tech          \
+mirrors.cbrx.io linux.domainesia.com mirror.nevacloud.com            \
 mirror.textcord.xyz tmx.xvx.my.id
 
 # Mirrors in China
-pkgdata_CHINA_MIRRORS = mirrors.tuna.tsinghua.edu.cn		\
+pkgdata_CHINA_MIRRORS = mirrors.tuna.tsinghua.edu.cn                 \
 mirror.iscas.ac.cn mirrors.nju.edu.cn mirrors.pku.edu.cn             \
 mirrors.ustc.edu.cn mirrors.bfsu.edu.cn	mirrors.aliyun.com           \
 mirrors.cqupt.edu.cn mirror.nyist.edu.cn mirrors.sau.edu.cn	         \
@@ -15,18 +15,18 @@ mirrors.sdu.edu.cn mirrors.sustech.edu.cn mirrors.zju.edu.cn         \
 mirror.sjtu.edu.cn mirrors.qvq.net.cn
 
 # Mirrors in Europe
-pkgdata_EUROPE_MIRRORS = grimler.se mirror.termux.dev			\
-packages.termux.dev termux.librehat.com mirror.mwt.me			\
-termux.mentality.rip mirrors.sahilister.in termux.cdn.lumito.net	\
-termux.astra.in.ua termux.3san.dev mirror.accum.se                      \
-md.mirrors.hacktegic.com ftp.fau.de is.mirror.flokinet.net              \
-ro.mirror.flokinet.net mirrors.medzik.dev mirrors.cfe.re                \
-mirror.sunred.org mirror.autkin.net mirror.bouwhuis.network             \
+pkgdata_EUROPE_MIRRORS = grimler.se mirror.termux.dev                \
+packages.termux.dev termux.librehat.com mirror.mwt.me                \
+termux.mentality.rip mirrors.sahilister.in termux.cdn.lumito.net     \
+termux.astra.in.ua termux.3san.dev mirror.accum.se                   \
+md.mirrors.hacktegic.com ftp.fau.de is.mirror.flokinet.net           \
+ro.mirror.flokinet.net mirrors.medzik.dev mirrors.cfe.re             \
+mirror.sunred.org mirror.autkin.net mirror.bouwhuis.network          \
 mirror.leitecastro.com 
 
 # Mirrors in North America
-pkgdata_NORTH_AMERICA_MIRRORS = plug-mirror.rcac.purdue.edu		\
-dl.kcubeterm.com mirrors.utermux.dev mirror.fcix.net mirror.mwt.me	\
+pkgdata_NORTH_AMERICA_MIRRORS = plug-mirror.rcac.purdue.edu          \
+dl.kcubeterm.com mirrors.utermux.dev mirror.fcix.net mirror.mwt.me   \
 mirror.vern.cc mirror.csclub.uwaterloo.ca mirror.quantum5.ca
 
 # Mirrors in Oceania
