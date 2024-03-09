@@ -1,0 +1,6 @@
+# This file is sourced by pkg
+# Mirror by Nguyen Hoang, hosted in Hanoi, Vietnam.
+WEIGHT=1
+MAIN="https://mirrors.nguyenhoang.cloud/termux/termux-main"
+ROOT="https://mirrors.nguyenhoang.cloud/termux/termux-root"
+X11="https://mirrors.nguyenhoang.cloud/termux/termux-x11"
