@@ -1,0 +1,6 @@
+# This file is sourced by pkg
+# Mirror by karibu, hosted in Singapore
+WEIGHT=1
+MAIN="https://mirror.freedif.org/termux/termux-main"
+ROOT="https://mirror.freedif.org/termux/termux-root"
+X11="https://mirror.freedif.org/termux/termux-x11"
