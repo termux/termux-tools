@@ -45,7 +45,7 @@ updates() {
 
 repo_subscriptions_apt() {
 	local main_sources
-	main_sources=$(grep -P '^\s*deb\s' "@TERMUX_PREFIX@/etc/apt/sources.list")
+	main_sources=$(grep -E '^[[:space:]]*deb[[:space:]]' "@TERMUX_PREFIX@/etc/apt/sources.list")
 
 	if [ -n "$main_sources" ]; then
 		echo "# sources.list"
@@ -56,7 +56,7 @@ repo_subscriptions_apt() {
 		local filename repo_package supl_sources
 		while read -r filename; do
 			repo_package=$(dpkg -S "$filename" 2>/dev/null | cut -d : -f 1)
-			supl_sources=$(grep -P '^\s*deb\s' "$filename")
+			supl_sources=$(grep -E '^[[:space:]]*deb[[:space:]]' "$filename")
 
 			if [ -n "$supl_sources" ]; then
 				if [ -n "$repo_package" ]; then
