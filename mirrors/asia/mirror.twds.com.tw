@@ -1,0 +1,6 @@
+# This file is sourced by pkg
+# Mirror by Taiwan Digital Streaming Co, hosted in Taiwan
+WEIGHT=1
+MAIN="https://mirror.twds.com.tw/termux/termux-main"
+ROOT="https://mirror.twds.com.tw/termux/termux-root"
+X11="https://mirror.twds.com.tw/termux/termux-x11"
