@@ -1,14 +1,14 @@
 # Default mirrors
 pkgdata_MIRRORS = default
 
-# Mirrors in Asia (excl. China and Russia)
+# Mirrors in Asia (excl. Chinese_Mainland and Russia)
 pkgdata_ASIA_MIRRORS = mirror.albony.xyz mirror.bardia.tech          \
 mirrors.cbrx.io linux.domainesia.com mirror.nevacloud.com            \
 mirror.textcord.xyz tmx.xvx.my.id  mirrors.nguyenhoang.cloud         \
 mirror.freedif.org
 
-# Mirrors in China
-pkgdata_CHINA_MIRRORS = mirrors.tuna.tsinghua.edu.cn                 \
+# Mirrors in Chinese Mainland
+pkgdata_CHINESE_MAINLAND_MIRRORS = mirrors.tuna.tsinghua.edu.cn                 \
 mirror.iscas.ac.cn mirrors.nju.edu.cn mirrors.pku.edu.cn             \
 mirrors.ustc.edu.cn mirrors.bfsu.edu.cn	mirrors.aliyun.com           \
 mirrors.cqupt.edu.cn mirror.nyist.edu.cn mirrors.sau.edu.cn	         \
@@ -52,6 +52,21 @@ china/mirrors.dgut.edu.cn \
 china/mirrors.hit.edu.cn \
 china/mirrors.njupt.edu.cn \
 china/mirrors.scau.edu.cn \
+china/mirror.iscas.ac.cn \
+china/mirror.nyist.edu.cn \
+china/mirror.sjtu.edu.cn \
+china/mirrors.aliyun.com \
+china/mirrors.bfsu.edu.cn \
+china/mirrors.cqupt.edu.cn \
+china/mirrors.nju.edu.cn \
+china/mirrors.pku.edu.cn \
+china/mirrors.qvq.net.cn \
+china/mirrors.sau.edu.cn \
+china/mirrors.sdu.edu.cn \
+china/mirrors.sustech.edu.cn \
+china/mirrors.tuna.tsinghua.edu.cn \
+china/mirrors.ustc.edu.cn \
+china/mirrors.zju.edu.cn \
 europe/cdn.lumito.net \
 europe/mirror.termux.dv \
 europe/termux.sahilister.in \
@@ -79,7 +94,7 @@ uninstall-$1:
 endef
 
 $(eval $(call install-mirror-rule,asia,ASIA))
-$(eval $(call install-mirror-rule,china,CHINA))
+$(eval $(call install-mirror-rule,chinese_mainland,CHINESE_MAINLAND))
 $(eval $(call install-mirror-rule,europe,EUROPE))
 $(eval $(call install-mirror-rule,north_america,NORTH_AMERICA))
 $(eval $(call install-mirror-rule,oceania,OCEANIA))
@@ -87,7 +102,7 @@ $(eval $(call install-mirror-rule,south_america,SOUTH_AMERICA))
 $(eval $(call install-mirror-rule,russia,RUSSIA))
 
 $(eval $(call uninstall-mirror-rule,asia,ASIA))
-$(eval $(call uninstall-mirror-rule,china,CHINA))
+$(eval $(call uninstall-mirror-rule,chinese_mainland,CHINESE_MAINLAND))
 $(eval $(call uninstall-mirror-rule,europe,EUROPE))
 $(eval $(call uninstall-mirror-rule,north_america,NORTH_AMERICA))
 $(eval $(call uninstall-mirror-rule,oceania,OCEANIA))
@@ -124,11 +139,11 @@ create-deb-control-files:
 
 
 
-install-data-local: uninstall-removed-mirrors install-default install-asia install-china install-europe install-north_america install-oceania install-south_america install-russia create-deb-control-files
+install-data-local: uninstall-removed-mirrors install-default install-asia install-chinese_mainland install-europe install-north_america install-oceania install-south_america install-russia create-deb-control-files
 
-uninstall-local: uninstall-removed-mirrors uninstall-default uninstall-asia uninstall-china uninstall-europe uninstall-north_america uninstall-oceania uninstall-south_america uninstall-russia
+uninstall-local: uninstall-removed-mirrors uninstall-default uninstall-asia uninstall-chinese_mainland uninstall-europe uninstall-north_america uninstall-oceania uninstall-south_america uninstall-russia
 
 EXTRA_DIST = $(pkgdata_MIRRORS) $(pkgdata_ASIA_MIRRORS)		\
-$(pkgdata_CHINA_MIRRORS) $(pkgdata_EUROPE_MIRRORS)		\
+$(pkgdata_CHINESE_MAINLAND_MIRRORS) $(pkgdata_EUROPE_MIRRORS)		\
 $(pkgdata_NORTH_AMERICA_MIRRORS) $(pkgdata_OCEANIA_MIRRORS)	\
 $(pkgdata_SOUTH_AMERICA_MIRRORS)

@@ -23,8 +23,8 @@ unlink_and_link() {
 select_repository_group() {
     MIRRORS=()
     MIRRORS+=("All mirrors" "All in the entire world" "on")
-    MIRRORS+=("Mirrors in Asia" "All in Asia (excl. China and Russia)" "off")
-    MIRRORS+=("Mirrors in China" "All in China" "off")
+    MIRRORS+=("Mirrors in Asia" "All in Asia (excl. Chinese Mainland and Russia)" "off")
+    MIRRORS+=("Mirrors in Chinese Mainland" "All in Chinese Mainland" "off")
     MIRRORS+=("Mirrors in Europe" "All in Europe" "off")
     MIRRORS+=("Mirrors in North America" "All in North America" "off")
     MIRRORS+=("Mirrors in Oceania" "All in Oceania" "off")
@@ -55,12 +55,12 @@ select_repository_group() {
     rm "$TEMPFILE"
 
     if [ "$mirror_group" == "Mirrors in Asia" ]; then
-        echo "[*] Mirrors in Asia (excl. China and Russia) selected"
+        echo "[*] Mirrors in Asia (excl. Chinese Mainland and Russia) selected"
         unlink_and_link ${MIRROR_BASE_DIR}/asia
 
-    elif [ "$mirror_group" == "Mirrors in China" ]; then
-        echo "[*] Mirrors in China selected"
-        unlink_and_link ${MIRROR_BASE_DIR}/china
+    elif [ "$mirror_group" == "Mirrors in Chinese Mainland" ]; then
+        echo "[*] Mirrors in Chinese Mainland selected"
+        unlink_and_link ${MIRROR_BASE_DIR}/chinese_mainland
 
     elif [ "$mirror_group" == "Mirrors in Europe" ]; then
         echo "[*] Mirrors in Europe selected"
@@ -101,7 +101,7 @@ get_mirror_description() {
 }
 
 select_individual_mirror() {
-    mirrors=($(find ${MIRROR_BASE_DIR}/{asia,china,europe,north_america,oceania,south_america,russia}/ -type f ! -name "*\.dpkg-old" ! -name "*\.dpkg-new" ! -name "*~"))
+    mirrors=($(find ${MIRROR_BASE_DIR}/{asia,chinese_mainland,europe,north_america,oceania,south_america,russia}/ -type f ! -name "*\.dpkg-old" ! -name "*\.dpkg-new" ! -name "*~"))
 
     # Choose default mirror per default
     MIRRORS=("$(get_mirror_url "${MIRROR_BASE_DIR}/default")" "$(get_mirror_description "${MIRROR_BASE_DIR}/default")" "on")
