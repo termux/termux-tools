@@ -22,13 +22,13 @@ dnl  along with termux-tools.  If not, see
 dnl  <https://www.gnu.org/licenses/>.
 
 AC_PREREQ([2.69])
-AC_INIT([termux-tools], [1.41.3], [support@termux.dev])
+AC_INIT([termux-tools], [1.42.0], [support@termux.dev])
 
 AM_INIT_AUTOMAKE([foreign])
 
 AC_PROG_MAKE_SET
 
-copyright="Copyright (C) 2022 Termux."
+copyright="Copyright (C) 2022-2024 Termux."
 if test "${TERMUX_APP_PACKAGE+set}" = set; then
   termux_app_package="$TERMUX_APP_PACKAGE"
 else
