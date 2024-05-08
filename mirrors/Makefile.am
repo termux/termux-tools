@@ -2,7 +2,7 @@
 pkgdata_MIRRORS = default
 
 # Mirrors in Asia (excl. Chinese_Mainland and Russia)
-pkgdata_ASIA_MIRRORS = mirror.albony.xyz mirror.bardia.tech          \
+pkgdata_ASIA_MIRRORS = mirror.albony.in mirror.bardia.tech          \
 mirrors.cbrx.io linux.domainesia.com mirror.nevacloud.com            \
 mirror.textcord.xyz tmx.xvx.my.id  mirrors.nguyenhoang.cloud         \
 mirror.freedif.org mirror.twds.com.tw
