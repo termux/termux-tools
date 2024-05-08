@@ -13,7 +13,7 @@ mirror.iscas.ac.cn mirrors.nju.edu.cn mirrors.pku.edu.cn             \
 mirrors.ustc.edu.cn mirrors.bfsu.edu.cn	mirrors.aliyun.com           \
 mirrors.cqupt.edu.cn mirror.nyist.edu.cn mirrors.sau.edu.cn	         \
 mirrors.sdu.edu.cn mirrors.sustech.edu.cn mirrors.zju.edu.cn         \
-mirror.sjtu.edu.cn mirrors.qvq.net.cn
+mirror.sjtu.edu.cn mirrors.qvq.net.cn mirrors.hust.edu.cn
 
 # Mirrors in Europe
 pkgdata_EUROPE_MIRRORS = grimler.se mirror.termux.dev                \
