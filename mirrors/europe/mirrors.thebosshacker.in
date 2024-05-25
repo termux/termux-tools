@@ -1,0 +1,6 @@
+# This file is sourced by pkg
+# Mirror by Tbh, Hosted in Paris, France.
+WEIGHT=1
+MAIN="https://mirrors.thebosshacker.in/termux/termux-main"
+ROOT="https://mirrors.thebosshacker.in/termux/termux-root"
+X11="https://mirrors.thebosshacker.in/termux/termux-x11"
