@@ -1,0 +1,6 @@
+# This file is sourced by pkg
+# Mirror by Dan Yael, in Las Vegas, US
+WEIGHT=1
+MAIN="https://termux.danyael.xyz/termux/termux-main"
+ROOT="https://termux.danyael.xyz/termux/termux-root"
+X11="https://termux.danyael.xyz/termux/termux-x11"
