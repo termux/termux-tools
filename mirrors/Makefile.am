@@ -28,7 +28,8 @@ mirror.leitecastro.com
 # Mirrors in North America
 pkgdata_NORTH_AMERICA_MIRRORS = plug-mirror.rcac.purdue.edu          \
 dl.kcubeterm.com mirrors.utermux.dev mirror.fcix.net mirror.mwt.me   \
-mirror.vern.cc mirror.csclub.uwaterloo.ca mirror.quantum5.ca
+mirror.vern.cc mirror.csclub.uwaterloo.ca mirror.quantum5.ca		 \
+termux.danyael.xyz
 
 # Mirrors in Oceania
 pkgdata_OCEANIA_MIRRORS = mirror.endianness.com
