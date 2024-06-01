@@ -43,8 +43,8 @@ fi
 case "${TERMUX__USER_ID:-}" in ''|*[!0-9]*|0[0-9]*) TERMUX__USER_ID=0;; esac
 
 am broadcast --user "$TERMUX__USER_ID" \
-	-a $ACTION \
-	-n com.termux/com.termux.app.TermuxOpenReceiver \
+	-a "$ACTION" \
+	-n "@TERMUX_APP_PACKAGE@/@TERMUX_APP_PACKAGE@.app.TermuxOpenReceiver" \
 	$EXTRAS \
 	-d "$FILE" \
 	> /dev/null

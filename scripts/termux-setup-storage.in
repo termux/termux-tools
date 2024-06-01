@@ -27,5 +27,6 @@ fi
 case "${TERMUX__USER_ID:-}" in ''|*[!0-9]*|0[0-9]*) TERMUX__USER_ID=0;; esac
 
 am broadcast --user "$TERMUX__USER_ID" \
-		 --es com.termux.app.reload_style storage \
-		 -a com.termux.app.reload_style com.termux > /dev/null
+	-a "@TERMUX_APP_PACKAGE@.app.reload_style" \
+	--es "@TERMUX_APP_PACKAGE@.app.reload_style" "storage" \
+	 "@TERMUX_APP_PACKAGE@" > /dev/null
