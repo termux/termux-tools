@@ -1,0 +1,6 @@
+# This file is sourced by pkg
+# Mirror by the AG DSN, hosted in Dresden, Germany
+WEIGHT=1
+MAIN="https://ftp.agdsn.de/termux/termux-main"
+ROOT="https://ftp.agdsn.de/termux/termux-root"
+X11="https://ftp.agdsn.de/termux/termux-x11"
