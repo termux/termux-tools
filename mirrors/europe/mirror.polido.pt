@@ -1,0 +1,6 @@
+# This file is sourced by pkg
+# Mirror by 7zx, hosted in Porto, Portugal
+WEIGHT=1
+MAIN="https://mirror.polido.pt/termux/termux-main"
+ROOT="https://mirror.polido.pt/termux/termux-root"
+X11="https://mirror.polido.pt/termux/termux-x11"
