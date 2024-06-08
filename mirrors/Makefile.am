@@ -5,7 +5,7 @@ pkgdata_MIRRORS = default
 pkgdata_ASIA_MIRRORS = mirror.albony.in mirror.bardia.tech          \
 mirrors.cbrx.io linux.domainesia.com mirror.nevacloud.com            \
 mirror.textcord.xyz tmx.xvx.my.id  mirrors.nguyenhoang.cloud         \
-mirror.freedif.org mirror.twds.com.tw
+mirror.freedif.org mirror.twds.com.tw mirrors.in.sahilister.net
 
 # Mirrors in Chinese Mainland
 pkgdata_CHINESE_MAINLAND_MIRRORS = mirrors.tuna.tsinghua.edu.cn                 \
@@ -18,7 +18,7 @@ mirror.sjtu.edu.cn mirrors.qvq.net.cn mirrors.hust.edu.cn
 # Mirrors in Europe
 pkgdata_EUROPE_MIRRORS = grimler.se mirror.termux.dev			\
 packages.termux.dev termux.librehat.com mirror.mwt.me			\
-termux.mentality.rip mirrors.sahilister.in termux.cdn.lumito.net	\
+termux.mentality.rip mirrors.de.sahilister.net termux.cdn.lumito.net	\
 termux.astra.in.ua termux.3san.dev mirror.accum.se			\
 md.mirrors.hacktegic.com ftp.fau.de is.mirror.flokinet.net		\
 ro.mirror.flokinet.net mirrors.medzik.dev mirrors.cfe.re		\

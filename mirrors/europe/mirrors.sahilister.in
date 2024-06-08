@@ -1,6 +1,0 @@
-# This file is sourced by pkg
-# Mirror by Sahilister hosted in Germany
-WEIGHT=1
-MAIN="https://mirrors.sahilister.in/termux/termux-main"
-ROOT="https://mirrors.sahilister.in/termux/termux-root"
-X11="https://mirrors.sahilister.in/termux/termux-x11"
