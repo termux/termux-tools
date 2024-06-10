@@ -1,0 +1,6 @@
+# This file is sourced by pkg
+# Mirror by Sahil Dhiman, hosted in India
+WEIGHT=1
+MAIN="https://mirrors.in.sahilister.net/termux/termux-main/"
+ROOT="https://mirrors.in.sahilister.net/termux/termux-root/"
+X11="https://mirrors.in.sahilister.net/termux/termux-x11/"
