@@ -73,6 +73,7 @@ china/mirrors.zju.edu.cn \
 europe/cdn.lumito.net \
 europe/mirror.termux.dv \
 europe/termux.sahilister.in \
+europe/termux.astra.in.ua \
 north_america/packages.termux.dev \
 oceania/mirrors.wale.id.au \
 russia/mirror.surf
