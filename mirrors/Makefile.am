@@ -20,7 +20,7 @@ mirror.sjtu.edu.cn mirrors.qvq.net.cn mirrors.hust.edu.cn
 pkgdata_EUROPE_MIRRORS = grimler.se mirror.termux.dev			\
 packages.termux.dev termux.librehat.com mirror.mwt.me			\
 termux.mentality.rip mirrors.de.sahilister.net termux.cdn.lumito.net	\
-termux.astra.in.ua termux.3san.dev mirror.accum.se			\
+termux.3san.dev mirror.accum.se			\
 md.mirrors.hacktegic.com ftp.fau.de is.mirror.flokinet.net		\
 ro.mirror.flokinet.net mirrors.medzik.dev mirrors.cfe.re		\
 mirror.sunred.org mirror.autkin.net mirror.bouwhuis.network		\
