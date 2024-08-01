@@ -31,7 +31,7 @@ nl.mirror.flokinet.net
 pkgdata_NORTH_AMERICA_MIRRORS = plug-mirror.rcac.purdue.edu          \
 dl.kcubeterm.com mirrors.utermux.dev mirror.fcix.net mirror.mwt.me   \
 mirror.vern.cc mirror.csclub.uwaterloo.ca mirror.quantum5.ca		 \
-termux.danyael.xyz
+termux.danyael.xyz gnlug.org
 
 # Mirrors in Oceania
 pkgdata_OCEANIA_MIRRORS = mirror.endianness.com

@@ -1,0 +1,6 @@
+# This file is sourced by pkg
+# Mirror by GNLUG, in Virginia, US
+WEIGHT=1
+MAIN="https://gnlug.org/pub/termux/termux-main"
+ROOT="https://gnlug.org/pub/termux/termux-root"
+X11="https://gnlug.org/pub/termux/termux-x11"
