@@ -34,7 +34,7 @@ mirror.vern.cc mirror.csclub.uwaterloo.ca mirror.quantum5.ca		 \
 termux.danyael.xyz gnlug.org
 
 # Mirrors in Oceania
-pkgdata_OCEANIA_MIRRORS = mirror.endianness.com
+pkgdata_OCEANIA_MIRRORS = mirrors.middlendian.com
 
 # Mirrors in South America
 pkgdata_SOUTH_AMERICA_MIRRORS = mirrors.rda.run
