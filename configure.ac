@@ -27,6 +27,8 @@ AC_INIT([termux-tools], [1.43.3], [support@termux.dev])
 AM_INIT_AUTOMAKE([foreign])
 
 AC_PROG_MAKE_SET
+AC_PROG_CC
+AC_LANG(C)
 
 copyright="Copyright (C) 2022-2024 Termux."
 if test "${TERMUX_APP_PACKAGE+set}" = set; then
@@ -93,6 +95,6 @@ AC_SUBST(termux_package_manager)
 AC_PROG_LN_S
 
 AC_CONFIG_FILES([Makefile scripts/Makefile doc/Makefile
-mirrors/Makefile motds/Makefile])
+mirrors/Makefile motds/Makefile src/Makefile])
 
 AC_OUTPUT

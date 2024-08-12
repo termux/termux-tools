@@ -24,7 +24,7 @@ termux-setup-package-manager termux-setup-storage termux-wake-lock	\
 termux-wake-unlock
 
 # wrappers around tools in /system/bin:
-bin_SCRIPTS += cmd df getprop logcat ping ping6 pm settings top
+bin_SCRIPTS += df getprop logcat ping ping6 pm settings top
 
 CLEANFILES = $(bin_SCRIPTS)
 
@@ -90,4 +90,3 @@ $(eval $(call wrapper-rule,pm))
 $(eval $(call wrapper-rule,settings))
 $(eval $(call wrapper-rule,top))
 $(eval $(call wrapper-rule,umount))
-$(eval $(call wrapper-rule,cmd))
