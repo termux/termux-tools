@@ -2,6 +2,9 @@
 
 unset LD_PRELOAD LD_LIBRARY_PATH
 
+AM_APK_PATH="@TERMUX_PREFIX@/libexec/termux-am/am.apk"
+AM_APK_TMP_PATH="@TERMUX_CACHE_DIR@/termux-am/am.apk"
+
 echo
 echo "You are going to reset your Termux installation."
 echo
@@ -18,7 +21,7 @@ if ! [[ $CHOICE =~ (Y|y) ]]; then
 else
 	HAS_TERMUX_AM=false
 
-	if [ -f "@TERMUX_PREFIX@/libexec/termux-am/am.apk" ]; then
+	if [ -f "$AM_APK_PATH" ]; then
 		HAS_TERMUX_AM=true
 
 		echo "Preserving package 'termux-am' for later use..."
@@ -26,10 +29,10 @@ else
 		if [ -d "@TERMUX_CACHE_DIR@" ]; then
 			/system/bin/rm -rf "@TERMUX_CACHE_DIR@/termux-am"
 			/system/bin/mkdir -p "@TERMUX_CACHE_DIR@/termux-am"
-			/system/bin/cp "@TERMUX_PREFIX@/libexec/termux-am/am.apk" "@TERMUX_CACHE_DIR@/termux-am/am.apk"
+			/system/bin/cp "$AM_APK_PATH" "$AM_APK_TMP_PATH"
 
 			# In case copying am.apk failed.
-			if [ ! -e "@TERMUX_CACHE_DIR@/termux-am/am.apk" ]; then
+			if [ ! -e "$AM_APK_TMP_PATH" ]; then
 				HAS_TERMUX_AM=false
 			fi
 		fi
@@ -44,7 +47,12 @@ else
 		echo "Terminating all sessions..."
 		/system/bin/killall -9 "$SHELL"
 	else
-		export CLASSPATH="@TERMUX_CACHE_DIR@/termux-am/am.apk"
-		/system/bin/app_process / "com.termux.termuxam.Am" stopservice "@TERMUX_APP_PACKAGE@/@TERMUX_APP_PACKAGE@.app.TermuxService"
+		# - https://github.com/termux/TermuxAm/commit/598a9c06
+		if [ -w "$AM_APK_TMP_PATH" ]; then
+			chmod 0400 "$AM_APK_TMP_PATH"
+		fi
+
+		export CLASSPATH="$AM_APK_TMP_PATH"
+		/system/bin/app_process -Xnoimage-dex2oat / "com.termux.termuxam.Am" stopservice "@TERMUX_APP_PACKAGE@/@TERMUX_APP_PACKAGE@.app.TermuxService"
 	fi
 fi
