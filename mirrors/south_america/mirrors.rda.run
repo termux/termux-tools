@@ -1,6 +1,0 @@
-# This file is sourced by pkg
-# Mirror by Rodrigo de Avila, Hosted in Brochier, Brazil.
-WEIGHT=1
-MAIN="https://mirrors.rda.run/termux/termux-main"
-ROOT="https://mirrors.rda.run/termux/termux-root"
-X11="https://mirrors.rda.run/termux/termux-x11"
