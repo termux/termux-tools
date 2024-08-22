@@ -1,0 +1,6 @@
+# This file is sourced by pkg
+# Mirror by Kao Kittisak, hosted in Chonburi, Thailand.
+WEIGHT=1
+MAIN="https://mirrors.omsinchan.ac.th/termux/termux-main/"
+ROOT="https://mirrors.omsinchan.ac.th/termux/termux-root/"
+X11="https://mirrors.omsinchan.ac.th/termux/termux-x11/"
