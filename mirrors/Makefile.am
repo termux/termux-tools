@@ -36,9 +36,6 @@ termux.danyael.xyz gnlug.org
 # Mirrors in Oceania
 pkgdata_OCEANIA_MIRRORS = mirrors.middlendian.com
 
-# Mirrors in South America
-pkgdata_SOUTH_AMERICA_MIRRORS = mirrors.rda.run
-
 # Mirrors in Russia
 pkgdata_RUSSIA_MIRRORS = mirror.mephi.ru repository.su
 
@@ -76,7 +73,8 @@ europe/termux.sahilister.in \
 europe/termux.astra.in.ua \
 north_america/packages.termux.dev \
 oceania/mirrors.wale.id.au \
-russia/mirror.surf
+russia/mirror.surf \
+south_america/mirrors.rda.run
 
 
 
@@ -102,7 +100,6 @@ $(eval $(call install-mirror-rule,chinese_mainland,CHINESE_MAINLAND))
 $(eval $(call install-mirror-rule,europe,EUROPE))
 $(eval $(call install-mirror-rule,north_america,NORTH_AMERICA))
 $(eval $(call install-mirror-rule,oceania,OCEANIA))
-$(eval $(call install-mirror-rule,south_america,SOUTH_AMERICA))
 $(eval $(call install-mirror-rule,russia,RUSSIA))
 
 $(eval $(call uninstall-mirror-rule,asia,ASIA))
@@ -110,7 +107,6 @@ $(eval $(call uninstall-mirror-rule,chinese_mainland,CHINESE_MAINLAND))
 $(eval $(call uninstall-mirror-rule,europe,EUROPE))
 $(eval $(call uninstall-mirror-rule,north_america,NORTH_AMERICA))
 $(eval $(call uninstall-mirror-rule,oceania,OCEANIA))
-$(eval $(call uninstall-mirror-rule,south_america,SOUTH_AMERICA))
 $(eval $(call uninstall-mirror-rule,russia,RUSSIA))
 
 
@@ -143,11 +139,10 @@ create-deb-control-files:
 
 
 
-install-data-local: uninstall-removed-mirrors install-default install-asia install-chinese_mainland install-europe install-north_america install-oceania install-south_america install-russia create-deb-control-files
+install-data-local: uninstall-removed-mirrors install-default install-asia install-chinese_mainland install-europe install-north_america install-oceania install-russia create-deb-control-files
 
-uninstall-local: uninstall-removed-mirrors uninstall-default uninstall-asia uninstall-chinese_mainland uninstall-europe uninstall-north_america uninstall-oceania uninstall-south_america uninstall-russia
+uninstall-local: uninstall-removed-mirrors uninstall-default uninstall-asia uninstall-chinese_mainland uninstall-europe uninstall-north_america uninstall-oceania uninstall-russia
 
 EXTRA_DIST = $(pkgdata_MIRRORS) $(pkgdata_ASIA_MIRRORS)		\
 $(pkgdata_CHINESE_MAINLAND_MIRRORS) $(pkgdata_EUROPE_MIRRORS)		\
-$(pkgdata_NORTH_AMERICA_MIRRORS) $(pkgdata_OCEANIA_MIRRORS)	\
-$(pkgdata_SOUTH_AMERICA_MIRRORS)
+$(pkgdata_NORTH_AMERICA_MIRRORS) $(pkgdata_OCEANIA_MIRRORS)	
