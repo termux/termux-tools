@@ -24,6 +24,17 @@ along with termux-tools.  If not, see
 #include <fcntl.h>
 #include <sys/wait.h>
 
+#ifndef TEMP_FAILURE_RETRY
+#define TEMP_FAILURE_RETRY(expression)                                         \
+  (__extension__({                                                             \
+    long int __result;                                                         \
+    do                                                                         \
+      __result = (long int)(expression);                                       \
+    while (__result == -1L && errno == EINTR);                                 \
+    __result;                                                                  \
+  }))
+#endif
+
 void pump(int in_fd, int out_fd) {
     char buf[4096];
     ssize_t sz, t;
