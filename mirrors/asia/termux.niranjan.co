@@ -1,0 +1,6 @@
+# This file is sourced by pkg
+# Mirror by Niranjan Fartare, hosted in Mumbai, India
+WEIGHT=1
+MAIN="https://termux.niranjan.co/termux-main"
+ROOT="https://termux.niranjan.co/termux-root"
+X11="https://termux.niranjan.co/termux-x11"
