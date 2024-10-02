@@ -74,7 +74,8 @@ europe/termux.astra.in.ua \
 north_america/packages.termux.dev \
 oceania/mirrors.wale.id.au \
 russia/mirror.surf \
-south_america/mirrors.rda.run
+south_america/mirrors.rda.run \
+asis/mirrors.saswata.xyz
 
 
 
