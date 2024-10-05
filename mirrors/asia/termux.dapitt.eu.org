@@ -1,0 +1,6 @@
+# This file is sourced by pkg
+# Mirror by MyD, hosted in Singapore
+WEIGHT=1
+MAIN="https://termux.dapitt.eu.org/apt/termux-main"
+ROOT="https://termux.dapitt.eu.org/apt/termux-root"
+X11="https://termux.dapitt.eu.org/apt/termux-x11"
