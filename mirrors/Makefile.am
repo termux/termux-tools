@@ -76,7 +76,8 @@ north_america/packages.termux.dev \
 oceania/mirrors.wale.id.au \
 russia/mirror.surf \
 south_america/mirrors.rda.run \
-asia/mirrors.saswata.xyz
+asia/mirrors.saswata.xyz \
+asia/tmx.xvx.my.id
 
 
 
