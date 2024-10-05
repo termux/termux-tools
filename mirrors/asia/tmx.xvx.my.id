@@ -1,6 +1,0 @@
-# This file is sourced by pkg
-# Mirror by MyDapitt, hosted in Singapore
-WEIGHT=1
-MAIN="https://tmx.xvx.my.id/apt/termux-main"
-ROOT="https://tmx.xvx.my.id/apt/termux-root"
-X11="https://tmx.xvx.my.id/apt/termux-x11"
