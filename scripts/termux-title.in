@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# help
+if [ -n "$1" ]; then
+	echo run this file from \$SVDIR/title/run to update session titles
+	exit
+fi
+
+# enable logging
+# exec >>$HOME/title
+exec >/dev/null
+
+pp=$(pidof com.termux)
+
+function titles(){
+	date
+for p in $(ps --ppid $pp -o pid=); do
+	cp=$(ps --ppid $p -o pid=|head -1)
+	tty=$(ps -p $p -o tty=|cut -f2 -d/)
+	if [ -n "$cp" ]; then
+		cmd=$(ps -p $cp -o cmd=|sed s,:,,|sed s,$HOME,~,)
+	fi
+	wd=$(pwdx $p|cut -f2 -d" "|sed s,$HOME,~,)
+	echo $tty $cp $wd $cmd
+	if [[ -n "$cp" ]]; then 
+		echo -ne "\e]0;$cmd\a" > /dev/pts/$tty
+	else
+		echo -ne "\e]0;$wd\a" > /dev/pts/$tty
+	fi	 
+done
+}
+
+while(true); do
+	titles
+	sleep 10
+done
