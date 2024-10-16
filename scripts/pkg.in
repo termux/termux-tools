@@ -77,6 +77,24 @@ check_mirror() {
 		"$mirror/dists/stable/Release" >/dev/null 2>&1
 }
 
+check_command() {
+	local command="$1"
+
+	local errors
+	if ! errors="$("$@" 2>&1 1>/dev/null)"; then
+		echo "$errors" 1>&2
+		echo "Failed to run the '$command' command." 1>&2
+		if [[ "$errors" == *"CANNOT LINK EXECUTABLE"* ]]; then
+			echo -n "To fix the '$command' command, manually upgrade all packages by running: " 1>&2
+			case "$TERMUX_APP_PACKAGE_MANAGER" in
+				apt) echo "\`apt update && apt full-upgrade\`" 1>&2;;
+				pacman) echo "\`pacman -Syu\`" 1>&2;;
+			esac
+		fi
+		exit 1
+	fi
+}
+
 hostname() {
 	echo "$1" | awk -F'[/:]' '{print $4}'
 }
@@ -184,6 +202,9 @@ select_mirror() {
 		mirrors=("${MIRROR_BASE_DIR}/default")
 		mirrors+=($(find ${MIRROR_BASE_DIR}/{asia,chinese_mainland,europe,north_america,oceania,russia}/ -type f ! -name "*\.dpkg-old" ! -name "*\.dpkg-new" ! -name "*~"))
 	fi
+
+	# Ensure `curl` can execute, otherwise all mirror checks will fail with `bad`.
+	check_command curl --version
 
 	# Mirrors are rotated if 6 hours timeout has been passed or mirror is no longer accessible.
 	local pkgcache="@TERMUX_CACHE_DIR@/apt/pkgcache.bin"
