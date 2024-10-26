@@ -6,7 +6,8 @@ pkgdata_ASIA_MIRRORS = mirror.albony.in mirror.bardia.tech          \
 mirrors.cbrx.io linux.domainesia.com mirror.nevacloud.com            \
 mirror.textcord.xyz tmx.xvx.my.id  mirrors.nguyenhoang.cloud         \
 mirror.freedif.org mirror.twds.com.tw mirrors.in.sahilister.net       \
-mirrors.saswata.cc termux.niranjan.co mirrors.ravidwivedi.in
+mirrors.saswata.cc termux.niranjan.co mirrors.ravidwivedi.in          \
+mirror.jeonnam.school 
 
 # Mirrors in Chinese Mainland
 pkgdata_CHINESE_MAINLAND_MIRRORS = mirrors.tuna.tsinghua.edu.cn      \
