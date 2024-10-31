@@ -1,6 +1,0 @@
-# This file is sourced by pkg
-# Mirror by @lrinQVQ
-WEIGHT=1
-MAIN="https://mirrors.qvq.net.cn/termux/termux-main"
-ROOT="https://mirrors.qvq.net.cn/termux/termux-root"
-X11="https://mirrors.qvq.net.cn/termux/termux-x11"
