@@ -1,0 +1,6 @@
+# This file is sourced by pkg
+# Mirror by Bombyeol, hosted in Daegu, Republic of Korea
+WEIGHT=1
+MAIN="https://mirror.rinarin.dev/termux/termux-main"
+ROOT="https://mirror.rinarin.dev/termux/termux-root"
+X11="https://mirror.rinarin.dev/termux/termux-x11"
