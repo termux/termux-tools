@@ -1,0 +1,22 @@
+#!/bin/bash
+# todo source from @TERMUX_PREFIX@/bin/logout
+# help
+if [ -n "$1" ]; then
+	echo run this file from \~/.bash_logout to perform exit cleanup from last session
+	exit 0
+fi
+
+pp=$(pidof com.termux)
+pids=$(ps --ppid $pp -o pid=)
+s=$(echo $pids|wc|tr -s " "|cut -f3 -d" ")
+# exit silently if not final session
+if [ $s -ne 1 ]; then	exit 0; fi
+
+echo leaving final active session running cleanup
+service-daemon stop
+termux-api-stop
+
+# place custom commands here
+# start-stop-daemon --stop --pidfile $HOME/earlyoom.pid --remove-pidfile -v
+
+read -p "press enter to exit"
