@@ -21,3 +21,13 @@ AM_CFLAGS = -Wall -Wextra -pedantic
 bin_PROGRAMS = cmd
 
 cmd_SOURCES = cmd.c
+
+libdir = $(prefix)/lib/termux
+
+lib_LTLIBRARIES = libtermux-access.la
+
+libtermux_access_la_SOURCES = termux_access.c
+libtermux_access_la_LDFLAGS = -shared -module -avoid-version -ldl
+
+clean-local:
+	rm -f libtermux-access.la
