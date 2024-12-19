@@ -1,5 +1,5 @@
 # This file is sourced by pkg
-# Mirror by China Education and Reseach Network
+# Mirror by China Education and Research Network
 WEIGHT=1
 MAIN="https://mirrors.cernet.edu.cn/apt/termux/termux-main"
 ROOT="https://mirrors.cernet.edu.cn/apt/termux/termux-root"
