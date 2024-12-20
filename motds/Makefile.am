@@ -69,3 +69,5 @@ motd:
 
 	@echo "" >> motd
 	@echo "Report issues at https://termux.dev/issues" >> motd
+	@echo "[1m[31mTermux needs your help! Donations help fund development and infrastructure import for Termux's continued existence[0m" >> motd
+	@echo "[1mConsider donating at [34mhttps://termux.dev/en/donate[0m" >> motd
