@@ -132,6 +132,10 @@ Device manufacturer:
 $(getprop ro.product.manufacturer)
 Device model:
 $(getprop ro.product.model)
+Supported ABIs:
+SUPPORTED_ABIS: $(getprop ro.product.cpu.abilist)
+SUPPORTED_32_BIT_ABIS: $(getprop ro.product.cpu.abilist32)
+SUPPORTED_64_BIT_ABIS: $(getprop ro.product.cpu.abilist64)
 LD Variables:
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH
 LD_PRELOAD=$LD_PRELOAD"
