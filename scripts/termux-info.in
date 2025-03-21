@@ -3,7 +3,7 @@
 NO_SET_CLIPBOARD=0
 
 show_usage () {
-	echo 'usage: termux-info'
+	echo 'usage: termux-info [--no-set-clipboard]'
 	echo 'Provides information about Termux, and the current system. Helpful for debugging.'
 	exit 0
 
