@@ -24,8 +24,12 @@ else
 \e[1mWelcome to Termux!\e[0m
 
 \e[1mDocs:\e[0m      \e[4mhttps://termux.dev/docs\e[0m
-\e[1mDonate:\e[0m    \e[4mhttps://termux.dev/donate\e[0m
-\e[1mCommunity:\e[0m \e[4mhttps://termux.dev/community\e[0m
+"
+    if [ "$(date +%m)" != "12" ]; then
+        motd+="\e[1mDonate:\e[0m    \e[4mhttps://termux.dev/donate\e[0m
+"
+    fi
+    motd+="\e[1mCommunity:\e[0m \e[4mhttps://termux.dev/community\e[0m
 
 \e[1mTermux version:\e[0m ${TERMUX_VERSION-Unknown}
 "
@@ -57,5 +61,14 @@ fi
 motd+="
 ${motd_indent}Report issues at \e[4mhttps://termux.dev/issues\e[0m
 "
+
+if [ "$(date +%m)" = "12" ]; then
+
+    motd+="
+\e[1m\e[31mTermux needs your help! Donations help fund development and infrastructure import for Termux's continued existence\e[0m
+\e[1mConsider donating at \e[34mhttps://termux.dev/en/donate\e[0m
+"
+
+fi
 
 echo -e "$motd"
