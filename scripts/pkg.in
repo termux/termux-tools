@@ -8,6 +8,7 @@ if [[ "$(id -u)" == "0" ]]; then
 fi
 
 # Setup TERMUX_APP_PACKAGE_MANAGER
+# shellcheck source=/dev/null
 source "@TERMUX_PREFIX@/bin/termux-setup-package-manager" || exit 1
 
 MIRROR_BASE_DIR="@TERMUX_PREFIX@/etc/termux/mirrors"
@@ -108,14 +109,22 @@ last_modified() {
 	echo $((now - mtime))
 }
 
+sed_escape_replacement() {
+	local r="$1"
+	r="${r//[\\]/\\\\}" # Escape `\`.
+	r="${r//[\/]/\\\/}" # Escape `/`.
+	r="${r//[&]/\\\&}"  # Escape `&`.
+	echo "$r"
+}
+
 has_repo() {
 	# Check if root-repo or x11-repo are installed
 	repo="$1"
 
-	if [ -f "@TERMUX_PREFIX@/etc/apt/sources.list.d/$repo.list" ]; then
-		echo true
-	else
-		echo false
+	if [[ -f "@TERMUX_PREFIX@/etc/apt/sources.list.d/$repo.sources" ]]; then
+		echo deb822
+	elif [[ -f "@TERMUX_PREFIX@/etc/apt/sources.list.d/$repo.list" ]]; then
+		echo legacy
 	fi
 }
 
@@ -132,6 +141,7 @@ get_mirror_url() {
 	local -r _has_repo_root="$3"
 
 	unset_mirror_variables
+	# shellcheck source=/dev/null
 	source "$_mirror"
 
 	if [[ -z "${MAIN:-}" ]]; then
@@ -178,7 +188,11 @@ get_mirror_weight() {
 
 select_mirror() {
 	local current_mirror
-	current_mirror=$(grep -oE 'https?://[^ ]+' <(grep -m 1 -E '^[[:space:]]*deb[[:space:]]+' @TERMUX_PREFIX@/etc/apt/sources.list) || true)
+	if [ -f "@TERMUX_PREFIX@/etc/apt/sources.list.d/main.sources" ]; then
+		current_mirror=$(grep -oE 'https?://[^ ]+' <(grep -m 1 -E '^[[:space:]]*URIs:[[:space:]]+' "@TERMUX_PREFIX@/etc/apt/sources.list.d/main.sources") || :)
+	elif [ -f "@TERMUX_PREFIX@/etc/apt/sources.list" ]; then
+		current_mirror=$(grep -oE 'https?://[^ ]+' <(grep -m 1 -E '^[[:space:]]*deb[[:space:]]+' "@TERMUX_PREFIX@/etc/apt/sources.list") || :)
+	fi
 
 	# Do not update mirror if $TERMUX_PKG_NO_MIRROR_SELECT was set.
 	if [ -n "${TERMUX_PKG_NO_MIRROR_SELECT-}" ] && [ -n "$current_mirror" ]; then
@@ -189,14 +203,14 @@ select_mirror() {
 
 	if [ -d "@TERMUX_PREFIX@/etc/termux/chosen_mirrors" ]; then
 		# Mirror group selected
-		mirrors=($(find @TERMUX_PREFIX@/etc/termux/chosen_mirrors/ -type f ! -name "*\.dpkg-old" ! -name "*\.dpkg-new" ! -name "*~"))
+		mirrors=($(find "@TERMUX_PREFIX@/etc/termux/chosen_mirrors/" -type f ! -name "*\.dpkg-old" ! -name "*\.dpkg-new" ! -name "*~"))
 	elif [ -f "@TERMUX_PREFIX@/etc/termux/chosen_mirrors" ]; then
 		# Single mirror selected
-		mirrors=("$(realpath @TERMUX_PREFIX@/etc/termux/chosen_mirrors)")
+		mirrors=("$(realpath "@TERMUX_PREFIX@/etc/termux/chosen_mirrors")")
 	elif [ -L "@TERMUX_PREFIX@/etc/termux/chosen_mirrors" ]; then
 		# Broken symlink, use all mirrors
 		mirrors=("${MIRROR_BASE_DIR}/default")
-		mirrors+=($(find ${MIRROR_BASE_DIR}/{asia,chinese_mainland,europe,north_america,oceania,russia}/ -type f ! -name "*\.dpkg-old" ! -name "*\.dpkg-new" ! -name "*~"))
+		mirrors+=($(find "${MIRROR_BASE_DIR}"/{asia,chinese_mainland,europe,north_america,oceania,russia}/ -type f ! -name "*\.dpkg-old" ! -name "*\.dpkg-new" ! -name "*~"))
 	else
 		echo "No mirror or mirror group selected. You might want to select one by running 'termux-change-repo'"
 		mirrors=("${MIRROR_BASE_DIR}/default")
@@ -339,29 +353,53 @@ select_mirror() {
 		selected_mirror="${weighted_mirrors[${random_weight}]}"
 	fi
 
-	if [ -n "$selected_mirror" ]; then
-		(
-			unset_mirror_variables
-			source "$selected_mirror"
-			echo "deb $MAIN stable main" > @TERMUX_PREFIX@/etc/apt/sources.list
-			if [[ "$has_repo_x11" == "true" ]]; then
-				echo "deb $X11 x11 main" > @TERMUX_PREFIX@/etc/apt/sources.list.d/x11.list
-			fi
-			if [[ "$has_repo_root" == "true" ]]; then
-				echo "deb $ROOT root stable" > @TERMUX_PREFIX@/etc/apt/sources.list.d/root.list
-			fi
-		)
-	else
+	if [ -z "$selected_mirror" ]; then
 		# Should not happen unless there is some issue with
 		# the script, or the mirror files
 		echo "Error: None of the mirrors are accessible"
 		exit 1
 	fi
+
+	(
+		unset_mirror_variables
+		# shellcheck source=/dev/null
+		source "$selected_mirror"
+
+		case "$(has_repo main)" in
+			'deb822')
+				sed -i -e "s|URIs:.*|$(sed_escape_replacement "URIs: $MAIN")|" \
+				"@TERMUX_PREFIX@/etc/apt/sources.list.d/main.sources"
+			;;
+			# There should always be a main repo, so fallback to
+			# creating sources.list if the `main.sources` file is missing
+			*) echo "deb $MAIN stable main" > "@TERMUX_PREFIX@/etc/apt/sources.list";;
+		esac
+
+		case "${has_repo_x11:-}" in
+			'deb822')
+				sed -i -e "s|URIs:.*|$(sed_escape_replacement "URIs: $X11")|" \
+				"@TERMUX_PREFIX@/etc/apt/sources.list.d/x11.sources"
+			;;
+			'legacy') echo "deb $X11 x11 main" > "@TERMUX_PREFIX@/etc/apt/sources.list.d/x11.list";;
+		esac
+
+		case "${has_repo_root:-}" in
+			'deb822')
+				sed -i -e "s|URIs:.*|$(sed_escape_replacement "URIs: $ROOT")|" \
+				"@TERMUX_PREFIX@/etc/apt/sources.list.d/root.sources"
+			;;
+			'legacy') echo "deb $ROOT root stable" > "@TERMUX_PREFIX@/etc/apt/sources.list.d/root.list";;
+		esac
+	)
 }
 
 update_apt_cache() {
 	local current_host
-	current_host=$(head -n 1 <(sed -nE -e 's|^\s*deb\s+https?://(.+)\s+stable\s+main$|\1|p' @TERMUX_PREFIX@/etc/apt/sources.list) || true)
+	if [ -f "@TERMUX_PREFIX@/etc/apt/sources.list.d/main.sources" ]; then
+		current_host=$(head -n 1 <(sed -nE 's|^\s*URIs:\s+https?://(.+)$|\1|p' "@TERMUX_PREFIX@/etc/apt/sources.list.d/main.sources") || :)
+	elif [ -f "@TERMUX_PREFIX@/etc/apt/sources.list" ]; then
+		current_host=$(head -n 1 <(sed -nE 's|^\s*deb\s+https?://(.+)\s+stable\s+main$|\1|p' "@TERMUX_PREFIX@/etc/apt/sources.list") || :)
+	fi
 
 	if [ -z "$current_host" ]; then
 		# No primary repositories configured?
@@ -385,7 +423,11 @@ update_apt_cache() {
 	cache_modified=$(last_modified "@TERMUX_CACHE_DIR@/apt/pkgcache.bin")
 
 	local sources_modified
-	sources_modified=$(last_modified "@TERMUX_PREFIX@/etc/apt/sources.list")
+	if [ -f "@TERMUX_PREFIX@/etc/apt/sources.list.d/main.sources" ]; then
+		sources_modified=$(last_modified "@TERMUX_PREFIX@/etc/apt/sources.list.d/main.sources")
+	elif [ -f "@TERMUX_PREFIX@/etc/apt/sources.list" ]; then
+		sources_modified=$(last_modified "@TERMUX_PREFIX@/etc/apt/sources.list")
+	fi
 
 	if (( sources_modified <= cache_modified )) || (( cache_modified > 1200 )); then
 		apt update
@@ -394,8 +436,8 @@ update_apt_cache() {
 
 force_check_mirror=false
 if [ "${1-}" = "--check-mirror" ]; then
-    force_check_mirror=true
-    shift 1
+	force_check_mirror=true
+	shift 1
 fi
 
 if [[ $# = 0 || $(echo "$1" | grep "^h") ]]; then
@@ -419,7 +461,7 @@ case "$TERMUX_APP_PACKAGE_MANAGER" in
 			rei*) apt install --reinstall "$@";;
 			se*) select_mirror; update_apt_cache; apt search "$@";;
 			un*|rem*|rm|del*) apt remove "$@";;
-                        upd*) select_mirror; apt update;;
+			upd*) select_mirror; apt update;;
 			up|upg*) select_mirror; apt update; apt full-upgrade "$@";;
 			*) ERROR=true;;
 		esac;;
@@ -435,7 +477,7 @@ case "$TERMUX_APP_PACKAGE_MANAGER" in
 			rei*) pacman -S "$@";;
 			se*) pacman -Sys "$@";;
 			un*|rem*|rm|del*) pacman -Rcns "$@";;
-                        upd*) pacman -Sy "$@";;
+			upd*) pacman -Sy "$@";;
 			up|upg*) pacman -Syu "$@";;
 			*) ERROR=true;;
 		esac;;
