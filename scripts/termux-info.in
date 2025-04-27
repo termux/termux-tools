@@ -44,30 +44,33 @@ updates() {
 }
 
 repo_subscriptions_apt() {
-	local main_sources
-	main_sources=$(grep -E '^[[:space:]]*deb[[:space:]]' "@TERMUX_PREFIX@/etc/apt/sources.list")
+	local apt_dir="@TERMUX_PREFIX@/etc/apt"
 
-	if [ -n "$main_sources" ]; then
-		echo "# sources.list"
-		echo "$main_sources"
-	fi
+	local filename source_entry repo_package sources_type
+	for filename in "${apt_dir}"/sources.list{,.d/*}; do
+		[[ -f "$filename" ]] || continue
+		case "$filename" in
+			*.sources) sources_type="deb822";;
+			*.list)    sources_type="legacy";;
+			*) continue;; # Not a valid source type, skip
+		esac
+		source_entry="$(<"$filename")"
+		repo_package=$(dpkg -S "$filename" 2>/dev/null | cut -d : -f 1)
 
-	if [ -d "@TERMUX_PREFIX@/etc/apt/sources.list.d" ]; then
-		local filename repo_package supl_sources
-		while read -r filename; do
-			repo_package=$(dpkg -S "$filename" 2>/dev/null | cut -d : -f 1)
-			supl_sources=$(grep -E '^[[:space:]]*deb[[:space:]]' "$filename")
+		local printf_format=""
+		if [[ -n "$repo_package" ]]; then
+			printf_format="# %s(%s) [%s]\n"
+		else
+			printf_format="# %s%s [%s]\n"
+		fi
 
-			if [ -n "$supl_sources" ]; then
-				if [ -n "$repo_package" ]; then
-					echo "# $repo_package (sources.list.d/$(basename "$filename"))"
-				else
-					echo "# sources.list.d/$(basename "$filename")"
-				fi
-				echo "$supl_sources"
-			fi
-		done < <(find "@TERMUX_PREFIX@/etc/apt/sources.list.d" -maxdepth 1 ! -type d)
-	fi
+		# shellcheck disable=SC2059
+		printf "${printf_format}" \
+			"${repo_package}" \
+			"${filename/$apt_dir\/}" \
+			"${sources_type}"
+		echo "$source_entry"
+	done
 }
 
 repo_subscriptions_pacman() {
@@ -86,6 +89,7 @@ repo_subscriptions_pacman() {
 }
 
 # Setup TERMUX_APP_PACKAGE_MANAGER
+# shellcheck source=/dev/null
 source "@TERMUX_PREFIX@/bin/termux-setup-package-manager" || exit 1
 
 case "${TERMUX__USER_ID:-}" in ''|*[!0-9]*|0[0-9]*) TERMUX__USER_ID=0;; esac
@@ -96,7 +100,7 @@ output=""
 if [ -n "${TERMUX_VERSION:-}" ]; then
 # Application version is exported in Termux v0.107 or higher only.
 output+="Termux Variables:
-$(compgen -e TERMUX_ | while read v; do echo "${v}=${!v}"; done)
+$(compgen -e TERMUX_ | while read -r v; do echo "${v}=${!v}"; done)
 "
 else
 output+="Termux Variables:
@@ -148,7 +152,7 @@ if [[ "$sdk_version" =~ ^[0-9]+$ ]] && [ "$sdk_version" -ge "26" ]; then
 fi
 TERMUX_PLUGINS="$(pm list packages --user "$TERMUX__USER_ID" $show_version_code 2>&1 </dev/null | grep -E "^package:$escaped_package_name\.[a-zA-Z]" | cut -d ":" -f 2- | grep -vE "^$escaped_package_name\.tapm\.[a-zA-Z]")"
 if [ -n "${TERMUX_PLUGINS:-}" ]; then
-	        output+="$(printf "\nInstalled termux plugins:\n${TERMUX_PLUGINS}\n")"
+	output+="$(printf "\nInstalled termux plugins:\n${TERMUX_PLUGINS}\n")"
 fi
 echo "$output"
 
