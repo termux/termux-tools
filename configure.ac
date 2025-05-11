@@ -3,7 +3,7 @@ dnl To rebuild the 'configure' script from this, execute the command
 dnl	autoconf
 dnl in the directory containing this script.
 dnl
-dnl Copyright (C) 2022-2024 Termux
+dnl Copyright (C) 2022-2025 Termux
 dnl
 dnl  This file is part of termux-tools.
 dnl
@@ -22,7 +22,7 @@ dnl  along with termux-tools.  If not, see
 dnl  <https://www.gnu.org/licenses/>.
 
 AC_PREREQ([2.69])
-AC_INIT([termux-tools], [1.45.0], [support@termux.dev])
+AC_INIT([termux-tools], [1.46.0], [support@termux.dev])
 
 AM_INIT_AUTOMAKE([foreign])
 
@@ -30,7 +30,7 @@ AC_PROG_MAKE_SET
 AC_PROG_CC
 AC_LANG(C)
 
-copyright="Copyright (C) 2022-2024 Termux."
+copyright="Copyright (C) 2022-2025 Termux."
 if test "${TERMUX_APP_PACKAGE+set}" = set; then
   termux_app_package="$TERMUX_APP_PACKAGE"
 else
