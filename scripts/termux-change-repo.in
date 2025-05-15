@@ -22,18 +22,18 @@ unlink_and_link() {
 
 select_repository_group() {
     MIRRORS=()
-    MIRRORS+=("All mirrors" "All in the entire world" "on")
-    MIRRORS+=("Mirrors in Asia" "All in Asia (excl. Chinese Mainland and Russia)" "off")
-    MIRRORS+=("Mirrors in Chinese Mainland" "All in Chinese Mainland" "off")
-    MIRRORS+=("Mirrors in Europe" "All in Europe" "off")
-    MIRRORS+=("Mirrors in North America" "All in North America" "off")
-    MIRRORS+=("Mirrors in Oceania" "All in Oceania" "off")
-    MIRRORS+=("Mirrors in Russia" "All in Russia" "off")
+    MIRRORS+=("All mirrors" "All in the entire world")
+    MIRRORS+=("Mirrors in Asia" "All in Asia (excl. Chinese Mainland and Russia)")
+    MIRRORS+=("Mirrors in Chinese Mainland" "All in Chinese Mainland")
+    MIRRORS+=("Mirrors in Europe" "All in Europe")
+    MIRRORS+=("Mirrors in North America" "All in North America")
+    MIRRORS+=("Mirrors in Oceania" "All in Oceania")
+    MIRRORS+=("Mirrors in Russia" "All in Russia")
 
     local TEMPFILE="$(mktemp @TERMUX_PREFIX@/tmp/mirror.XXXXXX)"
     dialog \
         --title "termux-change-repo" --clear \
-        --radiolist "Which group of mirrors do you want to use? Select with space." 0 0 0 \
+        --menu "Which group of mirrors do you want to use?" 0 0 0 \
         "${MIRRORS[@]}" --and-widget \
         2> "$TEMPFILE"
     retval=$?
@@ -99,19 +99,19 @@ select_individual_mirror() {
     mirrors=($(find ${MIRROR_BASE_DIR}/{asia,chinese_mainland,europe,north_america,oceania,russia}/ -type f ! -name "*\.dpkg-old" ! -name "*\.dpkg-new" ! -name "*~"))
 
     # Choose default mirror per default
-    MIRRORS=("$(get_mirror_url "${MIRROR_BASE_DIR}/default")" "$(get_mirror_description "${MIRROR_BASE_DIR}/default")" "on")
+    MIRRORS=("$(get_mirror_url "${MIRROR_BASE_DIR}/default")" "$(get_mirror_description "${MIRROR_BASE_DIR}/default")")
     # Special handling of packages.termux.dev mirror to put it on top:
-    MIRRORS+=("$(get_mirror_url "${MIRROR_BASE_DIR}/europe/packages.termux.dev")" "$(get_mirror_description "${MIRROR_BASE_DIR}/europe/packages.termux.dev")" "off")
+    MIRRORS+=("$(get_mirror_url "${MIRROR_BASE_DIR}/europe/packages.termux.dev")" "$(get_mirror_description "${MIRROR_BASE_DIR}/europe/packages.termux.dev")")
     for mirror in ${mirrors[@]}; do
         mirror_url=$(get_mirror_url "$mirror")
         if [ "$mirror_url" == "packages.termux.dev" ]; then continue; fi
-        MIRRORS+=("$mirror_url" "$(get_mirror_description "$mirror")" "off")
+        MIRRORS+=("$mirror_url" "$(get_mirror_description "$mirror")")
     done
 
     local TEMPFILE="$(mktemp @TERMUX_PREFIX@/tmp/mirror.XXXXXX)"
     dialog \
         --title "termux-change-repo" --clear \
-        --radiolist "Which mirror do you want to use? Select with space." 0 0 0 \
+        --menu "Which mirror do you want to use?" 0 0 0 \
         "${MIRRORS[@]}" --and-widget \
         2> "$TEMPFILE"
     retval=$?
@@ -162,11 +162,11 @@ mkdir -p "@TERMUX_PREFIX@/tmp" || exit $?
 TEMPFILE="$(mktemp @TERMUX_PREFIX@/tmp/termux-change-repo.XXXXXX)"
 
 MODES=()
-MODES+=("Mirror group" "Rotate between several mirrors (recommended)" "on")
-MODES+=("Single mirror" "Choose a single mirror to use" "off")
+MODES+=("Mirror group" "Rotate between several mirrors (recommended)")
+MODES+=("Single mirror" "Choose a single mirror to use")
 dialog \
     --title "termux-change-repo" --clear \
-    --radiolist "Do you want to choose a mirror group or a single mirror? Select with space." 0 0 0 \
+    --menu "Do you want to choose a mirror group or a single mirror?" 0 0 0 \
     "${MODES[@]}" --and-widget \
     2> "$TEMPFILE"
 retval=$?
