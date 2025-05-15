@@ -88,11 +88,13 @@ select_repository_group() {
 }
 
 get_mirror_url() {
-    basename "$1"
+    echo "${1##*/}"
 }
 
 get_mirror_description() {
-    head -n 2 "$1" | tail -n 1 | cut -d" " -f2-
+    local -a lines
+    readarray -t lines < "$1"
+    printf '%s\n' "${lines[1]#* }"
 }
 
 select_individual_mirror() {
