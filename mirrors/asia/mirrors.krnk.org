@@ -1,5 +1,5 @@
 # This file is sourced by pkg
-# Mirror by KuronekoServer, hosted in Tokyo, Japan
+# Mirror by KuronekoServer. Hosted in Tokyo, Japan.
 WEIGHT=1
 MAIN="https://mirrors.krnk.org/apt/termux/termux-main"
 ROOT="https://mirrors.krnk.org/apt/termux/termux-root"

@@ -1,5 +1,5 @@
 # This file is sourced by pkg
-# Mirror by Lumito, hosted in Germany
+# Mirror by Lumito. Hosted in Germany.
 WEIGHT=1
 MAIN="https://termux.cdn.lumito.net/termux-main"
 ROOT="https://termux.cdn.lumito.net/termux-root"

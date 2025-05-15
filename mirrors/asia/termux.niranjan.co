@@ -1,5 +1,5 @@
 # This file is sourced by pkg
-# Mirror by Niranjan Fartare, hosted in Mumbai, India
+# Mirror by Niranjan Fartare. Hosted in Mumbai, India.
 WEIGHT=1
 MAIN="https://termux.niranjan.co/termux-main"
 ROOT="https://termux.niranjan.co/termux-root"

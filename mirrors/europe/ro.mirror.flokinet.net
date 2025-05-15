@@ -1,5 +1,5 @@
 # This file is sourced by pkg
-# Mirror by FlokiNET, Hosted in Bucharest,Romania.
+# Mirror by FlokiNET. Hosted in Bucharest, Romania.
 WEIGHT=1
 MAIN="https://ro.mirror.flokinet.net/termux/termux-main"
 ROOT="https://ro.mirror.flokinet.net/termux/termux-root"

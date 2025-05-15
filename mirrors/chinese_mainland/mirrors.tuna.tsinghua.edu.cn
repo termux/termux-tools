@@ -1,5 +1,5 @@
 # This file is sourced by pkg
-# Mirror by Tsinghua University TUNA Association
+# Mirror by Tsinghua University TUNA Association. Hosted in China.
 WEIGHT=1
 MAIN="https://mirrors.tuna.tsinghua.edu.cn/termux/apt/termux-main"
 ROOT="https://mirrors.tuna.tsinghua.edu.cn/termux/apt/termux-root"

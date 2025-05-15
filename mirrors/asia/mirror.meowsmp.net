@@ -1,5 +1,5 @@
 # This file is sourced by pkg
-# Mirror by @MeowIce, hosted in Ho Chi Minh, Vietnam.
+# Mirror by MeowIce. Hosted in Ho Chi Minh, Vietnam.
 WEIGHT=1
 MAIN="https://mirror.meowsmp.net/termux/termux-main"
 ROOT="https://mirror.meowsmp.net/termux/termux-root"

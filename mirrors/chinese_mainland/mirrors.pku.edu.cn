@@ -1,5 +1,5 @@
 # This file is sourced by pkg
-# Mirror by Peking University
+# Mirror by Peking University. Hosted in China.
 WEIGHT=1
 MAIN="https://mirrors.pku.edu.cn/termux/termux-main/"
 ROOT="https://mirrors.pku.edu.cn/termux/termux-root/"

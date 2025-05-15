@@ -1,5 +1,5 @@
 # This file is sourced by pkg
-# Mirror by Ravi, hosted in Mumbai, India.
+# Mirror by Ravi. Hosted in Mumbai, India.
 WEIGHT=1
 MAIN="https://mirrors.ravidwivedi.in/termux/termux-main"
 ROOT="https://mirrors.ravidwivedi.in/termux/termux-root"

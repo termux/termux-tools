@@ -1,5 +1,5 @@
 # This file is sourced by pkg
-# Mirrors by National Research Nuclear University MEPhI
+# Mirror by National Research Nuclear University MEPhI. Hosted in Russia.
 WEIGHT=1
 MAIN="http://mirror.mephi.ru/termux/termux-main"
 ROOT="http://mirror.mephi.ru/termux/termux-root"

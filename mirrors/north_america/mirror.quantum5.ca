@@ -1,5 +1,5 @@
 # This file is sourced by pkg
-# Mirror by quantum5
+# Mirror by quantum5. Hosted in Toronto, Ontario, Canada.
 WEIGHT=1
 MAIN="https://mirror.quantum5.ca/termux/termux-main"
 ROOT="https://mirror.quantum5.ca/termux/termux-root"
