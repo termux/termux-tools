@@ -1,5 +1,5 @@
 # This file is sourced by pkg
-# Mirror by CERNET. Geo-based mirror selection with education mirrorbits
+# Mirror by CERNET. Mirrorbits geo-based mirror selection.
 WEIGHT=1
 MAIN="https://mirrors.cernet.edu.cn/termux/apt/termux-main"
 ROOT="https://mirrors.cernet.edu.cn/termux/apt/termux-root"

@@ -1,5 +1,5 @@
 # This file is sourced by pkg
-# Termux's origin repo, hosted in Falkenstein, Germany
+# Termux origin repo. Hosted in Falkenstein, Germany.
 WEIGHT=1
 MAIN="https://packages.termux.dev/apt/termux-main"
 ROOT="https://packages.termux.dev/apt/termux-root"

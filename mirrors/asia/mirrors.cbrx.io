@@ -1,5 +1,5 @@
 # This file is sourced by pkg
-# Mirror by cyberrex0, hosted in Japan
+# Mirror by cyberrex0. Hosted in Japan.
 WEIGHT=1
 MAIN="https://mirrors.cbrx.io/apt/termux/termux-main"
 ROOT="https://mirrors.cbrx.io/apt/termux/termux-root"

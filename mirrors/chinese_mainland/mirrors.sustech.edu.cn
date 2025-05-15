@@ -1,5 +1,5 @@
 # This file is sourced by pkg
-# Mirror by Southern University of Science and Technology
+# Mirror by Southern University of Science and Technology. Hosted in China.
 WEIGHT=1
 MAIN="https://mirrors.sustech.edu.cn/termux/apt/termux-main"
 ROOT="https://mirrors.sustech.edu.cn/termux/apt/termux-root"

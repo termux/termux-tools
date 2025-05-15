@@ -1,5 +1,5 @@
 # This file is sourced by pkg
-# Mirror by FAU, Hosted in Erlangen, Germany.
+# Mirror by FAU. Hosted in Erlangen, Germany.
 WEIGHT=1
 MAIN="https://ftp.fau.de/termux/termux-main"
 ROOT="https://ftp.fau.de/termux/termux-root"

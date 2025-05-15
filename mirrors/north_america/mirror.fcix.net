@@ -1,5 +1,5 @@
 # This file is sourced by pkg
-# Mirror by Fremont Cabal Internet Exchange
+# Mirror by Fremont Cabal Internet Exchange. Hosted in Fremont, California, US.
 WEIGHT=1
 MAIN="https://mirror.fcix.net/termux/termux-main"
 ROOT="https://mirror.fcix.net/termux/termux-root"

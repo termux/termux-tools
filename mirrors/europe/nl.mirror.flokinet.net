@@ -1,5 +1,5 @@
 # This file is sourced by pkg
-# Mirror by FlokiNET, hosted in the Netherlands
+# Mirror by FlokiNET. Hosted in Netherlands.
 WEIGHT=1
 MAIN="https://nl.mirror.flokinet.net/termux/termux-main"
 ROOT="https://nl.mirror.flokinet.net/termux/termux-root"

@@ -1,5 +1,5 @@
 # This file is sourced by pkg
-# Mirror by Jeonnam High School Software Solution Club, hosted in Republic of Korea
+# Mirror by Jeonnam High School Software Solution Club. Hosted in Republic of Korea.
 WEIGHT=1
 MAIN="https://mirror.jeonnam.school/termux/termux-main"
 ROOT="https://mirror.jeonnam.school/termux/termux-root"

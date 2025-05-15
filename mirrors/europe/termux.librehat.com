@@ -1,5 +1,5 @@
 # This file is sourced by pkg
-# Mirror by librehat, hosted in the UK
+# Mirror by librehat. Hosted in UK.
 WEIGHT=1
 MAIN="https://termux.librehat.com/apt/termux-main"
 ROOT="https://termux.librehat.com/apt/termux-root"

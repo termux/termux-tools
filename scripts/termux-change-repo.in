@@ -94,7 +94,11 @@ get_mirror_url() {
 get_mirror_description() {
     local -a lines
     readarray -t lines < "$1"
-    printf '%s\n' "${lines[1]#* }"
+    local mirror_description="${lines[1]#* }"
+    mirror_description="${mirror_description//Mirror by /M: }"
+    mirror_description="${mirror_description//. Hosted in /. }"
+    mirror_description="${mirror_description%.}"
+    printf '%s\n' "$mirror_description"
 }
 
 select_individual_mirror() {

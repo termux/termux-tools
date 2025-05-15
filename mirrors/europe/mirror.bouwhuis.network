@@ -1,5 +1,5 @@
 # This file is sourced by pkg
-# Mirror by bouwhuis.network, hosted in Amsterdam, Netherlands.
+# Mirror by bouwhuis.network. Hosted in Amsterdam, Netherlands.
 WEIGHT=1
 MAIN="https://mirror.bouwhuis.network/termux/termux-main"
 ROOT="https://mirror.bouwhuis.network/termux/termux-root"
