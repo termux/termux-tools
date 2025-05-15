@@ -29,6 +29,7 @@ AM_INIT_AUTOMAKE([foreign])
 AC_PROG_MAKE_SET
 AC_PROG_CC
 AC_LANG(C)
+LT_INIT
 
 copyright="Copyright (C) 2022-2025 Termux."
 if test "${TERMUX_APP_PACKAGE+set}" = set; then
