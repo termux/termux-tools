@@ -12,6 +12,7 @@ fi
 source "@TERMUX_PREFIX@/bin/termux-setup-package-manager" || exit 1
 
 MIRROR_BASE_DIR="@TERMUX_PREFIX@/etc/termux/mirrors"
+UP_TO_DATE_THRESHOLD=21600 # 6 hours
 
 show_help() {
 	local cache_size
@@ -23,7 +24,7 @@ show_help() {
 	fi
 	cache_size=$(du -sh "$cache_dir" 2>/dev/null | cut -f1)
 
-	echo 'Usage: pkg [--check-mirror] command [arguments]'
+	echo 'Usage: pkg [--check-mirror] [-u|--up-to-date-mirror] command [arguments]'
 	echo
 	echo "A tool for managing $TERMUX_APP_PACKAGE_MANAGER packages."
 	echo '  --check-mirror forces a re-check of availability of mirrors'
@@ -65,17 +66,62 @@ show_help() {
 	exit 1
 }
 
-check_mirror() {
+# Converts seconds to human-readable format.
+# Example: `sec_to_human_readable 12345` => 3h 25m 45s
+sec_to_human_readable() {
+	echo "$(($1/3600))h $(($1%3600/60))m $(($1%60))s" | sed -E 's/(^)0h ?//g; s/(^| )0m//g; s/(^| )0s$//g'
+}
+
+get_mirror_last_modified_ts() {
 	local mirror="${1%/}"
 	local timeout="${2-5}"
 
+	local headers
+
+	headers="$(
 	timeout "$((timeout + 1))" curl \
+		--silent \
 		--head \
 		--fail \
 		--connect-timeout "$timeout" \
 		--location \
 		--user-agent "Termux-PKG/2.0 mirror-checker (termux-tools @PACKAGE_VERSION@) Termux (@TERMUX_APP_PACKAGE@; install-prefix:@TERMUX_PREFIX@)" \
-		"$mirror/dists/stable/Release" >/dev/null 2>&1
+		"$mirror/dists/stable/Release" 2>&1
+	)" || return 1
+	if [[ $headers =~ [Ll]ast-[Mm]odified:\ ([^$'\r\n']*) ]]; then
+		date -d "${BASH_REMATCH[1]}" "+%s"
+	else
+		# if there is no last modified date we skip the check and consider the mirror is up-to-date
+		echo "-1"
+	fi
+}
+
+check_mirror() {
+	local mirror_last_modified_ts defference header
+
+	header="[*] $([[ "${SHOW_WEIGHT-0}" == "1" ]] && echo "($(get_mirror_weight "${mirrors[$mirror]}")) ")${1%/}:"
+	if ! mirror_last_modified_ts="$(get_mirror_last_modified_ts "$@")"; then
+		echo "$header bad"
+		return 1
+	fi
+
+	if [[ "$default_mirror_ts" == "-1" || "$mirror_last_modified_ts" == "-1" ]]; then
+		# Skip checking whether mirror is up-to-date if default or current mirror last modified date is unknown
+		echo "$header ok"
+		return 0
+	fi
+
+	difference="$((default_mirror_ts - mirror_last_modified_ts))"
+	if (( difference < 0 )); then
+		echo "$header wrong date"
+		return 2
+	elif (( difference > UP_TO_DATE_THRESHOLD )); then
+		echo "$header outdated (by $(sec_to_human_readable $difference))"
+		return 1
+	else
+		echo "$header ok"
+		return 0
+	fi
 }
 
 check_command() {
@@ -187,6 +233,7 @@ get_mirror_weight() {
 }
 
 select_mirror() {
+	local default_mirror_ts=-1
 	local current_mirror
 	if [ -f "@TERMUX_PREFIX@/etc/apt/sources.list.d/main.sources" ]; then
 		current_mirror=$(grep -oE 'https?://[^ ]+' <(grep -m 1 -E '^[[:space:]]*URIs:[[:space:]]+' "@TERMUX_PREFIX@/etc/apt/sources.list.d/main.sources") || :)
@@ -225,13 +272,7 @@ select_mirror() {
 	if [ -e "$pkgcache" ] && (( $(last_modified "$pkgcache") <= 6 * 3600 )) && [ "$force_check_mirror" = "false" ]; then
 		if [ -n "$current_mirror" ]; then
 			echo "Checking availability of current mirror:"
-			echo -n "[*] $current_mirror: "
-			if check_mirror "$current_mirror"; then
-				echo "ok"
-				return
-			else
-				echo "bad"
-			fi
+			SHOW_WEIGHT=0 check_mirror "$current_mirror" && return
 		fi
 	fi
 
@@ -246,7 +287,6 @@ select_mirror() {
 	fi
 
 	declare -a parallel_jobs_mirrors=()
-	declare -a parallel_jobs_weights=()
 	declare -a parallel_jobs_urls=()
 	declare -a parallel_jobs_numbers=()
 	declare -a parallel_jobs_pids=()
@@ -258,6 +298,11 @@ select_mirror() {
 
 	has_repo_x11="$(has_repo x11)"
 	has_repo_root="$(has_repo root)"
+
+	if (( total_mirrors > 1 )); then
+		default_mirror_ts="$(get_mirror_last_modified_ts "$(get_mirror_url "$default_repo" "$has_repo_x11" "$has_repo_root")")" || default_mirror_ts=-1
+		echo "Default mirror last modified time is $([[ "$default_mirror_ts" != "-1" ]] && date -d "@$default_mirror_ts" || echo "unknown, not checking whether mirrors are up-to-date")"
+	fi
 
 	set +e
 	i=0
@@ -272,11 +317,10 @@ select_mirror() {
 		parallel_jobs_current_count=$((parallel_jobs_current_count + 1))
 
 		# Start mirror check in background
-		check_mirror "$url" &
+		SHOW_WEIGHT=1 check_mirror "$url" &
 		job_pid=$!
 
 		parallel_jobs_mirrors=("${parallel_jobs_mirrors[@]}" "$mirror")
-		parallel_jobs_weights=("${parallel_jobs_weights[@]}" "$(get_mirror_weight ${mirrors[$mirror]})")
 		parallel_jobs_urls=("${parallel_jobs_urls[@]}" "$url")
 		parallel_jobs_numbers=("${parallel_jobs_numbers[@]}" "$job_number")
 		parallel_jobs_pids=("${parallel_jobs_pids[@]}" "$job_pid")
@@ -300,11 +344,7 @@ select_mirror() {
 			j=0
 			# For return_values of all jobs
 			for return_value in "${parallel_jobs_return_values[@]}"; do
-				echo -n "[*] (${parallel_jobs_weights[j]}) ${parallel_jobs_urls[j]}: "
-				if [ "$return_value" -eq 0 ]; then
-					echo "ok"
-				else
-					echo "bad"
+				if [[ "$return_value" != 0 ]]; then
 					# echo "check_mirror job ${parallel_jobs_numbers[j]} for mirror \"${parallel_jobs_urls[j]}\" with pid ${parallel_jobs_pids[j]} failed with exit code $return_value"
 					unset "mirrors[${parallel_jobs_mirrors[j]}]"
 				fi
@@ -315,7 +355,6 @@ select_mirror() {
 			# Reset job related variables
 			parallel_jobs_current_count=1
 			parallel_jobs_mirrors=()
-			parallel_jobs_weights=()
 			parallel_jobs_urls=()
 			parallel_jobs_numbers=()
 			parallel_jobs_pids=()
@@ -349,8 +388,8 @@ select_mirror() {
 	if ((total_mirror_weight > 0)); then
 		local random_weight
 		random_weight=$(( (RANDOM % total_mirror_weight + 1) - 1 ))
-		echo "Picking mirror: (${random_weight}) ${weighted_mirrors[${random_weight}]}"
 		selected_mirror="${weighted_mirrors[${random_weight}]}"
+		echo "Picking mirror: ($(source "$selected_mirror" 2>/dev/null; echo ${MAIN-$select_mirror}))"
 	fi
 
 	if [ -z "$selected_mirror" ]; then
@@ -435,8 +474,13 @@ update_apt_cache() {
 }
 
 force_check_mirror=false
-if [ "${1-}" = "--check-mirror" ]; then
+if [[ "${1-}" = "--check-mirror" ]]; then
 	force_check_mirror=true
+	shift 1
+fi
+
+if [[ "${1-}" = "-u" || "${1-}" = "--up-to-date-mirror" ]]; then
+	UP_TO_DATE_THRESHOLD=0 # Use only the most up-to-date mirror, ignoring the threshold
 	shift 1
 fi
 
