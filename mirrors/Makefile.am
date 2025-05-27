@@ -19,14 +19,14 @@ mirrors.sdu.edu.cn mirrors.sustech.edu.cn mirrors.zju.edu.cn         \
 mirror.sjtu.edu.cn mirrors.hust.edu.cn mirrors.cernet.edu.cn
 
 # Mirrors in Europe
-pkgdata_EUROPE_MIRRORS = grimler.se mirror.termux.dev			\
+pkgdata_EUROPE_MIRRORS = grimler.se			\
 packages.termux.dev termux.librehat.com mirror.mwt.me			\
 termux.mentality.rip mirrors.de.sahilister.net termux.cdn.lumito.net	\
 termux.3san.dev mirror.accum.se			\
 md.mirrors.hacktegic.com ftp.fau.de is.mirror.flokinet.net		\
 ro.mirror.flokinet.net mirrors.medzik.dev mirrors.cfe.re		\
 mirror.sunred.org mirror.autkin.net mirror.bouwhuis.network		\
-mirror.leitecastro.com ftp.agdsn.de mirror.polido.pt			\
+mirror.leitecastro.com ftp.agdsn.de			\
 nl.mirror.flokinet.net
 
 # Mirrors in North America
@@ -71,6 +71,8 @@ china/mirrors.ustc.edu.cn \
 china/mirrors.zju.edu.cn \
 chinese_mainland/mirrors.qvq.net.cn \
 europe/cdn.lumito.net \
+europe/mirror.polido.pt \
+europe/mirror.termux.dev \
 europe/mirror.termux.dv \
 europe/termux.sahilister.in \
 europe/termux.astra.in.ua \
