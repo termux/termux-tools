@@ -66,6 +66,12 @@ if test "${TERMUX_PACKAGE_MANAGER+set}" = set; then
 else
   termux_package_manager="apt"
 fi
+if test "${TERMUX_ARCH+set}" = set; then
+  termux_arch="$TERMUX_ARCH"
+else
+  termux_arch="$("${CC-clang}" -dumpmachine)"
+  termux_arch="${termux_arch%%-*}"
+fi
 
 AC_DEFINE_UNQUOTED(COPYRIGHT, ["$copyright"],
   [Short copyright string for this version of termux-tools.])
@@ -79,6 +85,8 @@ AC_DEFINE_UNQUOTED(TERMUX_PREFIX, ["$termux_prefix"],
   [Termux prefix])
 AC_DEFINE_UNQUOTED(TERMUX_ANDROID_HOME, ["$termux_android_home"],
   [Termux home directory])
+AC_DEFINE_UNQUOTED(TERMUX_ARCH, ["$termux_arch"],
+  [Termux architecture])
 AC_DEFINE_UNQUOTED(TERMUX_PACKAGE_FORMAT, ["$termux_package_format"],
   [Packaging format (debian or pacman)])
 AC_DEFINE_UNQUOTED(TERMUX_PACKAGE_MANAGER, ["$termux_package_manager"],
@@ -89,6 +97,7 @@ AC_SUBST(termux_base_dir)
 AC_SUBST(termux_cache_dir)
 AC_SUBST(termux_prefix)
 AC_SUBST(termux_android_home)
+AC_SUBST(termux_arch)
 AC_SUBST(termux_package_format)
 AC_SUBST(termux_package_manager)
 
