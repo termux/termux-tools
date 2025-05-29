@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eu
+set -euo pipefail
 
 # Root Check
 if [[ "$(id -u)" == "0" ]]; then
@@ -393,45 +393,64 @@ select_mirror() {
 	)
 }
 
-update_apt_cache() {
-	local current_host
-	if [ -f "@TERMUX_PREFIX@/etc/apt/sources.list.d/main.sources" ]; then
-		current_host=$(head -n 1 <(sed -nE 's|^\s*URIs:\s+https?://(.+)$|\1|p' "@TERMUX_PREFIX@/etc/apt/sources.list.d/main.sources") || :)
-	elif [ -f "@TERMUX_PREFIX@/etc/apt/sources.list" ]; then
-		current_host=$(head -n 1 <(sed -nE 's|^\s*deb\s+https?://(.+)\s+stable\s+main$|\1|p' "@TERMUX_PREFIX@/etc/apt/sources.list") || :)
-	fi
-
-	if [ -z "$current_host" ]; then
-		# No primary repositories configured?
-		apt update
+handle_install_apt() {
+	local install_log install_command
+	# pipe the fd 3 to the current stdout,
+	# which will make anything printed to /dev/fd/3 print to the current shell's stdout
+	exec 3>&1
+	# attempt package installation without updating package cache
+	install_command="apt install $@"
+	if install_log="$(script -q -e -c "$install_command" /dev/null | tee /dev/fd/3)"; then
+		# close fd 3
+		exec 3>&-
+		# If the package installation was successful, then no further action is required
 		return
 	fi
+	# close fd 3
+	exec 3>&-
+	if ! grep -q -e 'Failed to fetch' -e 'Unable to locate package' <<< "$install_log"; then
+		# if apt did not print "Failed to fetch" or "Unable to locate package",
+		# then an error not handled here occurred, so exit.
+		# The original error message is still displayed to the user above.
+		exit 1
+	fi
+	select_mirror
+	# since package installation failed because of failure to download a package,
+	# updating the package cache is always necessary
+	apt update
+	# perform full upgrade interactively.
+	apt full-upgrade
+	# reattempt installing the package separately so that if one or more of the
+	# packages named does not exist, that failure does not prevent upgrading all packages.
+	apt install "$@"
+}
 
-	local metadata_file
-	metadata_file=$(
-		list_prefix=$(echo "$current_host" | sed 's|/|_|g')
-		arch=$(dpkg --print-architecture)
-		echo "@TERMUX_PREFIX@/var/lib/apt/lists/${list_prefix}_dists_stable_main_binary-${arch}_Packages" | sed 's|__|_|g'
-	)
-
-	if [ ! -e "@TERMUX_CACHE_DIR@/apt/pkgcache.bin" ] || [ ! -e "$metadata_file" ]; then
-		apt update
+handle_install_pacman() {
+	local install_log install_command
+	# pipe the fd 3 to the current stdout,
+	# which will make anything printed to /dev/fd/3 print to the current shell's stdout
+	exec 3>&1
+	# attempt package installation without updating package cache
+	install_command="pacman -S --needed $@"
+	if install_log="$(script -q -e -c "$install_command" /dev/null | tee /dev/fd/3)"; then
+		# close fd 3
+		exec 3>&-
+		# If the package installation was successful, then no further action is required
 		return
 	fi
-
-	local cache_modified
-	cache_modified=$(last_modified "@TERMUX_CACHE_DIR@/apt/pkgcache.bin")
-
-	local sources_modified
-	if [ -f "@TERMUX_PREFIX@/etc/apt/sources.list.d/main.sources" ]; then
-		sources_modified=$(last_modified "@TERMUX_PREFIX@/etc/apt/sources.list.d/main.sources")
-	elif [ -f "@TERMUX_PREFIX@/etc/apt/sources.list" ]; then
-		sources_modified=$(last_modified "@TERMUX_PREFIX@/etc/apt/sources.list")
+	# close fd 3
+	exec 3>&-
+	if ! grep -q -e 'failed retrieving file' -e 'target not found' <<< "$install_log"; then
+		# if pacman did not print "failed retrieving file" or "target not found",
+		# then an error not handled here occurred, so exit.
+		# The original error message is still displayed to the user above.
+		exit 1
 	fi
-
-	if (( sources_modified <= cache_modified )) || (( cache_modified > 1200 )); then
-		apt update
-	fi
+	# perform full upgrade interactively.
+	pacman -Syu
+	# reattempt installing the package separately so that if one or more of the
+	# packages named does not exist, that failure does not prevent upgrading all packages.
+	pacman -S --needed "$@"
 }
 
 force_check_mirror=false
@@ -453,13 +472,13 @@ case "$TERMUX_APP_PACKAGE_MANAGER" in
 		case "$CMD" in
 			f*) dpkg -L "$@";;
 			sh*|inf*) apt show "$@";;
-			add|i*) select_mirror; update_apt_cache; apt install "$@";;
+			add|i*) handle_install_apt "$@";;
 			autoc*) apt autoclean;;
 			cl*) apt clean;;
 			list-a*) apt list "$@";;
 			list-i*) apt list --installed "$@";;
 			rei*) apt install --reinstall "$@";;
-			se*) select_mirror; update_apt_cache; apt search "$@";;
+			se*) apt search "$@";;
 			un*|rem*|rm|del*) apt remove "$@";;
 			upd*) select_mirror; apt update;;
 			up|upg*) select_mirror; apt update; apt full-upgrade "$@";;
@@ -469,13 +488,13 @@ case "$TERMUX_APP_PACKAGE_MANAGER" in
 		case "$CMD" in
 			f*) pacman -Ql "$@";;
 			sh*|inf*) pacman -Qi "$@";;
-			add|i*) pacman -Sy --needed "$@";;
+			add|i*) handle_install_pacman "$@";;
 			autoc*) pacman -Sc;;
 			cl*) pacman -Scc;;
 			list-a*) pacman -Sl "$@";;
 			list-i*) pacman -Q "$@";;
 			rei*) pacman -S "$@";;
-			se*) pacman -Sys "$@";;
+			se*) pacman -Ss "$@";;
 			un*|rem*|rm|del*) pacman -Rcns "$@";;
 			upd*) pacman -Sy "$@";;
 			up|upg*) pacman -Syu "$@";;
