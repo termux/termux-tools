@@ -71,6 +71,7 @@ china/mirrors.ustc.edu.cn \
 china/mirrors.zju.edu.cn \
 chinese_mainland/mirrors.qvq.net.cn \
 europe/cdn.lumito.net \
+europe/mirror.mwt.me \
 europe/mirror.polido.pt \
 europe/mirror.termux.dev \
 europe/mirror.termux.dv \
