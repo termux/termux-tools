@@ -49,6 +49,7 @@ pkgdata_RUSSIA_MIRRORS = mirror.mephi.ru repository.su
 # would otherwise be left as is after package upgrades and would still
 # get used during mirror selection.
 pkgdata_MIRRORS_REMOVED = \
+asia/mirrors.bardia.tech \
 asia/packages.nscdn.top \
 china/mirrors.dgut.edu.cn \
 china/mirrors.hit.edu.cn \
