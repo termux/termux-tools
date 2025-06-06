@@ -2,7 +2,7 @@
 pkgdata_MIRRORS = default
 
 # Mirrors in Asia (excl. Chinese_Mainland and Russia)
-pkgdata_ASIA_MIRRORS = mirror.albony.in mirror.bardia.tech          \
+pkgdata_ASIA_MIRRORS = mirror.albony.in \
 mirrors.cbrx.io linux.domainesia.com mirror.nevacloud.com            \
 mirror.textcord.xyz tmx.xvx.my.id  mirrors.nguyenhoang.cloud         \
 mirror.freedif.org mirror.twds.com.tw mirrors.in.sahilister.net       \
@@ -20,7 +20,7 @@ mirror.sjtu.edu.cn mirrors.hust.edu.cn mirrors.cernet.edu.cn
 
 # Mirrors in Europe
 pkgdata_EUROPE_MIRRORS = grimler.se			\
-packages.termux.dev termux.librehat.com mirror.mwt.me			\
+packages.termux.dev termux.librehat.com \
 termux.mentality.rip mirrors.de.sahilister.net termux.cdn.lumito.net	\
 termux.3san.dev mirror.accum.se			\
 md.mirrors.hacktegic.com ftp.fau.de is.mirror.flokinet.net		\
@@ -49,7 +49,7 @@ pkgdata_RUSSIA_MIRRORS = mirror.mephi.ru repository.su
 # would otherwise be left as is after package upgrades and would still
 # get used during mirror selection.
 pkgdata_MIRRORS_REMOVED = \
-asia/mirrors.bardia.tech \
+asia/mirror.bardia.tech \
 asia/packages.nscdn.top \
 china/mirrors.dgut.edu.cn \
 china/mirrors.hit.edu.cn \
