@@ -1,6 +1,10 @@
 #!/bin/sh
 
-set -e -u
+set -eu
+
+is_executable_file() {
+	test -f "$1" -a -x "$1"
+}
 
 show_usage () {
 	echo "usage: chsh [-s shell]"
@@ -8,17 +12,37 @@ show_usage () {
 }
 
 set_shell () {
+	if [ -z "${1:-}" ]; then
+		echo "Restoring default shell"
+		rm -f "$HOME/.termux/shell"
+		exit 0
+	fi
+
 	if [ "$1" = login ]; then
 		echo "login is not a valid shell"
 		exit 1
 	fi
 	mkdir -p $HOME/.termux
-	NEW_SHELL=@TERMUX_PREFIX@/bin/$1
-	if test -x $NEW_SHELL -a ! -d $NEW_SHELL; then
-		ln -f -s $NEW_SHELL $HOME/.termux/shell
-	else
-		echo "$NEW_SHELL is not an executable file!"
+
+	unset NEW_SHELL
+	case "$1" in "/"*)
+		if is_executable_file "$1"; then
+			NEW_SHELL="$1"
+		fi
+		;;
+	esac
+
+	if [ -z "${NEW_SHELL:-}" ]; then
+		NEW_SHELL="@TERMUX_PREFIX@/bin/${1#/}"
+		if ! is_executable_file "$NEW_SHELL"; then
+			case "$1" in
+				"/"*) echo "Neither '$1' nor '$NEW_SHELL' is an executable file" ;;
+				*) echo "'$NEW_SHELL' is not an executable file" ;;
+			esac
+			exit 1
+		fi
 	fi
+	ln -sf "$NEW_SHELL" "$HOME/.termux/shell"
 }
 
 O=`getopt -l help -- hs: "$@"`
@@ -33,12 +57,11 @@ while true; do
 done
 
 DEFAULT_SHELL=bash
-if [ ! -x @TERMUX_PREFIX@/bin/$DEFAULT_SHELL ]; then DEFAULT_SHELL=sh; fi
+if ! is_executable_file "@TERMUX_PREFIX@/bin/$DEFAULT_SHELL"; then DEFAULT_SHELL=sh; fi
 
 echo Changing the login shell
 echo Enter the new value, or press ENTER for the default
 printf "        Login Shell [$DEFAULT_SHELL]: "
 read shell
 
-if [ -z "$shell" ]; then shell=$DEFAULT_SHELL; fi
 set_shell $shell
