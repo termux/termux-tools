@@ -1,5 +1,18 @@
 #!/bin/sh
 
+is_executable_file() {
+	test -f $1 -a -x $1
+}
+
+fallback_shell() {
+	for file in @TERMUX_PREFIX@/bin/bash @TERMUX_PREFIX@/bin/sh /system/bin/sh; do
+		if is_executable_file $file; then
+			export SHELL=$file
+			break
+		fi
+	done
+}
+
 if tty >/dev/null 2>&1 && [ $# = 0 ] && [ ! -f ~/.hushlogin ] && [ -z "$TERMUX_HUSHLOGIN" ]; then
 	# Use user defined dynamic motd file if it exists
 	if [ -f ~/.termux/motd.sh ]; then
@@ -19,15 +32,18 @@ if tty >/dev/null 2>&1 && [ $# = 0 ] && [ -f @TERMUX_PREFIX@/etc/motd-playstore 
 	printf '\033[0;31m'; cat @TERMUX_PREFIX@/etc/motd-playstore; printf '\033[0m'
 fi
 
-if [ -G ~/.termux/shell ]; then
-	export SHELL="`realpath ~/.termux/shell`"
+SHELL_FILE=~/.termux/shell
+if [ -G $SHELL_FILE ]; then
+	if [ -h $SHELL_FILE ]; then
+		# Export shell as target if shell file is a symlink
+		export SHELL="`realpath $SHELL_FILE`"
+	else
+		# Otherwise export the shell path in the file
+		SHELL="`cat $SHELL_FILE`"
+		is_executable_file $SHELL && export SHELL || fallback_shell
+	fi
 else
-	for file in @TERMUX_PREFIX@/bin/bash @TERMUX_PREFIX@/bin/sh /system/bin/sh; do
-		if [ -x $file ]; then
-			export SHELL=$file
-			break
-		fi
-	done
+	fallback_shell
 fi
 
 # TERMUX_APP_PACKAGE_MANAGER should be exported by termux-app v0.119.0+ itself
