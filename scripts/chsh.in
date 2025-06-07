@@ -1,6 +1,10 @@
 #!/bin/sh
 
-set -e -u
+set -eu
+
+is_executable_file() {
+	test -f $1 -a -x $1
+}
 
 show_usage () {
 	echo "usage: chsh [-s shell]"
@@ -13,12 +17,21 @@ set_shell () {
 		exit 1
 	fi
 	mkdir -p $HOME/.termux
+
 	NEW_SHELL=@TERMUX_PREFIX@/bin/$1
-	if test -x $NEW_SHELL -a ! -d $NEW_SHELL; then
-		ln -f -s $NEW_SHELL $HOME/.termux/shell
-	else
-		echo "$NEW_SHELL is not an executable file!"
+	if ! is_executable_file $NEW_SHELL; then
+		NEW_SHELL=$1
+		if ! is_executable_file $NEW_SHELL; then
+			echo "Neither @TERMUX_PREFIX@/bin/$NEW_SHELL nor $NEW_SHELL is an executable file"
+			exit 1
+		fi
 	fi
+
+	SHELL_FILE=$HOME/.termux/shell
+	if [ -e $SHELL_FILE ] && ([ ! -f $SHELL_FILE ] || [ -h $SHELL_FILE ]); then
+		rm -f $SHELL_FILE
+	fi
+	echo $NEW_SHELL > $SHELL_FILE
 }
 
 O=`getopt -l help -- hs: "$@"`
@@ -33,7 +46,7 @@ while true; do
 done
 
 DEFAULT_SHELL=bash
-if [ ! -x @TERMUX_PREFIX@/bin/$DEFAULT_SHELL ]; then DEFAULT_SHELL=sh; fi
+if ! is_executable_file @TERMUX_PREFIX@/bin/$DEFAULT_SHELL; then DEFAULT_SHELL=sh; fi
 
 echo Changing the login shell
 echo Enter the new value, or press ENTER for the default
