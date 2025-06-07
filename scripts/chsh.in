@@ -20,8 +20,11 @@ set_shell () {
 
 	NEW_SHELL=@TERMUX_PREFIX@/bin/$1
 	if ! is_executable_file $NEW_SHELL; then
-		echo "$NEW_SHELL is not an executable file"
-		exit 1
+		NEW_SHELL=$1
+		if ! is_executable_file $NEW_SHELL; then
+			echo "Neither @TERMUX_PREFIX@/bin/$NEW_SHELL nor $NEW_SHELL is an executable file"
+			exit 1
+		fi
 	fi
 
 	SHELL_FILE=$HOME/.termux/shell
