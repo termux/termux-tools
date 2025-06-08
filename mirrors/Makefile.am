@@ -24,7 +24,7 @@ packages.termux.dev termux.librehat.com \
 termux.mentality.rip mirrors.de.sahilister.net termux.cdn.lumito.net	\
 termux.3san.dev mirror.accum.se			\
 md.mirrors.hacktegic.com ftp.fau.de is.mirror.flokinet.net		\
-ro.mirror.flokinet.net mirrors.medzik.dev mirrors.cfe.re		\
+ro.mirror.flokinet.net mirrors.medzik.dev	\
 mirror.sunred.org mirror.autkin.net mirror.bouwhuis.network		\
 mirror.leitecastro.com ftp.agdsn.de	ftp.icm.edu.pl		        \
 nl.mirror.flokinet.net
@@ -73,6 +73,7 @@ china/mirrors.ustc.edu.cn \
 china/mirrors.zju.edu.cn \
 chinese_mainland/mirrors.qvq.net.cn \
 europe/cdn.lumito.net \
+europe/mirrors.cfe.re \
 europe/mirror.mwt.me \
 europe/mirror.polido.pt \
 europe/mirror.termux.dev \
