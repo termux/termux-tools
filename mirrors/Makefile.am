@@ -4,7 +4,7 @@ pkgdata_MIRRORS = default
 # Mirrors in Asia (excl. Chinese_Mainland and Russia)
 pkgdata_ASIA_MIRRORS = mirror.albony.in \
 mirrors.cbrx.io linux.domainesia.com mirror.nevacloud.com            \
-mirror.textcord.xyz tmx.xvx.my.id  mirrors.nguyenhoang.cloud         \
+tmx.xvx.my.id  mirrors.nguyenhoang.cloud         \
 mirror.freedif.org mirror.twds.com.tw mirrors.in.sahilister.net       \
 mirrors.saswata.cc termux.niranjan.co mirrors.ravidwivedi.in          \
 mirror.jeonnam.school mirror.rinarin.dev mirrors.krnk.org             \
@@ -50,6 +50,7 @@ pkgdata_RUSSIA_MIRRORS = mirror.mephi.ru repository.su
 # get used during mirror selection.
 pkgdata_MIRRORS_REMOVED = \
 asia/mirror.bardia.tech \
+asia/mirror.textcord.xyz \
 asia/packages.nscdn.top \
 china/mirrors.dgut.edu.cn \
 china/mirrors.hit.edu.cn \
