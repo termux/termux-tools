@@ -2,7 +2,7 @@
 pkgdata_MIRRORS = default
 
 # Mirrors in Asia (excl. Chinese_Mainland and Russia)
-pkgdata_ASIA_MIRRORS = mirror.albony.in \
+pkgdata_ASIA_MIRRORS = mirror.nag.albony.in \
 mirrors.cbrx.io linux.domainesia.com mirror.nevacloud.com            \
 tmx.xvx.my.id  mirrors.nguyenhoang.cloud         \
 mirror.freedif.org mirror.twds.com.tw mirrors.in.sahilister.net       \
@@ -85,7 +85,8 @@ europe/termux.sahilister.in \
 north_america/packages.termux.dev \
 oceania/mirrors.wale.id.au \
 russia/mirror.surf \
-south_america/mirrors.rda.run 
+south_america/mirrors.rda.run \
+asia/mirror.albony.in
 
 
 
