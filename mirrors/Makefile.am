@@ -50,22 +50,24 @@ pkgdata_RUSSIA_MIRRORS = mirror.mephi.ru repository.su
 # get used during mirror selection.
 pkgdata_MIRRORS_REMOVED = \
 asia/mirror.bardia.tech \
+asia/mirrors.omsinchan.ac.th \
+asia/mirrors.saswata.xyz \
 asia/mirror.textcord.xyz \
 asia/packages.nscdn.top \
-china/mirrors.dgut.edu.cn \
-china/mirrors.hit.edu.cn \
-china/mirrors.njupt.edu.cn \
-china/mirrors.scau.edu.cn \
 china/mirror.iscas.ac.cn \
 china/mirror.nyist.edu.cn \
-china/mirror.sjtu.edu.cn \
 china/mirrors.aliyun.com \
 china/mirrors.bfsu.edu.cn \
 china/mirrors.cqupt.edu.cn \
+china/mirrors.dgut.edu.cn \
+china/mirrors.hit.edu.cn \
+china/mirror.sjtu.edu.cn \
 china/mirrors.nju.edu.cn \
+china/mirrors.njupt.edu.cn \
 china/mirrors.pku.edu.cn \
 china/mirrors.qvq.net.cn \
 china/mirrors.sau.edu.cn \
+china/mirrors.scau.edu.cn \
 china/mirrors.sdu.edu.cn \
 china/mirrors.sustech.edu.cn \
 china/mirrors.tuna.tsinghua.edu.cn \
@@ -73,19 +75,17 @@ china/mirrors.ustc.edu.cn \
 china/mirrors.zju.edu.cn \
 chinese_mainland/mirrors.qvq.net.cn \
 europe/cdn.lumito.net \
-europe/mirrors.cfe.re \
 europe/mirror.mwt.me \
 europe/mirror.polido.pt \
+europe/mirrors.cfe.re \
 europe/mirror.termux.dev \
 europe/mirror.termux.dv \
-europe/termux.sahilister.in \
 europe/termux.astra.in.ua \
+europe/termux.sahilister.in \
 north_america/packages.termux.dev \
 oceania/mirrors.wale.id.au \
 russia/mirror.surf \
-south_america/mirrors.rda.run \
-asia/mirrors.saswata.xyz \
-asia/mirrors.omsinchan.ac.th
+south_america/mirrors.rda.run 
 
 
 
