@@ -1,4 +1,18 @@
 #!/bin/sh
+# shellcheck shell=dash
+
+is_executable_file() {
+	test -f "$1" -a -x "$1"
+}
+
+set_default_shell() {
+	for file in "@TERMUX_PREFIX@/bin/bash" "@TERMUX_PREFIX@/bin/sh" "/system/bin/sh"; do
+		if is_executable_file "$file"; then
+			SHELL="$file"
+			break
+		fi
+	done
+}
 
 if tty >/dev/null 2>&1 && [ $# = 0 ] && [ ! -f ~/.hushlogin ] && [ -z "$TERMUX_HUSHLOGIN" ]; then
 	# Use user defined dynamic motd file if it exists
@@ -19,16 +33,23 @@ if tty >/dev/null 2>&1 && [ $# = 0 ] && [ -f @TERMUX_PREFIX@/etc/motd-playstore 
 	printf '\033[0;31m'; cat @TERMUX_PREFIX@/etc/motd-playstore; printf '\033[0m'
 fi
 
-if [ -G ~/.termux/shell ]; then
-	export SHELL="`realpath ~/.termux/shell`"
-else
-	for file in @TERMUX_PREFIX@/bin/bash @TERMUX_PREFIX@/bin/sh /system/bin/sh; do
-		if [ -x $file ]; then
-			export SHELL=$file
-			break
-		fi
-	done
+unset SHELL
+SHELL_FILE=~/.termux/shell
+
+if [ -L "$SHELL_FILE" ]; then
+	# Set the symlink's value as the shell target.
+	SHELL_TARGET="$(readlink "$SHELL_FILE")"
+	if is_executable_file "$SHELL_TARGET" &&
+		[ ! "$SHELL_TARGET" -ef "@TERMUX_PREFIX@/bin/login" ]; then
+		SHELL="$SHELL_TARGET"
+	fi
 fi
+
+if [ -z "${SHELL:-}" ]; then
+	set_default_shell
+fi
+
+export SHELL
 
 # TERMUX_APP_PACKAGE_MANAGER should be exported by termux-app v0.119.0+ itself
 if [ -z "${TERMUX_APP_PACKAGE_MANAGER-}" ]; then
