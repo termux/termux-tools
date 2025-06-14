@@ -31,7 +31,7 @@ nl.mirror.flokinet.net
 
 # Mirrors in North America
 pkgdata_NORTH_AMERICA_MIRRORS = plug-mirror.rcac.purdue.edu          \
-dl.kcubeterm.com mirrors.utermux.dev mirror.fcix.net mirror.mwt.me   \
+mirrors.utermux.dev mirror.fcix.net mirror.mwt.me   \
 mirror.vern.cc mirror.csclub.uwaterloo.ca mirror.quantum5.ca		 \
 termux.danyael.xyz gnlug.org
 
@@ -82,6 +82,7 @@ europe/mirror.termux.dev \
 europe/mirror.termux.dv \
 europe/termux.astra.in.ua \
 europe/termux.sahilister.in \
+north_america/dl.kcubeterm.com \
 north_america/packages.termux.dev \
 oceania/mirrors.wale.id.au \
 russia/mirror.surf \
