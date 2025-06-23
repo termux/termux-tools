@@ -12,11 +12,11 @@ show_usage () {
     exit 0
 }
 
-TEMP=`getopt \
-     -n $SCRIPTNAME \
-     -o h \
-     --long send,view,chooser,content-type:,help\
-     -- "$@"`
+TEMP="$(getopt \
+    -n "$SCRIPTNAME" \
+    -o h \
+    --long send,view,chooser,content-type:,help \
+    -- "$@")"
 eval set -- "$TEMP"
 
 ACTION=android.intent.action.VIEW

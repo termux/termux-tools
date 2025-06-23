@@ -11,11 +11,7 @@ show_usage() {
 	echo "usage: chsh [-s shell]"
 	echo "Change the login shell."
 	echo
-	if [ "${1:-}" = "login" ]; then
-		echo "The shell value must be one of following and cannot be 'login':"
-	else
-		echo "The shell value must be one of following:"
-	fi
+	echo "The shell value must be one of following and cannot be 'login':"
 	echo " - Empty value to restore default shell."
 	echo " - Absolute path to shell starting with a '/'."
 	echo " - Relative path to shell not starting with a '/' relative to '@TERMUX_PREFIX@/bin'."
@@ -28,10 +24,6 @@ set_shell() {
 		exit 0
 	fi
 
-	if [ "$1" = "login" ]; then
-		show_usage "login"
-		exit 1
-	fi
 	mkdir -p "$HOME/.termux"
 
 	unset NEW_SHELL
@@ -44,18 +36,22 @@ set_shell() {
 
 	if ! is_executable_file "$SHELL_TARGET"; then
 		echo "The shell file '$SHELL_TARGET' is not an executable file." 1>&2
+		echo
+		show_usage
 		exit 1
 	fi
 
 	if [ "$SHELL_TARGET" -ef "@TERMUX_PREFIX@/bin/login" ]; then
 		echo "The shell file '$SHELL_TARGET' must not point to the '@TERMUX_PREFIX@/bin/login' script." 1>&2
+		echo
+		show_usage
 		exit 1
 	fi
 
 	ln -sf "$SHELL_TARGET" "$HOME/.termux/shell"
 }
 
-O=`getopt -l help -- hs: "$@"`
+O="$(getopt -l help -- hs: "$@")"
 eval set -- "$O"
 while true; do
 	case "$1" in
