@@ -1,5 +1,5 @@
 # This file is sourced by pkg
-# Mirror by Shanghai Jiao Tong University (SJTUG). Hosted in China.
+# Mirror by Shanghai Jiao Tong University (@sjtug). Hosted in China.
 WEIGHT=1
 MAIN="https://mirror.sjtu.edu.cn/termux/termux-main/"
 ROOT="https://mirror.sjtu.edu.cn/termux/termux-root/"
