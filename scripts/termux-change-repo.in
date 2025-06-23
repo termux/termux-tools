@@ -30,7 +30,7 @@ select_repository_group() {
     MIRRORS+=("Mirrors in Oceania" "All in Oceania")
     MIRRORS+=("Mirrors in Russia" "All in Russia")
 
-    local TEMPFILE="$(mktemp @TERMUX_PREFIX@/tmp/mirror.XXXXXX)"
+    local TEMPFILE="$(mktemp "@TERMUX_PREFIX@/tmp/mirror.XXXXXX")"
     dialog \
         --title "termux-change-repo" --clear \
         --menu "Which group of mirrors do you want to use?" 0 0 0 \
@@ -55,31 +55,31 @@ select_repository_group() {
 
     if [ "$mirror_group" == "Mirrors in Asia" ]; then
         echo "[*] Mirrors in Asia (excl. Chinese Mainland and Russia) selected"
-        unlink_and_link ${MIRROR_BASE_DIR}/asia
+        unlink_and_link "${MIRROR_BASE_DIR}/asia"
 
     elif [ "$mirror_group" == "Mirrors in Chinese Mainland" ]; then
         echo "[*] Mirrors in Chinese Mainland selected"
-        unlink_and_link ${MIRROR_BASE_DIR}/chinese_mainland
+        unlink_and_link "${MIRROR_BASE_DIR}/chinese_mainland"
 
     elif [ "$mirror_group" == "Mirrors in Europe" ]; then
         echo "[*] Mirrors in Europe selected"
-        unlink_and_link ${MIRROR_BASE_DIR}/europe
+        unlink_and_link "${MIRROR_BASE_DIR}/europe"
 
     elif [ "$mirror_group" == "Mirrors in North America" ]; then
         echo "[*] Mirrors in North America selected"
-        unlink_and_link ${MIRROR_BASE_DIR}/north_america
+        unlink_and_link "${MIRROR_BASE_DIR}/north_america"
 
     elif [ "$mirror_group" == "Mirrors in Oceania" ]; then
         echo "[*] Mirrors in Oceania selected"
-        unlink_and_link ${MIRROR_BASE_DIR}/oceania
+        unlink_and_link "${MIRROR_BASE_DIR}/oceania"
 
     elif [ "$mirror_group" == "Mirrors in Russia" ]; then
         echo "[*] Mirrors in Russia selected"
-        unlink_and_link ${MIRROR_BASE_DIR}/russia
+        unlink_and_link "${MIRROR_BASE_DIR}/russia"
 
     elif [ "$mirror_group" == "All mirrors" ]; then
         echo "[*] All mirrors selected"
-        unlink_and_link ${MIRROR_BASE_DIR}/all
+        unlink_and_link "${MIRROR_BASE_DIR}/all"
 
     else
         echo "[!] Error: unknown mirror group: '$1'. Exiting"
@@ -102,7 +102,7 @@ get_mirror_description() {
 }
 
 select_individual_mirror() {
-    mirrors=($(find ${MIRROR_BASE_DIR}/{asia,chinese_mainland,europe,north_america,oceania,russia}/ -type f ! -name "*\.dpkg-old" ! -name "*\.dpkg-new" ! -name "*~"))
+    mirrors=($(find "${MIRROR_BASE_DIR}"/{asia,chinese_mainland,europe,north_america,oceania,russia}/ -type f ! -name "*\.dpkg-old" ! -name "*\.dpkg-new" ! -name "*~"))
 
     # Choose default mirror per default
     MIRRORS=("$(get_mirror_url "${MIRROR_BASE_DIR}/default")" "$(get_mirror_description "${MIRROR_BASE_DIR}/default")")
@@ -114,7 +114,7 @@ select_individual_mirror() {
         MIRRORS+=("$mirror_url" "$(get_mirror_description "$mirror")")
     done
 
-    local TEMPFILE="$(mktemp @TERMUX_PREFIX@/tmp/mirror.XXXXXX)"
+    local TEMPFILE="$(mktemp "@TERMUX_PREFIX@/tmp/mirror.XXXXXX")"
     dialog \
         --title "termux-change-repo" --clear \
         --menu "Which mirror do you want to use?" 0 0 0 \
@@ -137,7 +137,7 @@ select_individual_mirror() {
     mirror="$(cat "$TEMPFILE")"
 
     echo "[*] Mirror $(get_mirror_url "$mirror") selected"
-    unlink_and_link "$(find ${MIRROR_BASE_DIR} -name $mirror)"
+    unlink_and_link "$(find "${MIRROR_BASE_DIR}" -name "$mirror")"
     rm "$TEMPFILE"
 }
 
@@ -160,12 +160,12 @@ fi
 if [ "$TERMUX_APP_PACKAGE_MANAGER" = "pacman" ]; then
     read -p "Warning: termux-change-repo can only change mirrors for apt, is that what you intended? [y|n] " -n 1 -r
     echo
-    [[ ${REPLY} =~ ^[Nn]$ ]] && exit
+    [[ "${REPLY}" =~ ^[Nn]$ ]] && exit
 fi
 
 mkdir -p "@TERMUX_PREFIX@/tmp" || exit $?
 
-TEMPFILE="$(mktemp @TERMUX_PREFIX@/tmp/termux-change-repo.XXXXXX)"
+TEMPFILE="$(mktemp "@TERMUX_PREFIX@/tmp/termux-change-repo.XXXXXX")"
 
 MODES=()
 MODES+=("Mirror group" "Rotate between several mirrors (recommended)")
@@ -180,7 +180,7 @@ clear
 
 case $retval in
     0)
-        case "$(cat $TEMPFILE)" in
+        case "$(cat "$TEMPFILE")" in
         "Mirror group")
             select_repository_group
             ;;

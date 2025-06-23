@@ -21,7 +21,7 @@ show_help() {
 	elif [ "$TERMUX_APP_PACKAGE_MANAGER" = "pacman" ]; then
 		cache_dir="@TERMUX_PREFIX@/var/cache/pacman/pkg"
 	fi
-	cache_size=$(du -sh "$cache_dir" 2>/dev/null | cut -f1)
+	cache_size="$(du -sh "$cache_dir" 2>/dev/null | cut -f1)"
 
 	echo 'Usage: pkg [--check-mirror] command [arguments]'
 	echo
@@ -94,10 +94,6 @@ check_command() {
 		fi
 		exit 1
 	fi
-}
-
-hostname() {
-	echo "$1" | awk -F'[/:]' '{print $4}'
 }
 
 last_modified() {
