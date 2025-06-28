@@ -14,7 +14,7 @@ mirror.meowsmp.net
 pkgdata_CHINESE_MAINLAND_MIRRORS = mirrors.tuna.tsinghua.edu.cn      \
 mirror.iscas.ac.cn mirrors.nju.edu.cn mirrors.pku.edu.cn             \
 mirrors.ustc.edu.cn mirrors.bfsu.edu.cn	mirrors.aliyun.com           \
-mirrors.cqupt.edu.cn mirror.nyist.edu.cn mirrors.sau.edu.cn	         \
+mirrors.cqupt.edu.cn mirror.nyist.edu.cn \
 mirrors.sdu.edu.cn mirrors.sustech.edu.cn mirrors.zju.edu.cn         \
 mirror.sjtu.edu.cn mirrors.hust.edu.cn mirrors.cernet.edu.cn
 
@@ -73,6 +73,7 @@ china/mirrors.sustech.edu.cn \
 china/mirrors.tuna.tsinghua.edu.cn \
 china/mirrors.ustc.edu.cn \
 china/mirrors.zju.edu.cn \
+chinese_mainland/mirrors.sau.edu.cn \
 chinese_mainland/mirrors.qvq.net.cn \
 europe/cdn.lumito.net \
 europe/mirror.mwt.me \
