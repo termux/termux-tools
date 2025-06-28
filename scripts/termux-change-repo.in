@@ -6,139 +6,139 @@ source "@TERMUX_PREFIX@/bin/termux-setup-package-manager" || exit 1
 MIRROR_BASE_DIR="@TERMUX_PREFIX@/etc/termux/mirrors"
 
 if [ "$1" == "--help" ] || [ "$1" == "-help" ]; then
-    echo "Script for choosing a group of mirrors to use."
-    echo "All mirrors are listed at"
-    echo "https://github.com/termux/termux-packages/wiki/Mirrors"
-    exit 0
+	echo "Script for choosing a group of mirrors to use."
+	echo "All mirrors are listed at"
+	echo "https://github.com/termux/termux-packages/wiki/Mirrors"
+	exit 0
 fi
 
 unlink_and_link() {
-    MIRROR_GROUP="$1"
-    if [ -L "@TERMUX_PREFIX@/etc/termux/chosen_mirrors" ]; then
-        unlink "@TERMUX_PREFIX@/etc/termux/chosen_mirrors"
-    fi
-    ln -s "${MIRROR_GROUP}" "@TERMUX_PREFIX@/etc/termux/chosen_mirrors"
+	MIRROR_GROUP="$1"
+	if [ -L "@TERMUX_PREFIX@/etc/termux/chosen_mirrors" ]; then
+		unlink "@TERMUX_PREFIX@/etc/termux/chosen_mirrors"
+	fi
+	ln -s "${MIRROR_GROUP}" "@TERMUX_PREFIX@/etc/termux/chosen_mirrors"
 }
 
 select_repository_group() {
-    MIRRORS=()
-    MIRRORS+=("All mirrors" "All in the entire world")
-    MIRRORS+=("Mirrors in Asia" "All in Asia (excl. Chinese Mainland and Russia)")
-    MIRRORS+=("Mirrors in Chinese Mainland" "All in Chinese Mainland")
-    MIRRORS+=("Mirrors in Europe" "All in Europe")
-    MIRRORS+=("Mirrors in North America" "All in North America")
-    MIRRORS+=("Mirrors in Oceania" "All in Oceania")
-    MIRRORS+=("Mirrors in Russia" "All in Russia")
+	MIRRORS=()
+	MIRRORS+=("All mirrors" "All in the entire world")
+	MIRRORS+=("Mirrors in Asia" "All in Asia (excl. Chinese Mainland and Russia)")
+	MIRRORS+=("Mirrors in Chinese Mainland" "All in Chinese Mainland")
+	MIRRORS+=("Mirrors in Europe" "All in Europe")
+	MIRRORS+=("Mirrors in North America" "All in North America")
+	MIRRORS+=("Mirrors in Oceania" "All in Oceania")
+	MIRRORS+=("Mirrors in Russia" "All in Russia")
 
-    local TEMPFILE="$(mktemp @TERMUX_PREFIX@/tmp/mirror.XXXXXX)"
-    dialog \
-        --title "termux-change-repo" --clear \
-        --menu "Which group of mirrors do you want to use?" 0 0 0 \
-        "${MIRRORS[@]}" --and-widget \
-        2> "$TEMPFILE"
-    retval=$?
-    clear
+	local TEMPFILE="$(mktemp "@TERMUX_PREFIX@/tmp/mirror.XXXXXX")"
+	dialog \
+		--title "termux-change-repo" --clear \
+		--menu "Which group of mirrors do you want to use?" 0 0 0 \
+		"${MIRRORS[@]}" --and-widget \
+		2> "$TEMPFILE"
+	retval=$?
+	clear
 
-    case $retval in
-        1)
-            # Cancel pressed
-            exit
-            ;;
-        255)
-            # Esc pressed
-            exit
-            ;;
-    esac
+	case $retval in
+		1)
+			# Cancel pressed
+			exit
+			;;
+		255)
+			# Esc pressed
+			exit
+			;;
+	esac
 
-    mirror_group="$(cat "$TEMPFILE")"
-    rm "$TEMPFILE"
+	mirror_group="$(cat "$TEMPFILE")"
+	rm "$TEMPFILE"
 
-    if [ "$mirror_group" == "Mirrors in Asia" ]; then
-        echo "[*] Mirrors in Asia (excl. Chinese Mainland and Russia) selected"
-        unlink_and_link ${MIRROR_BASE_DIR}/asia
+	if [ "$mirror_group" == "Mirrors in Asia" ]; then
+		echo "[*] Mirrors in Asia (excl. Chinese Mainland and Russia) selected"
+		unlink_and_link "${MIRROR_BASE_DIR}/asia"
 
-    elif [ "$mirror_group" == "Mirrors in Chinese Mainland" ]; then
-        echo "[*] Mirrors in Chinese Mainland selected"
-        unlink_and_link ${MIRROR_BASE_DIR}/chinese_mainland
+	elif [ "$mirror_group" == "Mirrors in Chinese Mainland" ]; then
+		echo "[*] Mirrors in Chinese Mainland selected"
+		unlink_and_link "${MIRROR_BASE_DIR}/chinese_mainland"
 
-    elif [ "$mirror_group" == "Mirrors in Europe" ]; then
-        echo "[*] Mirrors in Europe selected"
-        unlink_and_link ${MIRROR_BASE_DIR}/europe
+	elif [ "$mirror_group" == "Mirrors in Europe" ]; then
+		echo "[*] Mirrors in Europe selected"
+		unlink_and_link "${MIRROR_BASE_DIR}/europe"
 
-    elif [ "$mirror_group" == "Mirrors in North America" ]; then
-        echo "[*] Mirrors in North America selected"
-        unlink_and_link ${MIRROR_BASE_DIR}/north_america
+	elif [ "$mirror_group" == "Mirrors in North America" ]; then
+		echo "[*] Mirrors in North America selected"
+		unlink_and_link "${MIRROR_BASE_DIR}/north_america"
 
-    elif [ "$mirror_group" == "Mirrors in Oceania" ]; then
-        echo "[*] Mirrors in Oceania selected"
-        unlink_and_link ${MIRROR_BASE_DIR}/oceania
+	elif [ "$mirror_group" == "Mirrors in Oceania" ]; then
+		echo "[*] Mirrors in Oceania selected"
+		unlink_and_link "${MIRROR_BASE_DIR}/oceania"
 
-    elif [ "$mirror_group" == "Mirrors in Russia" ]; then
-        echo "[*] Mirrors in Russia selected"
-        unlink_and_link ${MIRROR_BASE_DIR}/russia
+	elif [ "$mirror_group" == "Mirrors in Russia" ]; then
+		echo "[*] Mirrors in Russia selected"
+		unlink_and_link "${MIRROR_BASE_DIR}/russia"
 
-    elif [ "$mirror_group" == "All mirrors" ]; then
-        echo "[*] All mirrors selected"
-        unlink_and_link ${MIRROR_BASE_DIR}/all
+	elif [ "$mirror_group" == "All mirrors" ]; then
+		echo "[*] All mirrors selected"
+		unlink_and_link "${MIRROR_BASE_DIR}/all"
 
-    else
-        echo "[!] Error: unknown mirror group: '$1'. Exiting"
-        exit 1
-    fi
+	else
+		echo "[!] Error: unknown mirror group: '$1'. Exiting"
+		exit 1
+	fi
 }
 
 get_mirror_url() {
-    echo "${1##*/}"
+	echo "${1##*/}"
 }
 
 get_mirror_description() {
-    local -a lines
-    readarray -t lines < "$1"
-    local mirror_description="${lines[1]#* }"
-    mirror_description="${mirror_description//Mirror by /M: }"
-    mirror_description="${mirror_description//. Hosted in /. }"
-    mirror_description="${mirror_description%.}"
-    printf '%s\n' "$mirror_description"
+	local -a lines
+	readarray -t lines < "$1"
+	local mirror_description="${lines[1]#* }"
+	mirror_description="${mirror_description//Mirror by /M: }"
+	mirror_description="${mirror_description//. Hosted in /. }"
+	mirror_description="${mirror_description%.}"
+	printf '%s\n' "$mirror_description"
 }
 
 select_individual_mirror() {
-    mirrors=($(find ${MIRROR_BASE_DIR}/{asia,chinese_mainland,europe,north_america,oceania,russia}/ -type f ! -name "*\.dpkg-old" ! -name "*\.dpkg-new" ! -name "*~"))
+	mirrors=($(find "${MIRROR_BASE_DIR}"/{asia,chinese_mainland,europe,north_america,oceania,russia}/ -type f ! -name "*\.dpkg-old" ! -name "*\.dpkg-new" ! -name "*~"))
 
-    # Choose default mirror per default
-    MIRRORS=("$(get_mirror_url "${MIRROR_BASE_DIR}/default")" "$(get_mirror_description "${MIRROR_BASE_DIR}/default")")
-    # Special handling of packages.termux.dev mirror to put it on top:
-    MIRRORS+=("$(get_mirror_url "${MIRROR_BASE_DIR}/europe/packages.termux.dev")" "$(get_mirror_description "${MIRROR_BASE_DIR}/europe/packages.termux.dev")")
-    for mirror in ${mirrors[@]}; do
-        mirror_url=$(get_mirror_url "$mirror")
-        if [ "$mirror_url" == "packages.termux.dev" ]; then continue; fi
-        MIRRORS+=("$mirror_url" "$(get_mirror_description "$mirror")")
-    done
+	# Choose default mirror per default
+	MIRRORS=("$(get_mirror_url "${MIRROR_BASE_DIR}/default")" "$(get_mirror_description "${MIRROR_BASE_DIR}/default")")
+	# Special handling of packages.termux.dev mirror to put it on top:
+	MIRRORS+=("$(get_mirror_url "${MIRROR_BASE_DIR}/europe/packages.termux.dev")" "$(get_mirror_description "${MIRROR_BASE_DIR}/europe/packages.termux.dev")")
+	for mirror in ${mirrors[@]}; do
+		mirror_url=$(get_mirror_url "$mirror")
+		if [ "$mirror_url" == "packages.termux.dev" ]; then continue; fi
+		MIRRORS+=("$mirror_url" "$(get_mirror_description "$mirror")")
+	done
 
-    local TEMPFILE="$(mktemp @TERMUX_PREFIX@/tmp/mirror.XXXXXX)"
-    dialog \
-        --title "termux-change-repo" --clear \
-        --menu "Which mirror do you want to use?" 0 0 0 \
-        "${MIRRORS[@]}" --and-widget \
-        2> "$TEMPFILE"
-    retval=$?
-    clear
+	local TEMPFILE="$(mktemp "@TERMUX_PREFIX@/tmp/mirror.XXXXXX")"
+	dialog \
+		--title "termux-change-repo" --clear \
+		--menu "Which mirror do you want to use?" 0 0 0 \
+		"${MIRRORS[@]}" --and-widget \
+		2> "$TEMPFILE"
+	retval=$?
+	clear
 
-    case $retval in
-        1)
-            # Cancel pressed
-            exit
-            ;;
-        255)
-            # Esc pressed
-            exit
-            ;;
-    esac
+	case $retval in
+		1)
+			# Cancel pressed
+			exit
+			;;
+		255)
+			# Esc pressed
+			exit
+			;;
+	esac
 
-    mirror="$(cat "$TEMPFILE")"
+	mirror="$(cat "$TEMPFILE")"
 
-    echo "[*] Mirror $(get_mirror_url "$mirror") selected"
-    unlink_and_link "$(find ${MIRROR_BASE_DIR} -name $mirror)"
-    rm "$TEMPFILE"
+	echo "[*] Mirror $(get_mirror_url "$mirror") selected"
+	unlink_and_link "$(find "${MIRROR_BASE_DIR}" -name "$mirror")"
+	rm "$TEMPFILE"
 }
 
 usage() {
@@ -149,54 +149,54 @@ usage() {
 }
 
 if [ $# -gt 0 ]; then
-    usage
+	usage
 fi
 
 if ! command -v apt 1>/dev/null; then
-    echo "Error: Cannot change mirrors since apt is not installed." >&2
-    exit 1
+	echo "Error: Cannot change mirrors since apt is not installed." >&2
+	exit 1
 fi
 
 if [ "$TERMUX_APP_PACKAGE_MANAGER" = "pacman" ]; then
-    read -p "Warning: termux-change-repo can only change mirrors for apt, is that what you intended? [y|n] " -n 1 -r
-    echo
-    [[ ${REPLY} =~ ^[Nn]$ ]] && exit
+	read -p "Warning: termux-change-repo can only change mirrors for apt, is that what you intended? [y|n] " -n 1 -r
+	echo
+	[[ "${REPLY}" =~ ^[Nn]$ ]] && exit
 fi
 
 mkdir -p "@TERMUX_PREFIX@/tmp" || exit $?
 
-TEMPFILE="$(mktemp @TERMUX_PREFIX@/tmp/termux-change-repo.XXXXXX)"
+TEMPFILE="$(mktemp "@TERMUX_PREFIX@/tmp/termux-change-repo.XXXXXX")"
 
 MODES=()
 MODES+=("Mirror group" "Rotate between several mirrors (recommended)")
 MODES+=("Single mirror" "Choose a single mirror to use")
 dialog \
-    --title "termux-change-repo" --clear \
-    --menu "Do you want to choose a mirror group or a single mirror?" 0 0 0 \
-    "${MODES[@]}" --and-widget \
-    2> "$TEMPFILE"
+	--title "termux-change-repo" --clear \
+	--menu "Do you want to choose a mirror group or a single mirror?" 0 0 0 \
+	"${MODES[@]}" --and-widget \
+	2> "$TEMPFILE"
 retval=$?
 clear
 
 case $retval in
-    0)
-        case "$(cat $TEMPFILE)" in
-        "Mirror group")
-            select_repository_group
-            ;;
-        "Single mirror")
-            select_individual_mirror
-            ;;
-        esac
-        ;;
-    1)
-        # Cancel pressed
-        exit
-        ;;
-    255)
-        # Esc pressed
-        exit
-        ;;
+	0)
+		case "$(cat "$TEMPFILE")" in
+		"Mirror group")
+			select_repository_group
+			;;
+		"Single mirror")
+			select_individual_mirror
+			;;
+		esac
+		;;
+	1)
+		# Cancel pressed
+		exit
+		;;
+	255)
+		# Esc pressed
+		exit
+		;;
 esac
 
 rm "$TEMPFILE"

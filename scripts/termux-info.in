@@ -44,9 +44,8 @@ updates() {
 }
 
 repo_subscriptions_apt() {
-	local apt_dir="@TERMUX_PREFIX@/etc/apt"
+	local apt_dir="@TERMUX_PREFIX@/etc/apt" filename source_entry repo_package sources_type
 
-	local filename source_entry repo_package sources_type
 	for filename in "${apt_dir}"/sources.list{,.d/*}; do
 		[[ -f "$filename" ]] || continue
 		case "$filename" in
@@ -148,7 +147,7 @@ escaped_package_name="$(echo -n "@TERMUX_APP_PACKAGE@" | sed -zE -e 's/[][\.|$()
 show_version_code=""
 sdk_version="$(getprop ro.build.version.sdk || :)"
 if [[ "$sdk_version" =~ ^[0-9]+$ ]] && [ "$sdk_version" -ge "26" ]; then
-  show_version_code="--show-versioncode"
+	show_version_code="--show-versioncode"
 fi
 TERMUX_PLUGINS="$(pm list packages --user "$TERMUX__USER_ID" $show_version_code 2>&1 </dev/null | grep -E "^package:$escaped_package_name\.[a-zA-Z]" | cut -d ":" -f 2- | grep -vE "^$escaped_package_name\.tapm\.[a-zA-Z]")"
 if [ -n "${TERMUX_PLUGINS:-}" ]; then
