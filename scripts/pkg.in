@@ -394,13 +394,19 @@ select_mirror() {
 }
 
 handle_install_apt() {
-	local install_log install_command
+	local install_log install_command pkgcache
 	# pipe the fd 3 to the current stdout,
 	# which will make anything printed to /dev/fd/3 print to the current shell's stdout
 	exec 3>&1
 	# attempt package installation without updating package cache
+	# only if it's not time for mirrors to be rotated
 	install_command="apt install $@"
-	if install_log="$(script -q -e -c "$install_command" /dev/null | tee /dev/fd/3)"; then
+	pkgcache="@TERMUX_CACHE_DIR@/apt/pkgcache.bin"
+	if [ ! -e "$pkgcache" ] || \
+		(( $(last_modified "$pkgcache") > 6 * 3600 )) || \
+		[ "$force_check_mirror" = "true" ]; then
+		install_log="Mirrors have not been rotated within the last 6 hours"
+	elif install_log="$(script -q -e -c "$install_command" /dev/null | tee /dev/fd/3)"; then
 		# close fd 3
 		exec 3>&-
 		# If the package installation was successful, then no further action is required
@@ -408,8 +414,13 @@ handle_install_apt() {
 	fi
 	# close fd 3
 	exec 3>&-
-	if ! grep -q -e 'Failed to fetch' -e 'Unable to locate package' <<< "$install_log"; then
+	if ! grep -q \
+		-e 'Failed to fetch' \
+		-e 'Unable to locate package' \
+		-e 'Mirrors have not been rotated within the last 6 hours' \
+		<<< "$install_log"; then
 		# if apt did not print "Failed to fetch" or "Unable to locate package",
+		# and mirrors have been rotated within the last 6 hours,
 		# then an error not handled here occurred, so exit.
 		# The original error message is still displayed to the user above.
 		exit 1
