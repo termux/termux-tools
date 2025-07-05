@@ -12,6 +12,8 @@ fi
 source "@TERMUX_PREFIX@/bin/termux-setup-package-manager" || exit 1
 
 MIRROR_BASE_DIR="@TERMUX_PREFIX@/etc/termux/mirrors"
+DEFAULT_REPO="${MIRROR_BASE_DIR}/default"
+UP_TO_DATE_THRESHOLD=21600 # 6 hours
 
 show_help() {
 	local cache_size
@@ -23,7 +25,7 @@ show_help() {
 	fi
 	cache_size=$(du -sh "$cache_dir" 2>/dev/null | cut -f1)
 
-	echo 'Usage: pkg [--check-mirror] command [arguments]'
+	echo 'Usage: pkg [--check-mirror] [-u|--up-to-date-mirror] command [arguments]'
 	echo
 	echo "A tool for managing $TERMUX_APP_PACKAGE_MANAGER packages."
 	echo '  --check-mirror forces a re-check of availability of mirrors'
@@ -65,17 +67,145 @@ show_help() {
 	exit 1
 }
 
-check_mirror() {
-	local mirror="${1%/}"
-	local timeout="${2-5}"
+# Converts seconds to human-readable format.
+# Example: `sec_to_human_readable 12345` => 3h 25m 45s
+sec_to_human_readable() {
+	echo "$(($1/86400))d $(($1%86400/3600))h $(($1%3600/60))m $(($1%60))s" | sed -E 's/^0d //g; s/(^| )0h//g; s/(^| )0m//g; s/(^| )0s$//g'
+}
 
-	timeout "$((timeout + 1))" curl \
-		--head \
-		--fail \
-		--connect-timeout "$timeout" \
-		--location \
-		--user-agent "Termux-PKG/2.0 mirror-checker (termux-tools @PACKAGE_VERSION@) Termux (@TERMUX_APP_PACKAGE@; install-prefix:@TERMUX_PREFIX@)" \
-		"$mirror/dists/stable/Release" >/dev/null 2>&1
+get_weighted_mirrors() ( # This function must run in a subshell
+	local timeout="${1}"
+	shift # all other args are mirrors
+
+	local argv=("$@") # bash can not iterate function argv directly
+	local has_default="false" wait_default="false" default_date="" default_ts="" now=""
+	now="$(date "+%s")"
+
+	local i is_ok content url line mirrorname weight header difference lines=() mirrors=() args=(
+		"--silent"
+		"--location"
+		"--range" "0-200"
+		"--user-agent" "Termux-PKG/2.0 mirror-checker (termux-tools @PACKAGE_VERSION@) Termux (@TERMUX_APP_PACKAGE@; install-prefix:@TERMUX_PREFIX@)"
+		"--parallel" "--parallel-immediate" "--parallel-max" "100"
+		"--max-time" "$timeout"
+		"-w" "%{exitcode}\r %{errormsg}\r%{http_code}\r%{url}\r%{filename_effective}\n"
+	)
+
+	# unfortunately there is no way to create absolutely anonymous files or pipes in bash to be reused in curl
+	# so we create temporary folder where curl will be able to put its files
+	# and scheduling cleanup after function finishes.
+	cd "$(mktemp -d pkg.XXXXXXXXXX)"
+	coproc { read -r || :; rm -rf "$(pwd)"; } # removes current directory as soon as current subshell finishes
+
+	for ((i=0; i<$#; i++)); do
+		IFS=$'\r' read -r url weight < <(get_mirror_url "${argv[$i]}")
+		# Part after # symbol is not being sent to server and can be reused locally
+		url="$url/dists/stable/Release#${weight}|${argv[$i]}"
+		if (( $# != 1 && i == 0 )) && [[ "${argv[$i]}" == "${DEFAULT_REPO}" ]]; then
+			url="$url|default"
+			wait_default="true"
+		fi
+		args+=("-o" "Release_${i}" "${url}")
+	done
+
+	# In the case if we use mirror group we still should obtain default mirror data
+	# to check if mirrors we are about to pick are not outdated.
+	# But we will set weight=0 to avoid picking it.
+	if [[ "$#" -gt 1 && "$wait_default" != "true" ]]; then
+		IFS=$'\r' read -r url _ < <(get_mirror_url "${DEFAULT_REPO}")
+		args+=("-o" "Release_default" "$url/dists/stable/Release#0|0|default")
+		wait_default="true"
+	fi
+
+	while read -r line; do
+		if [[ "$wait_default" == "true" && "$has_default" == "false" ]]; then
+			if [[ "$line" != *"|default"* ]]; then
+				# we did not get default mirror results, delay processing
+				# we are required to have default mirror timestamp for validating other mirrors
+				lines+=("$line")
+				continue
+			else
+				has_default="true"
+				line="${line//|default/}"
+				IFS=$'\r' read -r exit_code _ http_code url filename _ <<< "${line}" || { echo "failed to read line $line" >&2; continue; }
+				# default mirror is always valid, we should only extract timestamp
+				if [[ "$exit_code" == "0" && "$http_code" == "206" && -f "$filename" ]] && [[ $'\n'"$(<"$filename")"$'\n' =~ $'\nDate: '([^$'\n']*)$'\n' ]]; then
+					# reset date in the case if we can not parse it, it is useless
+					[[ -n "${BASH_REMATCH[1]}" ]] && default_date="${BASH_REMATCH[1]}" default_ts="$(date -d "${BASH_REMATCH[1]}" "+%s")" || default_date="" default_ts=""
+					[[ -n "$default_date" ]] && echo "Default mirror date is ${default_date}" >&2
+				fi
+			fi
+		fi
+		for line in "$line" "${lines[@]}"; do
+			IFS=$'\r' read -r exit_code error_msg http_code url filename _ <<< "${line}" || { echo "failed to read line $line" >&2; continue; }
+
+			# split url and weight we concatenated in curl write-out
+			weight="${url#*#}"
+			url="${url%%/dists/stable/Release#*}"
+			mirrorname="${weight#*|}"
+			weight="${weight%%|*}"
+			(( weight > 0 )) || continue
+
+			# shellcheck disable=SC2015
+			header="[*] $( (( $# > 1 )) && echo "($weight) " || : )${url}:"
+			if (( exit_code == 28 )); then
+				echo "$header timeout" >&2
+			elif (( exit_code != 0 )); then
+				echo "$header bad (${error_msg:1})" >&2
+			elif (( http_code != 200 && http_code != 206 )); then
+				echo "$header bad (HTTP error $http_code)" >&2
+			else
+				is_ok=0 last_modified="" timestamp=""
+				content="$(<"$filename")"
+
+				# check if release file has last modification date, correct origin and current arch.
+				if [[ $'\n'"${content}"$'\n' =~ $'\nDate: '([^$'\n']*)$'\n' \
+						&& $'\n'"${content}"$'\n' == *$'\nOrigin: termux-main stable\n'* \
+						&& $'\n'"${content}"$'\n' == *$'\nArchitectures:'?([^$'\n']*)*@TERMUX_ARCH@?([^$'\n']*)$'\n'* ]]; then
+					last_modified="${BASH_REMATCH[1]}"
+				else
+					echo "$header invalid" >&2
+					continue
+				fi
+
+				if [[ -z "$default_ts" || "$default_date" == "$last_modified" ]]; then
+					# if default mirror last modified time is unknown we skip the check
+					# same applies with last modified time matches
+					is_ok=1
+				elif [[ -z "$last_modified" ]] || ! timestamp="$(date -d "$last_modified" "+%s")"; then
+					echo "$header invalid timestamp '${last_modified-null}' '${timestamp-null}'" >&2
+					continue
+				fi
+
+				if (( is_ok != 1 )); then
+					difference="$(( default_ts - ${timestamp-0} ))"
+					if (( timestamp > now )); then
+						echo "$header invalid timestamp (date in the future?)" >&2
+						continue
+					elif (( difference < 0 )); then
+						echo "$header superdated (by $(sec_to_human_readable $(( -difference )) ))" >&2
+						continue
+					elif (( difference > UP_TO_DATE_THRESHOLD )); then
+						echo "$header outdated (by $(sec_to_human_readable $(( difference - UP_TO_DATE_THRESHOLD )) ))" >&2
+						continue
+					fi
+				fi
+				echo "$header $( (( $# > 1 && is_ok == 1 )) && echo up-to-date || echo ok )" >&2
+
+				# And now print weighted value of the mirror, repeat the line $weight times
+				for ((i=0; i<weight; i++)); do
+					printf "%s\n" "$mirrorname"
+				done
+			fi
+		done
+		# reset processed lines
+		lines=()
+	done < <(curl "${args[@]}" || :)
+)
+
+check_single_mirror() {
+	# Special case, we should check single mirror
+	[[ -n "$(get_weighted_mirrors 5 <(printf "MAIN=%s\nX11=%s\nROOT=%s\nWEIGHT=1\n" "$1" "$1" "$1"))" ]]
 }
 
 check_command() {
@@ -96,25 +226,12 @@ check_command() {
 	fi
 }
 
-hostname() {
-	echo "$1" | awk -F'[/:]' '{print $4}'
-}
-
-last_modified() {
-	local mtime
-	local now
-
-	mtime=$(date -r "$1" '+%s')
-	now=$(date '+%s')
-	echo $((now - mtime))
-}
-
-sed_escape_replacement() {
-	local r="$1"
-	r="${r//[\\]/\\\\}" # Escape `\`.
-	r="${r//[\/]/\\\/}" # Escape `/`.
-	r="${r//[&]/\\\&}"  # Escape `&`.
-	echo "$r"
+replace_uris_in_file() {
+	local uris="$1" file="$2"
+	uris="${uris//[\\]/\\\\}" # Escape `\`.
+	uris="${uris//[\/]/\\\/}" # Escape `/`.
+	uris="${uris//[&]/\\\&}"  # Escape `&`.
+	sed -i -e "s|URIs:.*|URIs: ${uris}|" "$file"
 }
 
 has_repo() {
@@ -137,8 +254,6 @@ unset_mirror_variables() {
 
 get_mirror_url() {
 	local -r _mirror="$1"
-	local -r _has_repo_x11="$2"
-	local -r _has_repo_root="$3"
 
 	unset_mirror_variables
 	# shellcheck source=/dev/null
@@ -152,7 +267,7 @@ get_mirror_url() {
 		return 0
 	fi
 
-	if [[ "$_has_repo_x11" == "true" ]]; then
+	if [[ -n "$HAS_X11_REPO" ]]; then
 		if [[ -z "${X11:-}" ]]; then
 			echo "Warn: Ignoring mirror '$_mirror' without x11 channel url" >&2
 			return 0
@@ -162,7 +277,7 @@ get_mirror_url() {
 		fi
 	fi
 
-	if [[ "$_has_repo_root" == "true" ]]; then
+	if [[ -n "$HAS_ROOT_REPO" ]]; then
 		if [[ -z "${ROOT:-}" ]]; then
 			echo "Warn: Ignoring mirror '$_mirror' without root channel url" >&2
 			return 0
@@ -177,43 +292,38 @@ get_mirror_url() {
 		return 0
 	fi
 
-	echo "$MAIN"
-}
-
-get_mirror_weight() {
-	unset_mirror_variables
-	source "$1"
-	echo "$WEIGHT"
+	echo "${MAIN%/}"$'\r'"${WEIGHT}"
 }
 
 select_mirror() {
 	local current_mirror
-	if [ -f "@TERMUX_PREFIX@/etc/apt/sources.list.d/main.sources" ]; then
-		current_mirror=$(grep -oE 'https?://[^ ]+' <(grep -m 1 -E '^[[:space:]]*URIs:[[:space:]]+' "@TERMUX_PREFIX@/etc/apt/sources.list.d/main.sources") || :)
-	elif [ -f "@TERMUX_PREFIX@/etc/apt/sources.list" ]; then
-		current_mirror=$(grep -oE 'https?://[^ ]+' <(grep -m 1 -E '^[[:space:]]*deb[[:space:]]+' "@TERMUX_PREFIX@/etc/apt/sources.list") || :)
+	if [[ -f "@TERMUX_PREFIX@/etc/apt/sources.list.d/main.sources" ]]; then
+		current_mirror=$(grep -m1 -Po '^[[:space:]]*URIs:[[:space:]]+\K(https?://[^ ]+)' "@TERMUX_PREFIX@/etc/apt/sources.list.d/main.sources" || :)
+	elif [[ -f "@TERMUX_PREFIX@/etc/apt/sources.list" ]]; then
+		current_mirror=$(grep -m1 -Po '^[[:space:]]*deb[[:space:]]+\K(https?://[^ ]+)' "@TERMUX_PREFIX@/etc/apt/sources.list" || :)
 	fi
 
 	# Do not update mirror if $TERMUX_PKG_NO_MIRROR_SELECT was set.
-	if [ -n "${TERMUX_PKG_NO_MIRROR_SELECT-}" ] && [ -n "$current_mirror" ]; then
+	if [[ -n "${TERMUX_PKG_NO_MIRROR_SELECT-}" && -n "$current_mirror" ]]; then
 		return
 	fi
 
-	local default_repo="${MIRROR_BASE_DIR}/default"
-
-	if [ -d "@TERMUX_PREFIX@/etc/termux/chosen_mirrors" ]; then
+	if [[ -d "@TERMUX_PREFIX@/etc/termux/chosen_mirrors" ]]; then
 		# Mirror group selected
+		# shellcheck disable=SC2207
 		mirrors=($(find "@TERMUX_PREFIX@/etc/termux/chosen_mirrors/" -type f ! -name "*\.dpkg-old" ! -name "*\.dpkg-new" ! -name "*~"))
-	elif [ -f "@TERMUX_PREFIX@/etc/termux/chosen_mirrors" ]; then
+	elif [[ -f "@TERMUX_PREFIX@/etc/termux/chosen_mirrors" ]]; then
 		# Single mirror selected
 		mirrors=("$(realpath "@TERMUX_PREFIX@/etc/termux/chosen_mirrors")")
-	elif [ -L "@TERMUX_PREFIX@/etc/termux/chosen_mirrors" ]; then
+	elif [[ -L "@TERMUX_PREFIX@/etc/termux/chosen_mirrors" ]]; then
 		# Broken symlink, use all mirrors
-		mirrors=("${MIRROR_BASE_DIR}/default")
+		mirrors=("${DEFAULT_REPO}")
+		# shellcheck disable=SC2207
 		mirrors+=($(find "${MIRROR_BASE_DIR}"/{asia,chinese_mainland,europe,north_america,oceania,russia}/ -type f ! -name "*\.dpkg-old" ! -name "*\.dpkg-new" ! -name "*~"))
 	else
 		echo "No mirror or mirror group selected. You might want to select one by running 'termux-change-repo'"
-		mirrors=("${MIRROR_BASE_DIR}/default")
+		mirrors=("${DEFAULT_REPO}")
+		# shellcheck disable=SC2207
 		mirrors+=($(find ${MIRROR_BASE_DIR}/{asia,chinese_mainland,europe,north_america,oceania,russia}/ -type f ! -name "*\.dpkg-old" ! -name "*\.dpkg-new" ! -name "*~"))
 	fi
 
@@ -222,143 +332,24 @@ select_mirror() {
 
 	# Mirrors are rotated if 6 hours timeout has been passed or mirror is no longer accessible.
 	local pkgcache="@TERMUX_CACHE_DIR@/apt/pkgcache.bin"
-	if [ -e "$pkgcache" ] && (( $(last_modified "$pkgcache") <= 6 * 3600 )) && [ "$force_check_mirror" = "false" ]; then
-		if [ -n "$current_mirror" ]; then
-			echo "Checking availability of current mirror:"
-			echo -n "[*] $current_mirror: "
-			if check_mirror "$current_mirror"; then
-				echo "ok"
-				return
-			else
-				echo "bad"
-			fi
-		fi
+	if [[ -n "$(find "$pkgcache" -mmin -360 -type f -print)" && "$force_check_mirror" == "false" && -n "$current_mirror" ]]; then
+		echo "Checking availability of current mirror:"
+		check_single_mirror "$current_mirror" && return
 	fi
 
-	# Test mirror availability, remove unaccessible mirrors from list.
-	echo "Testing the available mirrors:"
-	local parallel_jobs_max_count=10
-
-	if [[ ! "$parallel_jobs_max_count" =~ ^[0-9]+$ ]] || \
-		[[ "$parallel_jobs_max_count" -lt 1 ]] || \
-			[[ "$parallel_jobs_max_count" -gt 1000 ]]; then
-		parallel_jobs_max_count=1
-	fi
-
-	declare -a parallel_jobs_mirrors=()
-	declare -a parallel_jobs_weights=()
-	declare -a parallel_jobs_urls=()
-	declare -a parallel_jobs_numbers=()
-	declare -a parallel_jobs_pids=()
-	declare -a parallel_jobs_return_values=()
-
-	local i j mirror url job_number job_pid return_value
-	local total_mirrors=${#mirrors[@]}
-	local parallel_jobs_current_count=1
-
-	has_repo_x11="$(has_repo x11)"
-	has_repo_root="$(has_repo root)"
-
-	set +e
-	i=0
-	for mirror in "${!mirrors[@]}"; do
-		url="$(get_mirror_url "${mirrors[$mirror]}" "$has_repo_x11" "$has_repo_root")"
-		if [ -z "$url" ]; then
-			unset "mirrors[$mirror]"
-			continue
-		fi
-
-		job_number=$parallel_jobs_current_count
-		parallel_jobs_current_count=$((parallel_jobs_current_count + 1))
-
-		# Start mirror check in background
-		check_mirror "$url" &
-		job_pid=$!
-
-		parallel_jobs_mirrors=("${parallel_jobs_mirrors[@]}" "$mirror")
-		parallel_jobs_weights=("${parallel_jobs_weights[@]}" "$(get_mirror_weight ${mirrors[$mirror]})")
-		parallel_jobs_urls=("${parallel_jobs_urls[@]}" "$url")
-		parallel_jobs_numbers=("${parallel_jobs_numbers[@]}" "$job_number")
-		parallel_jobs_pids=("${parallel_jobs_pids[@]}" "$job_pid")
-
-		# If current job count has reached max value or is the last mirror, wait for already started jobs to finish
-		if [ "$job_number" -ge $parallel_jobs_max_count ] || \
-			[ "$i" -ge $((total_mirrors - 1)) ]; then
-
-			j=0
-			# For pids of all jobs
-			for job_pid in "${parallel_jobs_pids[@]}"; do
-				# Wait for job with matching pid to return
-				# echo "waiting for check_mirror job ${parallel_jobs_numbers[j]} for mirror \"${parallel_jobs_urls[j]}\" with pid ${parallel_jobs_pids[j]}"
-				wait "$job_pid"
-				return_value=$?
-
-				parallel_jobs_return_values=("${parallel_jobs_return_values[@]}" "$return_value")
-				j=$((j + 1))
-			done
-
-			j=0
-			# For return_values of all jobs
-			for return_value in "${parallel_jobs_return_values[@]}"; do
-				echo -n "[*] (${parallel_jobs_weights[j]}) ${parallel_jobs_urls[j]}: "
-				if [ "$return_value" -eq 0 ]; then
-					echo "ok"
-				else
-					echo "bad"
-					# echo "check_mirror job ${parallel_jobs_numbers[j]} for mirror \"${parallel_jobs_urls[j]}\" with pid ${parallel_jobs_pids[j]} failed with exit code $return_value"
-					unset "mirrors[${parallel_jobs_mirrors[j]}]"
-				fi
-
-				j=$((j + 1))
-			done
-
-			# Reset job related variables
-			parallel_jobs_current_count=1
-			parallel_jobs_mirrors=()
-			parallel_jobs_weights=()
-			parallel_jobs_urls=()
-			parallel_jobs_numbers=()
-			parallel_jobs_pids=()
-			parallel_jobs_return_values=()
-		fi
-
-		i=$((i + 1))
-	done
-	set -e
-
-	# Build weighted array of valid mirrors
-	declare -a weighted_mirrors
-	local total_mirror_weight=0
-	local weight
-	for mirror in "${!mirrors[@]}"; do
-		# Check if mirror was unset in parallel check
-		if [ -z "${mirrors[$mirror]-}" ]; then
-			continue
-		fi
-		weight="$(get_mirror_weight ${mirrors[$mirror]})"
-		total_mirror_weight=$((total_mirror_weight + weight))
-		j=0
-		while [ "$j" -lt "$weight" ]; do
-			weighted_mirrors+=(${mirrors[$mirror]})
-			j=$((j + 1))
-		done
-	done
-
-	# Select random mirror
+	# Test mirror availability, remove unaccessible mirrors and pick random up-to-date one
 	local selected_mirror=""
-	if ((total_mirror_weight > 0)); then
-		local random_weight
-		random_weight=$(( (RANDOM % total_mirror_weight + 1) - 1 ))
-		echo "Picking mirror: (${random_weight}) ${weighted_mirrors[${random_weight}]}"
-		selected_mirror="${weighted_mirrors[${random_weight}]}"
-	fi
-
-	if [ -z "$selected_mirror" ]; then
+	echo "Testing the available mirrors:"
+	selected_mirror="$(get_weighted_mirrors 5 "${mirrors[@]}" | shuf -n1)" 2>&1
+	if [[ -z "$selected_mirror" ]]; then
 		# Should not happen unless there is some issue with
 		# the script, or the mirror files
 		echo "Error: None of the mirrors are accessible"
 		exit 1
 	fi
+
+	# shellcheck source=/dev/null
+	echo "Picking mirror: $(source "$selected_mirror" 2>/dev/null; echo "${MAIN-$selected_mirror}")"
 
 	(
 		unset_mirror_variables
@@ -366,87 +357,66 @@ select_mirror() {
 		source "$selected_mirror"
 
 		case "$(has_repo main)" in
-			'deb822')
-				sed -i -e "s|URIs:.*|$(sed_escape_replacement "URIs: $MAIN")|" \
-				"@TERMUX_PREFIX@/etc/apt/sources.list.d/main.sources"
-			;;
+			'deb822') replace_uris_in_file "$MAIN" "@TERMUX_PREFIX@/etc/apt/sources.list.d/main.sources";;
 			# There should always be a main repo, so fallback to
 			# creating sources.list if the `main.sources` file is missing
 			*) echo "deb $MAIN stable main" > "@TERMUX_PREFIX@/etc/apt/sources.list";;
 		esac
 
-		case "${has_repo_x11:-}" in
-			'deb822')
-				sed -i -e "s|URIs:.*|$(sed_escape_replacement "URIs: $X11")|" \
-				"@TERMUX_PREFIX@/etc/apt/sources.list.d/x11.sources"
-			;;
+		case "${HAS_X11_REPO:-}" in
+			'deb822') replace_uris_in_file "$X11" "@TERMUX_PREFIX@/etc/apt/sources.list.d/x11.sources";;
 			'legacy') echo "deb $X11 x11 main" > "@TERMUX_PREFIX@/etc/apt/sources.list.d/x11.list";;
 		esac
 
-		case "${has_repo_root:-}" in
-			'deb822')
-				sed -i -e "s|URIs:.*|$(sed_escape_replacement "URIs: $ROOT")|" \
-				"@TERMUX_PREFIX@/etc/apt/sources.list.d/root.sources"
-			;;
+		case "${HAS_ROOT_REPO:-}" in
+			'deb822') replace_uris_in_file "$ROOT" "@TERMUX_PREFIX@/etc/apt/sources.list.d/root.sources";;
 			'legacy') echo "deb $ROOT root stable" > "@TERMUX_PREFIX@/etc/apt/sources.list.d/root.list";;
 		esac
 	)
 }
 
 update_apt_cache() {
-	local current_host
-	if [ -f "@TERMUX_PREFIX@/etc/apt/sources.list.d/main.sources" ]; then
-		current_host=$(head -n 1 <(sed -nE 's|^\s*URIs:\s+https?://(.+)$|\1|p' "@TERMUX_PREFIX@/etc/apt/sources.list.d/main.sources") || :)
-	elif [ -f "@TERMUX_PREFIX@/etc/apt/sources.list" ]; then
-		current_host=$(head -n 1 <(sed -nE 's|^\s*deb\s+https?://(.+)\s+stable\s+main$|\1|p' "@TERMUX_PREFIX@/etc/apt/sources.list") || :)
+	local list_prefix="" sources_file="" metadata_file=""
+	if [[ -f "@TERMUX_PREFIX@/etc/apt/sources.list.d/main.sources" ]]; then
+		sources_file="@TERMUX_PREFIX@/etc/apt/sources.list.d/main.sources"
+		read -r list_prefix < <(sed -nE 's|^\s*URIs:\s+https?://(.+[^/])/?$|\1|p' "$sources_file") || :
+	elif [[ -f "@TERMUX_PREFIX@/etc/apt/sources.list" ]]; then
+		sources_file="@TERMUX_PREFIX@/etc/apt/sources.list"
+		read -r list_prefix < <(sed -nE 's|^\s*deb\s+https?://(.+[^/])/?\s+stable\s+main$|\1|p' "$sources_file") || :
+	else
+		echo "ERROR: Main deb source file is missing."
+		exit 1
 	fi
 
-	if [ -z "$current_host" ]; then
-		# No primary repositories configured?
-		apt update
-		return
-	fi
+	metadata_file="@TERMUX_PREFIX@/var/lib/apt/lists/${list_prefix//\//_}_dists_stable_main_binary-@TERMUX_ARCH@_Packages"
 
-	local metadata_file
-	metadata_file=$(
-		list_prefix=$(echo "$current_host" | sed 's|/|_|g')
-		arch=$(dpkg --print-architecture)
-		echo "@TERMUX_PREFIX@/var/lib/apt/lists/${list_prefix}_dists_stable_main_binary-${arch}_Packages" | sed 's|__|_|g'
-	)
-
-	if [ ! -e "@TERMUX_CACHE_DIR@/apt/pkgcache.bin" ] || [ ! -e "$metadata_file" ]; then
-		apt update
-		return
-	fi
-
-	local cache_modified
-	cache_modified=$(last_modified "@TERMUX_CACHE_DIR@/apt/pkgcache.bin")
-
-	local sources_modified
-	if [ -f "@TERMUX_PREFIX@/etc/apt/sources.list.d/main.sources" ]; then
-		sources_modified=$(last_modified "@TERMUX_PREFIX@/etc/apt/sources.list.d/main.sources")
-	elif [ -f "@TERMUX_PREFIX@/etc/apt/sources.list" ]; then
-		sources_modified=$(last_modified "@TERMUX_PREFIX@/etc/apt/sources.list")
-	fi
-
-	if (( sources_modified <= cache_modified )) || (( cache_modified > 1200 )); then
+	# No primary repositories configured or no downloaded metadata cache or pkgcache is missing or outdated
+	if [[ -z "$list_prefix" || ! -e "$metadata_file" || -z "$(find "@TERMUX_CACHE_DIR@/apt/pkgcache.bin" -type f -mmin -120 -newer "$sources_file" -print)" ]]; then
 		apt update
 	fi
 }
 
 force_check_mirror=false
-if [ "${1-}" = "--check-mirror" ]; then
+if [[ "${1-}" == "--check-mirror" ]]; then
 	force_check_mirror=true
 	shift 1
 fi
 
-if [[ $# = 0 || $(echo "$1" | grep "^h") ]]; then
+if [[ "${1-}" == "-u" || "${1-}" == "--up-to-date-mirror" ]]; then
+	UP_TO_DATE_THRESHOLD=0 # Use only the most up-to-date mirror, ignoring the threshold
+	shift 1
+fi
+
+if [[ "$#" = "0" || "$1" == "h"* ]]; then
 	show_help
 fi
 
 CMD="$1"
 shift 1
 ERROR=false
+
+HAS_X11_REPO="$(has_repo x11)"
+HAS_ROOT_REPO="$(has_repo root)"
 
 case "$TERMUX_APP_PACKAGE_MANAGER" in
 	apt)
