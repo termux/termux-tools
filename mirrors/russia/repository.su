@@ -1,5 +1,5 @@
 # This file is sourced by pkg
-# Mirror by dmitry. Hosted in Russia.
+# Mirror by @xshishkin. Hosted in Russia.
 WEIGHT=1
 MAIN="https://repository.su/termux/termux-main/"
 ROOT="https://repository.su/termux/termux-root/"
