@@ -36,8 +36,6 @@
 
 set -e -u
 
-export PREFIX=@TERMUX_PREFIX@
-
 msg() {
 	echo "$*" >&2
 }
@@ -80,7 +78,7 @@ fi
 
 case "$1" in
 	-\?|-h|--help|--usage) show_usage; exit 0;;
-	*) BACKUP_FILE_PATH=$1;;
+	*) BACKUP_FILE_PATH="$1";;
 esac
 
 if [ "$BACKUP_FILE_PATH" != "-" ] && [ ! -e "$BACKUP_FILE_PATH" ]; then
