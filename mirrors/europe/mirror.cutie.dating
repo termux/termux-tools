@@ -1,0 +1,6 @@
+# This file is sourced by pkg
+# Mirror by @CutiesDomain. Hosted in Germany.
+WEIGHT=1
+MAIN="https://mirror.cutie.dating/termux/termux-main"
+ROOT="https://mirror.cutie.dating/termux/termux-root"
+X11="https://mirror.cutie.dating/termux/termux-x11"
