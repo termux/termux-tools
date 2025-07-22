@@ -6,7 +6,7 @@ source "@TERMUX_PREFIX@/bin/termux-setup-package-manager" || exit 1
 terminal_width="$(stty size | cut -d" " -f2)"
 if [[ "$terminal_width" =~ ^[0-9]+$ ]] && [ "$terminal_width" -gt 60 ]; then
 
-    motd="
+	motd="
  \e[47m                \e[0m  \e[1mWelcome to Termux!\e[0m
  \e[47m  \e[0m            \e[0;37m\e[47m .\e[0m
  \e[47m  \e[0m  \e[47m  \e[0m        \e[47m  \e[0m  \e[1mDocs:\e[0m      \e[4mhttps://termux.dev/docs\e[0m
@@ -16,11 +16,11 @@ if [[ "$terminal_width" =~ ^[0-9]+$ ]] && [ "$terminal_width" -gt 60 ]; then
  \e[47m                \e[0m  \e[1mTermux version:\e[0m ${TERMUX_VERSION-Unknown}
 "
 
-    motd_indent="                   "
+	motd_indent="                   "
 
 else
 
-    motd="
+	motd="
 \e[1mWelcome to Termux!\e[0m
 
 \e[1mDocs:\e[0m      \e[4mhttps://termux.dev/docs\e[0m
@@ -30,7 +30,7 @@ else
 \e[1mTermux version:\e[0m ${TERMUX_VERSION-Unknown}
 "
 
-    motd_indent=""
+	motd_indent=""
 fi
 
 motd+="
@@ -43,7 +43,7 @@ ${motd_indent}\e[1mUpgrade:\e[0m pkg upgrade
 
 if [ "$TERMUX_APP_PACKAGE_MANAGER" = "apt" ]; then
 
-    motd+="
+	motd+="
 ${motd_indent}\e[1mSubscribing to additional repos:\e[0m
 ${motd_indent}\e[1mRoot:\e[0m pkg install root-repo
 ${motd_indent}\e[1mX11:\e[0m  pkg install x11-repo

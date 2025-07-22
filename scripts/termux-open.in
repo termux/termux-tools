@@ -3,20 +3,20 @@ set -e -u
 
 SCRIPTNAME=termux-open
 show_usage () {
-    echo "Usage: $SCRIPTNAME [options] path-or-url"
-    echo "Open a file or URL in an external app."
-    echo "  --send               if the file should be shared for sending"
-    echo "  --view               if the file should be shared for viewing (default)"
-    echo "  --chooser            if an app chooser should always be shown"
-    echo "  --content-type type  specify the content type to use"
-    exit 0
+	echo "Usage: $SCRIPTNAME [options] path-or-url"
+	echo "Open a file or URL in an external app."
+	echo "  --send               if the file should be shared for sending"
+	echo "  --view               if the file should be shared for viewing (default)"
+	echo "  --chooser            if an app chooser should always be shown"
+	echo "  --content-type type  specify the content type to use"
+	exit 0
 }
 
-TEMP=`getopt \
-     -n $SCRIPTNAME \
-     -o h \
-     --long send,view,chooser,content-type:,help\
-     -- "$@"`
+TEMP=$(getopt \
+	-n "$SCRIPTNAME" \
+	-o h \
+	--long send,view,chooser,content-type:,help \
+	-- "$@")
 eval set -- "$TEMP"
 
 ACTION=android.intent.action.VIEW
