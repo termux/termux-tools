@@ -7,5 +7,11 @@ if [ $# != 1 ] && [ $# != 2 ]; then
 fi
 
 case "${TERMUX__USER_ID:-}" in ''|*[!0-9]*|0[0-9]*) TERMUX__USER_ID=0;; esac
+# Check for https & http
+# Check for https & http
+case "$1" in
+    http://*|https://*) URL="$1" ;;
+    *) URL="https://$1" ;;
+esac
 
 am start --user "$TERMUX__USER_ID" -a android.intent.action.VIEW -d "$@" > /dev/null
