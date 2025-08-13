@@ -11,4 +11,5 @@ else
 fi
 
 unset LD_LIBRARY_PATH LD_PRELOAD
+export LD_PRELOAD=@TERMUX_PREFIX@/lib/termux/libtermux-access.so
 exec "$DALVIKVM" -Xusejit:true -Xnoimage-dex2oat -Djava.io.tmpdir=@TERMUX_PREFIX@/tmp "$@"
