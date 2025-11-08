@@ -21,6 +21,72 @@ if [ "$#" != "0" ]; then
 	show_usage
 fi
 
+check_apk_update () {
+    if ! command -v curl &> /dev/null; then
+        echo "Warning: 'curl' not found. Install with 'pkg install curl' to enable APK update check."
+        return
+    fi
+
+    if ! command -v jq &> /dev/null; then
+        echo "Warning: 'jq' not found. Install with 'pkg install jq' to enable APK update check."
+        return
+    fi
+
+    local TERMUX_SOURCE="${TERMUX_APP__APK_RELEASE:-$TERMUX_APK_RELEASE}"
+    local CURRENT_VERSION="${TERMUX_VERSION}"
+    local RELEASE_DATA
+    local LATEST_VERSION=""
+    local URL_API
+    local DOWNLOAD_URL
+    local SOURCE_NAME="${TERMUX_APK_RELEASE}"
+
+    case "$TERMUX_SOURCE" in
+        "GITHUB")
+            URL_API="https://api.github.com/repos/termux/termux-app/releases/latest"
+            DOWNLOAD_URL="https://github.com/termux/termux-app/releases/latest"
+            ;;
+
+        "F_DROID")
+            URL_API="https://f-droid.org/api/v1/packages/com.termux"
+            DOWNLOAD_URL="https://f-droid.org/en/packages/com.termux"
+            ;;
+
+        *)
+            echo "Info: Termux APK Source ('$TERMUX_SOURCE') is unknown. Check skipped."
+            return
+            ;;
+    esac
+
+    if ! RELEASE_DATA=$(curl --fail -s "$URL_API"); then
+        echo "# API URL Source: $URL_API"
+        echo "[!] Failed to connect to the internet or fetch $SOURCE_NAME release data."
+        return
+    fi
+
+    if [[ "$TERMUX_SOURCE" == "GITHUB" ]]; then
+        LATEST_VERSION=$(jq -r '.tag_name' <<< "$RELEASE_DATA" | sed 's/^v//')
+    elif [[ "$TERMUX_SOURCE" == "F_DROID" ]]; then
+        # Find versionName matching suggestedVersionCode
+        LATEST_VERSION=$(jq -r '. as $data | $data.packages[] | select(.versionCode == $data.suggestedVersionCode) | .versionName' <<< "$RELEASE_DATA")
+    fi
+
+    if [[ -z "$LATEST_VERSION" || "$LATEST_VERSION" == "null" ]]; then
+        echo "Warning: Failed to get the latest version number from $SOURCE_NAME."
+        return
+    fi
+
+    if [[ "$LATEST_VERSION" == "$CURRENT_VERSION" ]]; then
+        echo "# API URL Source: $URL_API"
+        echo "Termux APK version $CURRENT_VERSION from $SOURCE_NAME is up to date."
+    else
+        echo "# API URL Source: $URL_API"
+        echo "[!]New version available ($SOURCE_NAME)"
+        echo "Latest version: $LATEST_VERSION"
+        echo "Current version: $CURRENT_VERSION"
+        echo "Download from: $DOWNLOAD_URL"
+    fi
+}
+
 updates() {
 	local updatable
 
@@ -107,6 +173,10 @@ output+="Termux Variables:
 unsupported
 "
 fi
+
+output+="Termux APK Update Status:
+$(check_apk_update)
+"
 
 output+="Packages CPU architecture:
 $(
