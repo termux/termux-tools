@@ -23,7 +23,7 @@ pkgdata_EUROPE_MIRRORS = grimler.se			\
 packages.termux.dev termux.librehat.com \
 termux.mentality.rip mirrors.de.sahilister.net termux.cdn.lumito.net	\
 termux.3san.dev mirror.accum.se			\
-md.mirrors.hacktegic.com ftp.fau.de is.mirror.flokinet.net		\
+md.mirrors.hacktegic.com ftp.fau.de \
 ro.mirror.flokinet.net mirrors.medzik.dev	\
 mirror.sunred.org mirror.autkin.net mirror.bouwhuis.network		\
 ftp.agdsn.de	ftp.icm.edu.pl		        \
@@ -75,6 +75,7 @@ china/mirrors.ustc.edu.cn \
 china/mirrors.zju.edu.cn \
 chinese_mainland/mirrors.qvq.net.cn \
 europe/cdn.lumito.net \
+europe/is.mirror.flokinet.net \
 europe/mirror.leitecastro.com \
 europe/mirror.mwt.me \
 europe/mirror.polido.pt \
