@@ -33,6 +33,7 @@ do_subst = sed -e "s%[@]TERMUX_PREFIX[@]%$(termux_prefix)%g" \
 	       -e "s%[@]TERMUX_BASE_DIR[@]%${termux_base_dir}%g" \
 	       -e "s%[@]TERMUX_CACHE_DIR[@]%${termux_cache_dir}%g" \
 	       -e "s%[@]TERMUX_HOME[@]%${termux_android_home}%g" \
+	       -e "s%[@]TERMUX_ARCH[@]%${termux_arch}%g" \
 	       -e "s%[@]PACKAGE_VERSION[@]%${PACKAGE_VERSION}%g" \
 	       -e "s%[@]TERMUX_PACKAGE_FORMAT[@]%${termux_package_format}%g" \
 	       -e "s%[@]TERMUX_PACKAGE_MANAGER[@]%${termux_package_manager}%g"
