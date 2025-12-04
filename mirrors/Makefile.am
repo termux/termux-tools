@@ -27,7 +27,8 @@ md.mirrors.hacktegic.com ftp.fau.de is.mirror.flokinet.net		\
 ro.mirror.flokinet.net mirrors.medzik.dev	\
 mirror.sunred.org mirror.autkin.net mirror.bouwhuis.network		\
 mirror.leitecastro.com ftp.agdsn.de	ftp.icm.edu.pl		        \
-nl.mirror.flokinet.net mirror.cutie.dating
+nl.mirror.flokinet.net mirror.cutie.dating	\
+mirror.diyarciftci.xyz
 
 # Mirrors in North America
 pkgdata_NORTH_AMERICA_MIRRORS = plug-mirror.rcac.purdue.edu          \
