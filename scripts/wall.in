@@ -1,0 +1,23 @@
+#!/bin/sh
+function show_usage() {
+	echo usage: "wall <message>"
+	echo broadcast message to running sessions
+	exit 0
+}
+
+if [ $# -lt 1 ]; then
+	echo no message given
+	show_usage
+	exit 1
+fi
+
+case "$1" in
+	-\?|-h|--help|--usage)
+		show_usage;;
+esac
+
+pp=$(pidof com.termux)
+for p in $(ps --ppid $pp -o pid=); do
+  tty=$(ps -p $p -o tty=|cut -f2 -d/)
+  echo $@ > /dev/pts/$tty
+done
