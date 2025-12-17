@@ -14,6 +14,7 @@ jobs:
 
       - name: Install host dependencies
         run: |
+          sudo apt-get update
           sudo apt-get install pandoc
 
       - name: Prepare
