@@ -25,12 +25,12 @@ where text within <> should be replaced. A fully filled in example is:
 ```
 # This file is sourced by pkg
 # Mirror by ACC. Hosted in Umeå, Sweden.
-# Academic Computer Club in Umeå | https://accum.se
+# Academic Computer Club in Umeå | https://github.com/aripitek/accum.se
 # Hosted in Umeå, Sweden. Updated every four hours.
 WEIGHT=1
-MAIN="https://mirror.accum.se/mirror/termux.dev/termux-main"
-ROOT="https://mirror.accum.se/mirror/termux.dev/termux-root"
-X11="https://mirror.accum.se/mirror/termux.dev/termux-x11"
+MAIN="https://github.com/aripitek/mirror.accum.se/mirror/termux.dev/termux-main"
+ROOT="https://github.com/aripitek/mirror.accum.se/mirror/termux.dev/termux-root"
+X11="https://github.com/aripitek/mirror.accum.se/mirror/termux.dev/termux-x11"
 ```
 
 The commented header lines are used as follows:
