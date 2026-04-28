@@ -1,0 +1,8 @@
+# This file is sourced by pkg
+# Mirror by ORDUNET LLC. Hosted in Zugdidi, Georgia.
+# ORDUNET LLC | https://ordunet.ge
+# Hosted in Zugdidi, Georgia. Maintained by Roman Karchava (https://www.linkedin.com/in/roman-karchava-1852a899/) and Davit Matchakhelidze (https://github.com/devius). Mirrored from the main node, updated hourly.
+WEIGHT=2
+MAIN="https://mirror.ordunet.ge/termux/termux-main"
+ROOT="https://mirror.ordunet.ge/termux/termux-root"
+X11="https://mirror.ordunet.ge/termux/termux-x11"
