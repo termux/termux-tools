@@ -21,7 +21,7 @@ mirror.sjtu.edu.cn mirrors.hust.edu.cn mirrors.cernet.edu.cn
 # Mirrors in Europe
 pkgdata_EUROPE_MIRRORS = grimler.se			\
 packages.termux.dev termux.librehat.com \
-termux.mentality.rip mirrors.de.sahilister.net termux.cdn.lumito.net	\
+mirrors.de.sahilister.net termux.cdn.lumito.net	\
 termux.3san.dev mirror.accum.se			\
 md.mirrors.hacktegic.com ftp.fau.de is.mirror.flokinet.net		\
 ro.mirror.flokinet.net mirrors.medzik.dev	\
@@ -49,19 +49,20 @@ pkgdata_RUSSIA_MIRRORS = mirror.mephi.ru repository.su
 # would otherwise be left as is after package upgrades and would still
 # get used during mirror selection.
 pkgdata_MIRRORS_REMOVED = \
+asia/mirror.albony.in \
 asia/mirror.bardia.tech \
+asia/mirror.textcord.xyz \
 asia/mirrors.omsinchan.ac.th \
 asia/mirrors.saswata.xyz \
-asia/mirror.textcord.xyz \
 asia/packages.nscdn.top \
 china/mirror.iscas.ac.cn \
 china/mirror.nyist.edu.cn \
+china/mirror.sjtu.edu.cn \
 china/mirrors.aliyun.com \
 china/mirrors.bfsu.edu.cn \
 china/mirrors.cqupt.edu.cn \
 china/mirrors.dgut.edu.cn \
 china/mirrors.hit.edu.cn \
-china/mirror.sjtu.edu.cn \
 china/mirrors.nju.edu.cn \
 china/mirrors.njupt.edu.cn \
 china/mirrors.pku.edu.cn \
@@ -77,17 +78,17 @@ chinese_mainland/mirrors.qvq.net.cn \
 europe/cdn.lumito.net \
 europe/mirror.mwt.me \
 europe/mirror.polido.pt \
-europe/mirrors.cfe.re \
 europe/mirror.termux.dev \
 europe/mirror.termux.dv \
+europe/mirrors.cfe.re \
 europe/termux.astra.in.ua \
+europe/termux.mentality.rip \
 europe/termux.sahilister.in \
 north_america/dl.kcubeterm.com \
 north_america/packages.termux.dev \
 oceania/mirrors.wale.id.au \
 russia/mirror.surf \
-south_america/mirrors.rda.run \
-asia/mirror.albony.in
+south_america/mirrors.rda.run
 
 
 
