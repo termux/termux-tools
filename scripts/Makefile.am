@@ -18,10 +18,10 @@
 
 # shell scripts:
 bin_SCRIPTS = chsh dalvikvm login pkg su termux-backup			\
-termux-change-repo termux-fix-shebang termux-info termux-open		\
+termux-change-repo termux-fix-shebang termux-info termux-logout termux-open		\
 termux-open-url termux-reload-settings termux-reset termux-restore	\
-termux-setup-package-manager termux-setup-storage termux-wake-lock	\
-termux-wake-unlock
+termux-setup-package-manager termux-setup-storage termux-title termux-wake-lock	\
+termux-wake-unlock wall
 
 # wrappers around tools in /system/bin:
 bin_SCRIPTS += df getprop logcat ping ping6 pm settings top
