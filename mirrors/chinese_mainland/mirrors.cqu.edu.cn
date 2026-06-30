@@ -1,0 +1,8 @@
+# This file is sourced by pkg
+# Mirror by CQU. Hosted in Chongqing, China.
+# Chongqing University Lanunion | https://mirrors.cqu.edu.cn/introductions/
+# Hosted in Chongqing, China. Updated once per 1.5 hours, 1Gb/s with IPv4/IPv6 support in CERNET.
+WEIGHT=1
+MAIN="https://mirrors.cqu.edu.cn/termux/termux-main"
+ROOT="https://mirrors.cqu.edu.cn/termux/termux-root"
+X11="https://mirrors.cqu.edu.cn/termux/termux-x11"
