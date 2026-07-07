@@ -1,0 +1,8 @@
+# This file is sourced by pkg
+# Mirror by hajs. Hosted in Daegu, South Korea.
+# hajs110208 : https://mirror.sd6server.xyz
+# By hajs0208 - Personal mirror. 500Mbps and ipv4 only. Updated every 4 hours.
+WEIGHT=1
+MAIN="https://mirror.sd6server.xyz/termux-main"
+ROOT="https://mirror.sd6server.xyz/termux-root"
+X11="https://mirror.sd6server.xyz/termux-x11"
