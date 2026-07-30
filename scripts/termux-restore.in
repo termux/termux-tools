@@ -1,4 +1,5 @@
 #!@TERMUX_PREFIX@/bin/bash
+# shellcheck disable=SC2239
 ##
 ## Termux script for restoring $PREFIX (package installation dir).
 ## For backup script, see "termux-backup".
@@ -97,7 +98,7 @@ fi
 
 # Ensure that prefix doesn't contain read-only files.
 msg "Fixing read-write access to files where necessary..."
-find "@TERMUX_PREFIX@" -type d,f -print0 | xargs -0 -r chmod u+rwX
+find "@TERMUX_PREFIX@" -type d,f -print0 2>/dev/null | xargs -0 -r chmod u+rwX 2>/dev/null || true
 
 # --recursive-unlink is added intentionally to delete all orphan/extra files
 # in $PREFIX. It must be restored to a clean state as in backup tarball.

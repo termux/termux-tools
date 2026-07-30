@@ -9,7 +9,7 @@ fi
 
 # Setup TERMUX_APP_PACKAGE_MANAGER
 # shellcheck source=/dev/null
-source "@TERMUX_PREFIX@/bin/termux-setup-package-manager" || exit 1
+	source "@TERMUX_PREFIX@/bin/termux-setup-package-manager" || { echo "Failed to load termux-setup-package-manager" >&2; exit 1; }
 
 MIRROR_BASE_DIR="@TERMUX_PREFIX@/etc/termux/mirrors"
 
@@ -82,6 +82,7 @@ check_command() {
 	local command="$1"
 
 	local errors
+	# Redirect stderr to stdout, discard stdout (captures stderr only)
 	if ! errors="$("$@" 2>&1 1>/dev/null)"; then
 		echo "$errors" 1>&2
 		echo "Failed to run the '$command' command." 1>&2
@@ -178,6 +179,7 @@ get_mirror_url() {
 
 get_mirror_weight() {
 	unset_mirror_variables
+	# shellcheck source=/dev/null
 	source "$1"
 	echo "$WEIGHT"
 }
@@ -195,22 +197,20 @@ select_mirror() {
 		return
 	fi
 
-	local default_repo="${MIRROR_BASE_DIR}/default"
-
 	if [ -d "@TERMUX_PREFIX@/etc/termux/chosen_mirrors" ]; then
 		# Mirror group selected
-		mirrors=($(find "@TERMUX_PREFIX@/etc/termux/chosen_mirrors/" -type f ! -name "*\.dpkg-old" ! -name "*\.dpkg-new" ! -name "*~"))
+		mapfile -t mirrors < <(find "@TERMUX_PREFIX@/etc/termux/chosen_mirrors/" -type f ! -name "*\.dpkg-old" ! -name "*\.dpkg-new" ! -name "*~")
 	elif [ -f "@TERMUX_PREFIX@/etc/termux/chosen_mirrors" ]; then
 		# Single mirror selected
 		mirrors=("$(realpath "@TERMUX_PREFIX@/etc/termux/chosen_mirrors")")
 	elif [ -L "@TERMUX_PREFIX@/etc/termux/chosen_mirrors" ]; then
 		# Broken symlink, use all mirrors
 		mirrors=("${MIRROR_BASE_DIR}/default")
-		mirrors+=($(find "${MIRROR_BASE_DIR}"/{asia,chinese_mainland,europe,north_america,oceania,russia}/ -type f ! -name "*\.dpkg-old" ! -name "*\.dpkg-new" ! -name "*~"))
+		mapfile -t -O "${#mirrors[@]}" mirrors < <(find "${MIRROR_BASE_DIR}"/{asia,chinese_mainland,europe,north_america,oceania,russia}/ -type f ! -name "*\.dpkg-old" ! -name "*\.dpkg-new" ! -name "*~")
 	else
 		echo "No mirror or mirror group selected. You might want to select one by running 'termux-change-repo'"
 		mirrors=("${MIRROR_BASE_DIR}/default")
-		mirrors+=($(find ${MIRROR_BASE_DIR}/{asia,chinese_mainland,europe,north_america,oceania,russia}/ -type f ! -name "*\.dpkg-old" ! -name "*\.dpkg-new" ! -name "*~"))
+		mapfile -t -O "${#mirrors[@]}" mirrors < <(find "${MIRROR_BASE_DIR}"/{asia,chinese_mainland,europe,north_america,oceania,russia}/ -type f ! -name "*\.dpkg-old" ! -name "*\.dpkg-new" ! -name "*~")
 	fi
 
 	# Ensure `curl` can execute, otherwise all mirror checks will fail with `bad`.
@@ -218,7 +218,7 @@ select_mirror() {
 
 	# Mirrors are rotated if 6 hours timeout has been passed or mirror is no longer accessible.
 	local pkgcache="@TERMUX_CACHE_DIR@/apt/pkgcache.bin"
-	if [ -e "$pkgcache" ] && (( $(last_modified "$pkgcache") <= 6 * 3600 )) && [ "$force_check_mirror" = "false" ]; then
+	if [ -e "$pkgcache" ] && last_mod=$(last_modified "$pkgcache" 2>/dev/null) && [ -n "$last_mod" ] && (( last_mod <= 6 * 3600 )) && [ "$force_check_mirror" = "false" ]; then
 		if [ -n "$current_mirror" ]; then
 			echo "Checking availability of current mirror:"
 			echo -n "[*] $current_mirror: "
@@ -272,7 +272,7 @@ select_mirror() {
 		job_pid=$!
 
 		parallel_jobs_mirrors=("${parallel_jobs_mirrors[@]}" "$mirror")
-		parallel_jobs_weights=("${parallel_jobs_weights[@]}" "$(get_mirror_weight ${mirrors[$mirror]})")
+		parallel_jobs_weights=("${parallel_jobs_weights[@]}" "$(get_mirror_weight "${mirrors[$mirror]}")")
 		parallel_jobs_urls=("${parallel_jobs_urls[@]}" "$url")
 		parallel_jobs_numbers=("${parallel_jobs_numbers[@]}" "$job_number")
 		parallel_jobs_pids=("${parallel_jobs_pids[@]}" "$job_pid")
@@ -294,7 +294,6 @@ select_mirror() {
 			done
 
 			j=0
-			# For return_values of all jobs
 			for return_value in "${parallel_jobs_return_values[@]}"; do
 				echo -n "[*] (${parallel_jobs_weights[j]}) ${parallel_jobs_urls[j]}: "
 				if [ "$return_value" -eq 0 ]; then
@@ -331,11 +330,11 @@ select_mirror() {
 		if [ -z "${mirrors[$mirror]-}" ]; then
 			continue
 		fi
-		weight="$(get_mirror_weight ${mirrors[$mirror]})"
+		weight="$(get_mirror_weight "${mirrors[$mirror]}")"
 		total_mirror_weight=$((total_mirror_weight + weight))
 		j=0
 		while [ "$j" -lt "$weight" ]; do
-			weighted_mirrors+=(${mirrors[$mirror]})
+			weighted_mirrors+=("${mirrors[$mirror]}")
 			j=$((j + 1))
 		done
 	done
@@ -405,7 +404,7 @@ update_apt_cache() {
 
 	local metadata_file
 	metadata_file=$(
-		list_prefix=$(echo "$current_host" | sed 's|/|_|g')
+		list_prefix="${current_host//\//_}"
 		arch=$(dpkg --print-architecture)
 		echo "@TERMUX_PREFIX@/var/lib/apt/lists/${list_prefix}_dists_stable_main_binary-${arch}_Packages" | sed 's|__|_|g'
 	)
@@ -436,7 +435,7 @@ if [ "${1-}" = "--check-mirror" ]; then
 	shift 1
 fi
 
-if [[ $# = 0 || $(echo "$1" | grep "^h") ]]; then
+if [[ $# = 0 || "$1" == h* ]]; then
 	show_help
 fi
 

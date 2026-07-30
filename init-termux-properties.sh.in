@@ -1,4 +1,5 @@
-if [ ! -f @TERMUX_HOME@/.config/termux/termux.properties ] && [ ! -e @TERMUX_HOME@/.termux/termux.properties ]; then
-	mkdir -p @TERMUX_HOME@/.termux
-	cp @TERMUX_PREFIX@/share/examples/termux/termux.properties @TERMUX_HOME@/.termux/
+# shellcheck shell=sh
+if [ ! -f "@TERMUX_HOME@/.config/termux/termux.properties" ] && [ ! -e "@TERMUX_HOME@/.termux/termux.properties" ]; then
+	mkdir -p "@TERMUX_HOME@/.termux" || exit 1
+	cp "@TERMUX_PREFIX@/share/examples/termux/termux.properties" "@TERMUX_HOME@/.termux/" || exit 1
 fi

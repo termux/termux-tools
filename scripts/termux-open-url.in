@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ $# != 1 ] && [ $# != 2 ]; then
+if [ "$#" -ne 1 ] && [ "$#" -ne 2 ]; then
 	echo 'usage: termux-open-url <url> [app_package_or_component]'
 	echo 'Open an URL for viewing.'
 	exit 1
@@ -8,4 +8,4 @@ fi
 
 case "${TERMUX__USER_ID:-}" in ''|*[!0-9]*|0[0-9]*) TERMUX__USER_ID=0;; esac
 
-am start --user "$TERMUX__USER_ID" -a android.intent.action.VIEW -d "$@" > /dev/null
+am start --user "$TERMUX__USER_ID" -a android.intent.action.VIEW -d "$1" ${2:+"$2"} > /dev/null || exit 1

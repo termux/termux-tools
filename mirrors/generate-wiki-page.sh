@@ -7,18 +7,21 @@ get-mirror-description() {
 
 get-mirror-main-url() {
 	mirror="$1"
+	# shellcheck source=/dev/null
 	source "$mirror"
 	echo "$MAIN"
 }
 
 get-mirror-root-url() {
 	mirror="$1"
+	# shellcheck source=/dev/null
 	source "$mirror"
 	echo "$ROOT"
 }
 
 get-mirror-x11-url() {
 	mirror="$1"
+	# shellcheck source=/dev/null
 	source "$mirror"
 	echo "$X11"
 }
@@ -26,9 +29,9 @@ get-mirror-x11-url() {
 generate-mirror-table() {
 	mirror="$1"
 
-	main_entry='`deb '"$(get-mirror-main-url $mirror)"' stable main`'
-	root_entry='`deb '"$(get-mirror-root-url $mirror)"' root stable`'
-	x11_entry='`deb '"$(get-mirror-x11-url $mirror)"' x11 main`'
+	main_entry='`deb '"$(get-mirror-main-url "$mirror")"' stable main`'
+	root_entry='`deb '"$(get-mirror-root-url "$mirror")"' root stable`'
+	x11_entry='`deb '"$(get-mirror-x11-url "$mirror")"' x11 main`'
 
 	# Calculate length of horizontal sep in sources.list entry column, to get a pretty table
 	len="${#main_entry}"
@@ -41,36 +44,40 @@ generate-mirror-table() {
 }
 
 orig_dir="$(pwd)"
-cd "$(realpath "$(dirname "$0")")"
+cd "$(realpath "$(dirname "$0")")" || exit
 
 : "${TMPDIR:=/tmp}"
 export TMPDIR
 
-mirror_tmpfile="$(mktemp $TMPDIR/Mirrors.md.XXXXX)"
+mirror_tmpfile="$(mktemp "$TMPDIR"/Mirrors.md.XXXXX)"
 cat ../wiki/mirrors_header.md > "$mirror_tmpfile"
 
 for group in */; do
-	group_name="$(basename $group)"
+	group_name="$(basename "$group")"
 	group_name="${group_name^}"
 
-	echo "" >> "$mirror_tmpfile"
-	echo "#### Mirrors in ${group_name/_/ }" >> "$mirror_tmpfile"
-	echo "" >> "$mirror_tmpfile"
+	{
+		echo ""
+		echo "#### Mirrors in ${group_name/_/ }"
+		echo ""
+	} >> "$mirror_tmpfile"
 
-	for mirror in $(git ls-files "$group"); do
+	git ls-files -z "$group" | while IFS= read -r -d '' mirror; do
 		if head -n 4 "$mirror" | grep -qv '^#'; then
 			echo "Error: $mirror does not have 4 header lines starting with #" > /dev/stderr
 			exit 1
 		fi
 
-                # Split 3rd line of mirror on "|" to get owner and url
-		IFS='|' read mirror_owner mirror_url <<<$(sed -n '3s/^# //p' "$mirror");
-		echo "##### Mirror by [$(echo ${mirror_owner}|xargs)]($(echo ${mirror_url}|xargs))" >> "$mirror_tmpfile"
-		echo "" >> "$mirror_tmpfile"
-		get-mirror-description "$mirror" >> "$mirror_tmpfile"
-		echo "" >> "$mirror_tmpfile"
-		generate-mirror-table "$mirror" >> "$mirror_tmpfile"
-		echo "" >> "$mirror_tmpfile"
+		# Split 3rd line of mirror on "|" to get owner and url
+		IFS='|' read -r mirror_owner mirror_url <<<"$(sed -n '3s/^# //p' "$mirror")"
+		{
+			echo "##### Mirror by [$(echo "${mirror_owner}" | xargs)]($(echo "${mirror_url}" | xargs))"
+			echo ""
+			get-mirror-description "$mirror"
+			echo ""
+			generate-mirror-table "$mirror"
+			echo ""
+		} >> "$mirror_tmpfile"
 	done
 done
 

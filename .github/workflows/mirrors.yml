@@ -40,7 +40,7 @@ jobs:
             exit 1
           fi
 
-          if ! grep -q "$(basename $file)" mirrors/Makefile.am; then
+          if ! grep -q "$(basename "$file")" mirrors/Makefile.am; then
             echo "Error: $file is not listed in mirrors/Makefile.am"
           fi
 
@@ -63,7 +63,7 @@ jobs:
         mkdir -p ~/.ssh
         echo "$GITHUB_SSH_KEY" > ~/.ssh/id_ed25519_termuxbot2
         chmod 600 ~/.ssh/id_ed25519_termuxbot2
-        ssh-keyscan github.com >> ~/.ssh/known_hosts
+        ssh-keyscan github.com 2>/dev/null | grep 'github.com ssh-ed25519' >> ~/.ssh/known_hosts
 
     - name: Clone termux-packages.wiki
       run: |

@@ -1,6 +1,8 @@
 #!@TERMUX_PREFIX@/bin/bash
+# shellcheck disable=SC2239
 
 # Setup TERMUX_APP_PACKAGE_MANAGER
+# shellcheck source=/dev/null
 source "@TERMUX_PREFIX@/bin/termux-setup-package-manager" || exit 1
 
 terminal_width="$(stty size | cut -d" " -f2)"

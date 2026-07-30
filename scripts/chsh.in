@@ -4,7 +4,7 @@
 set -eu
 
 is_executable_file() {
-	test -f "$1" -a -x "$1"
+	test -f "$1" && test -x "$1"
 }
 
 show_usage() {
@@ -24,7 +24,7 @@ set_shell() {
 		exit 0
 	fi
 
-	mkdir -p "$HOME/.termux"
+	mkdir -p "$HOME/.termux" || exit 1
 
 	unset NEW_SHELL
 	case "$1" in
@@ -32,7 +32,7 @@ set_shell() {
 		*) NEW_SHELL="@TERMUX_PREFIX@/bin/$1" ;;
 	esac
 
-	SHELL_TARGET="$(realpath -s "$NEW_SHELL")"
+	SHELL_TARGET="$(realpath -s "$NEW_SHELL")" || exit 1
 
 	if ! is_executable_file "$SHELL_TARGET"; then
 		echo "The shell file '$SHELL_TARGET' is not an executable file." 1>&2
@@ -48,10 +48,10 @@ set_shell() {
 		exit 1
 	fi
 
-	ln -sf "$SHELL_TARGET" "$HOME/.termux/shell"
+	ln -sf "$SHELL_TARGET" "$HOME/.termux/shell" || exit 1
 }
 
-O="$(getopt -l help -- hs: "$@")"
+O="$(getopt -l help -- hs: "$@")" || exit 1
 eval set -- "$O"
 while true; do
 	case "$1" in
@@ -62,12 +62,12 @@ while true; do
 	esac
 done
 
-DEFAULT_SHELL=bash
-if ! is_executable_file "@TERMUX_PREFIX@/bin/$DEFAULT_SHELL"; then DEFAULT_SHELL=sh; fi
+DEFAULT_SHELL="bash"
+if ! is_executable_file "@TERMUX_PREFIX@/bin/$DEFAULT_SHELL"; then DEFAULT_SHELL="sh"; fi
 
 echo Changing the login shell
 echo Enter the new value, or press ENTER for the default
-printf "        Login Shell [$DEFAULT_SHELL]: "
-read shell
+printf "        Login Shell [%s]: " "$DEFAULT_SHELL"
+read -r shell || true
 
 set_shell "$shell"

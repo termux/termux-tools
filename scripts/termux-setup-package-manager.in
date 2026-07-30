@@ -7,7 +7,11 @@
 # should contain "debian" or "pacman".
 if [ -z "${TERMUX_APP_PACKAGE_MANAGER-}" ]; then
 	if [ -n "${TERMUX_MAIN_PACKAGE_FORMAT-}" ]; then
-		TERMUX_APP_PACKAGE_MANAGER="$([ "${TERMUX_MAIN_PACKAGE_FORMAT-}" = "debian" ] && echo "apt" || echo "${TERMUX_MAIN_PACKAGE_FORMAT-}")"
+		if [ "${TERMUX_MAIN_PACKAGE_FORMAT-}" = "debian" ]; then
+			TERMUX_APP_PACKAGE_MANAGER="apt"
+		else
+			TERMUX_APP_PACKAGE_MANAGER="${TERMUX_MAIN_PACKAGE_FORMAT-}"
+		fi
 	else
 		TERMUX_APP_PACKAGE_MANAGER="@TERMUX_PACKAGE_MANAGER@"
 	fi

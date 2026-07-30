@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ $# = 0 -o "$1" = "-h" ]; then
+if [ "$#" -eq 0 ] || [ "$1" = "-h" ]; then
 	echo 'usage: termux-fix-shebang <files>'
 	echo 'Rewrite shebangs in specified files for running under Termux,'
 	echo 'which is done by rewriting #!*/bin/binary to #!@TERMUX_PREFIX@/bin/binary.'
@@ -8,5 +8,6 @@ if [ $# = 0 -o "$1" = "-h" ]; then
 fi
 
 for file in "$@"; do
-	sed -i -E "1 s@^#\!(.*)/[sx]?bin/(.*)@#\!@TERMUX_PREFIX@/bin/\2@" "$(realpath "${file}")"
+	[ -f "$file" ] || continue
+	sed -i -E "1 s@^#\!(.*)/[sx]?bin/(env (.*))@#\!@TERMUX_PREFIX@/bin/\3@;t; s@^#\!(.*)/[sx]?bin/(.*)@#\!@TERMUX_PREFIX@/bin/\2@" "$(realpath "${file}")"
 done

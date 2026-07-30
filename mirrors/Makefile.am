@@ -149,7 +149,10 @@ uninstall-removed-mirrors:
 
 create-deb-control-files:
 	sh -c "cd $$(dirname $(DESTDIR)$(sysconfdir)); find $$(basename $(DESTDIR)$(sysconfdir))/termux/mirrors -type f" >> ../conffiles;
-	printf "# Delete removed mirrors\nfor f in %s; do\n    if test -f \"%s/etc/termux/mirrors/\$$f\"; then\n        echo \"Deleting removed mirror: \$$f\"; rm -f \"%s/etc/termux/mirrors/\$$f\";\n    fi\ndone" "$(pkgdata_MIRRORS_REMOVED)" "$(termux_prefix)" "$(termux_prefix)" >> ../preinst;
+	printf '%s\n' '# Delete removed mirrors' >> ../preinst; \
+	for f in $(pkgdata_MIRRORS_REMOVED); do \
+	  printf 'if test -f "%s/etc/termux/mirrors/%s"; then\n    echo "Deleting removed mirror: %s"; rm -f "%s/etc/termux/mirrors/%s";\nfi\n' "$(termux_prefix)" "$$f" "$$f" "$(termux_prefix)" "$$f" >> ../preinst; \
+	done
 
 
 
