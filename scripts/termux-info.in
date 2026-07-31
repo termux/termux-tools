@@ -100,11 +100,7 @@ output=""
 if [ -n "${TERMUX_VERSION:-}" ]; then
 # Application version is exported in Termux v0.107 or higher only.
 output+="Termux Variables:
-$(compgen -e TERMUX_ | while IFS= read -r v; do
-	case "$v" in
-		TERMUX_VERSION|TERMUX_APP_PACKAGE_MANAGER|TERMUX_MAIN_PACKAGE_FORMAT|TERMUX_APP_PACKAGE|TERMUX_HUSHLOGIN|TERMUX_PKG_NO_MIRROR_SELECT|TERMUX__USER_ID) echo "${v}=${!v}";;
-	esac
-done)
+$(compgen -e TERMUX_ | while read -r v; do echo "${v}=${!v}"; done)
 "
 else
 output+="Termux Variables:

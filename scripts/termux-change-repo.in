@@ -174,7 +174,7 @@ if [ "$TERMUX_APP_PACKAGE_MANAGER" = "pacman" ]; then
     [[ "${REPLY}" =~ ^[Nn]$ ]] && exit 0
 fi
 
-mkdir -p "@TERMUX_PREFIX@/tmp" || exit 1
+mkdir -p "@TERMUX_PREFIX@/tmp" || exit $?
 
 TEMPFILE="$(mktemp "@TERMUX_PREFIX@/tmp/termux-change-repo.XXXXXX")" || exit 1
 
