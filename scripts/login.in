@@ -2,7 +2,7 @@
 # shellcheck shell=dash
 
 is_executable_file() {
-	test -f "$1" -a -x "$1"
+	test -f "$1" && test -x "$1"
 }
 
 set_default_shell() {
@@ -14,10 +14,10 @@ set_default_shell() {
 	done
 }
 
-if tty >/dev/null 2>&1 && [ $# = 0 ] && [ ! -f ~/.hushlogin ] && [ -z "$TERMUX_HUSHLOGIN" ]; then
+if tty >/dev/null 2>&1 && [ "$#" -eq 0 ] && [ ! -f ~/.hushlogin ] && [ -z "$TERMUX_HUSHLOGIN" ]; then
 	# Use user defined dynamic motd file if it exists
 	if [ -f ~/.termux/motd.sh ]; then
-		[ ! -x ~/.termux/motd.sh ] && chmod u+x ~/.termux/motd.sh
+		chmod u+x ~/.termux/motd.sh 2>/dev/null || true
 		~/.termux/motd.sh
 	# Default to termux-tools package provided static motd file if it exists
 	elif [ -f "@TERMUX_PREFIX@/etc/motd" ]; then
@@ -29,7 +29,7 @@ else
 fi
 
 # TERMUX_VERSION env variable has been exported since v0.107 and PATH was being set to following value in <0.104. Last playstore version was v0.101.
-if tty >/dev/null 2>&1 && [ $# = 0 ] && [ -f "@TERMUX_PREFIX@/etc/motd-playstore" ] && [ -z "$TERMUX_VERSION" ] && [ "$PATH" = "@TERMUX_PREFIX@/bin:@TERMUX_PREFIX@/bin/applets" ]; then
+if tty >/dev/null 2>&1 && [ "$#" -eq 0 ] && [ -f "@TERMUX_PREFIX@/etc/motd-playstore" ] && [ -z "$TERMUX_VERSION" ] && [ "$PATH" = "@TERMUX_PREFIX@/bin:@TERMUX_PREFIX@/bin/applets" ]; then
 	printf '\033[0;31m'; cat "@TERMUX_PREFIX@/etc/motd-playstore"; printf '\033[0m'
 fi
 
@@ -68,13 +68,14 @@ fi
 # - https://github.com/termux/termux-packages/commit/6fb2bb2f
 if [ -f "@TERMUX_PREFIX@/lib/libtermux-exec-ld-preload.so" ]; then
 	export LD_PRELOAD="@TERMUX_PREFIX@/lib/libtermux-exec-ld-preload.so"
-	$SHELL -c "coreutils --coreutils-prog=true" > /dev/null 2>&1 || unset LD_PRELOAD
+	"$SHELL" -c "coreutils --coreutils-prog=true" > /dev/null 2>&1 || unset LD_PRELOAD
 elif [ -f "@TERMUX_PREFIX@/lib/libtermux-exec.so" ]; then
 	export LD_PRELOAD="@TERMUX_PREFIX@/lib/libtermux-exec.so"
-	$SHELL -c "coreutils --coreutils-prog=true" > /dev/null 2>&1 || unset LD_PRELOAD
+	"$SHELL" -c "coreutils --coreutils-prog=true" > /dev/null 2>&1 || unset LD_PRELOAD
 fi
 
 if [ -f "@TERMUX_PREFIX@/etc/termux-login.sh" ]; then
+	# shellcheck source=/dev/null
 	. "@TERMUX_PREFIX@/etc/termux-login.sh"
 fi
 

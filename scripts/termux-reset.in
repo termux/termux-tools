@@ -13,7 +13,7 @@ echo
 echo "Termux home directory as well as data in your shared or external storage will not be removed and left as-is."
 echo
 
-read -re -p "Do you want to continue ? (y/n) " CHOICE
+read -r -e -p "Do you want to continue ? (y/n) " CHOICE
 
 if ! [[ $CHOICE =~ (Y|y) ]]; then
 	echo "Leaving \$PREFIX intact."

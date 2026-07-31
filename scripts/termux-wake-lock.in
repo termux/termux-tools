@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ $# != 0 ]; then
+if [ "$#" -ne 0 ]; then
 	echo 'usage: termux-wake-lock'
 	echo 'Acquire the Termux wake lock to prevent the CPU from sleeping.'
 	exit 1
@@ -12,4 +12,4 @@ am startservice \
 	--user "$TERMUX__USER_ID" \
 	-a "@TERMUX_APP_PACKAGE@.service_wake_lock" \
 	"@TERMUX_APP_PACKAGE@/@TERMUX_APP_PACKAGE@.app.TermuxService" \
-	> /dev/null
+	> /dev/null || echo "Failed to acquire wake lock" >&2

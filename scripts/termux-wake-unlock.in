@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ $# != 0 ]; then
+if [ "$#" -ne 0 ]; then
 	echo 'usage: termux-wake-unlock'
 	echo 'Release the Termux wake lock to allow the CPU to sleep.'
 	exit 1
@@ -12,4 +12,4 @@ am startservice \
 	--user "$TERMUX__USER_ID" \
 	-a "@TERMUX_APP_PACKAGE@.service_wake_unlock" \
 	"@TERMUX_APP_PACKAGE@/@TERMUX_APP_PACKAGE@.app.TermuxService" \
-	> /dev/null
+	> /dev/null || echo "Failed to release wake lock" >&2

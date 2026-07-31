@@ -9,8 +9,6 @@ jobs:
     steps:
       - name: Clone repository
         uses: actions/checkout@v6
-        with:
-          ref: ${{ env.GITHUB_REF }}
 
       - name: Install host dependencies
         run: |

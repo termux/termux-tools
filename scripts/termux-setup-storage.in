@@ -3,6 +3,7 @@
 if [ "$#" != "0" ]; then
 	echo 'usage: termux-setup-storage'
 	echo 'Use without arguments to ensure storage permission granted'
+	# shellcheck disable=SC2016
 	echo 'and symlinks to storage available in $HOME/storage'
 	exit
 fi
@@ -16,7 +17,7 @@ if [ -d "@TERMUX_HOME@/storage" ]; then
 	content IS NOT going to be deleted.
 
 	EOF
-	read -re -p "Do you want to continue? (y/n) " CHOICE
+	read -r -e -p "Do you want to continue? (y/n) " CHOICE
 
 	if ! [[ "${CHOICE}" =~ (Y|y) ]]; then
 		echo "Aborting configuration and leaving directory '~/storage' intact."
@@ -29,4 +30,4 @@ case "${TERMUX__USER_ID:-}" in ''|*[!0-9]*|0[0-9]*) TERMUX__USER_ID=0;; esac
 am broadcast --user "$TERMUX__USER_ID" \
 	-a "@TERMUX_APP_PACKAGE@.app.reload_style" \
 	--es "@TERMUX_APP_PACKAGE@.app.reload_style" "storage" \
-	 "@TERMUX_APP_PACKAGE@" > /dev/null
+	 "@TERMUX_APP_PACKAGE@" > /dev/null || echo "Failed to trigger storage setup" >&2

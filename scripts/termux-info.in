@@ -79,10 +79,10 @@ repo_subscriptions_pacman() {
 
 	if [[ -f $conf ]]; then
 		echo "# $conf"
-		for i in $(pacman-conf -l); do
+		while IFS= read -r i; do
 			echo "[$i]"
 			pacman-conf -r "$i"
-		done
+		done < <(pacman-conf -l)
 	else
 		echo "$conf file not found"
 	fi
@@ -113,7 +113,7 @@ $(
 	if [ "$TERMUX_APP_PACKAGE_MANAGER" = "apt" ]; then
 		dpkg --print-architecture
 	elif [ "$TERMUX_APP_PACKAGE_MANAGER" = "pacman" ]; then
-		pacman-conf | grep Architecture | sed 's/Architecture = //g'
+		pacman-conf | sed -n 's/Architecture = //p'
 	fi
 )
 Subscribed repositories:
@@ -144,15 +144,17 @@ LD Variables:
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH
 LD_PRELOAD=$LD_PRELOAD"
 # Escape '\$[](){}|^.?+*' with backslashes for regex
+# shellcheck disable=SC2016
 escaped_package_name="$(echo -n "@TERMUX_APP_PACKAGE@" | sed -zE -e 's/[][\.|$(){}?+*^]/\\&/g')"
 show_version_code=""
 sdk_version="$(getprop ro.build.version.sdk || :)"
 if [[ "$sdk_version" =~ ^[0-9]+$ ]] && [ "$sdk_version" -ge "26" ]; then
   show_version_code="--show-versioncode"
 fi
+# shellcheck disable=SC2086
 TERMUX_PLUGINS="$(pm list packages --user "$TERMUX__USER_ID" $show_version_code 2>&1 </dev/null | grep -E "^package:$escaped_package_name\.[a-zA-Z]" | cut -d ":" -f 2- | grep -vE "^$escaped_package_name\.tapm\.[a-zA-Z]")"
 if [ -n "${TERMUX_PLUGINS:-}" ]; then
-	output+="$(printf "\nInstalled termux plugins:\n${TERMUX_PLUGINS}\n")"
+	output+="$(printf "\nInstalled termux plugins:\n%s\n" "${TERMUX_PLUGINS}")"
 fi
 echo "$output"
 

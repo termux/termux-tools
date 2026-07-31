@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -e -u
 
 SCRIPTNAME=termux-open
@@ -16,22 +16,22 @@ TEMP="$(getopt \
     -n "$SCRIPTNAME" \
     -o h \
     --long send,view,chooser,content-type:,help \
-    -- "$@")"
+    -- "$@")" || exit 1
 eval set -- "$TEMP"
 
 ACTION=android.intent.action.VIEW
-EXTRAS=""
+EXTRAS_ARGS=()
 while true; do
 	case "$1" in
 		--send) ACTION="android.intent.action.SEND"; shift;;
 		--view) ACTION="android.intent.action.VIEW"; shift;;
-		--chooser) EXTRAS="$EXTRAS --ez chooser true"; shift;;
-		--content-type) EXTRAS="$EXTRAS --es content-type $2"; shift 2;;
+		--chooser) EXTRAS_ARGS+=(--ez chooser true); shift;;
+		--content-type) EXTRAS_ARGS+=(--es content-type "$2"); shift 2;;
 		-h | --help) show_usage;;
 		--) shift; break ;;
 	esac
 done
-if [ $# != 1 ]; then
+if [ "$#" -ne 1 ]; then
 	show_usage
 fi
 
@@ -45,7 +45,7 @@ case "${TERMUX__USER_ID:-}" in ''|*[!0-9]*|0[0-9]*) TERMUX__USER_ID=0;; esac
 am broadcast --user "$TERMUX__USER_ID" \
 	-a "$ACTION" \
 	-n "@TERMUX_APP_PACKAGE@/@TERMUX_APP_PACKAGE@.app.TermuxOpenReceiver" \
-	$EXTRAS \
+	"${EXTRAS_ARGS[@]}" \
 	-d "$FILE" \
 	> /dev/null
 

@@ -1,3 +1,4 @@
+# shellcheck shell=sh
 ##
 ## This script is sourced by @TERMUX_PREFIX@/bin/login before executing shell.
 ##
