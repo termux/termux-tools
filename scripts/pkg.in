@@ -9,7 +9,7 @@ fi
 
 # Setup TERMUX_APP_PACKAGE_MANAGER
 # shellcheck source=/dev/null
-	source "@TERMUX_PREFIX@/bin/termux-setup-package-manager" || { echo "Failed to load termux-setup-package-manager" >&2; exit 1; }
+source "@TERMUX_PREFIX@/bin/termux-setup-package-manager" || exit 1
 
 MIRROR_BASE_DIR="@TERMUX_PREFIX@/etc/termux/mirrors"
 

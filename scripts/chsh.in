@@ -24,7 +24,7 @@ set_shell() {
 		exit 0
 	fi
 
-	mkdir -p "$HOME/.termux" || exit 1
+	mkdir -p "$HOME/.termux"
 
 	unset NEW_SHELL
 	case "$1" in
@@ -32,7 +32,7 @@ set_shell() {
 		*) NEW_SHELL="@TERMUX_PREFIX@/bin/$1" ;;
 	esac
 
-	SHELL_TARGET="$(realpath -s "$NEW_SHELL")" || exit 1
+	SHELL_TARGET="$(realpath -s "$NEW_SHELL")"
 
 	if ! is_executable_file "$SHELL_TARGET"; then
 		echo "The shell file '$SHELL_TARGET' is not an executable file." 1>&2
@@ -48,10 +48,10 @@ set_shell() {
 		exit 1
 	fi
 
-	ln -sf "$SHELL_TARGET" "$HOME/.termux/shell" || exit 1
+	ln -sf "$SHELL_TARGET" "$HOME/.termux/shell"
 }
 
-O="$(getopt -l help -- hs: "$@")" || exit 1
+O="$(getopt -l help -- hs: "$@")"
 eval set -- "$O"
 while true; do
 	case "$1" in
