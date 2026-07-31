@@ -27,9 +27,9 @@ else
 		echo "Preserving package 'termux-am' for later use..."
 
 		if [ -d "@TERMUX_CACHE_DIR@" ]; then
-			/system/bin/rm -rf "@TERMUX_CACHE_DIR@/termux-am" 2>/dev/null || true
-			/system/bin/mkdir -p "@TERMUX_CACHE_DIR@/termux-am" || true
-			/system/bin/cp "$AM_APK_PATH" "$AM_APK_TMP_PATH" || HAS_TERMUX_AM=false
+			/system/bin/rm -rf "@TERMUX_CACHE_DIR@/termux-am"
+			/system/bin/mkdir -p "@TERMUX_CACHE_DIR@/termux-am"
+			/system/bin/cp "$AM_APK_PATH" "$AM_APK_TMP_PATH"
 
 			# In case copying am.apk failed.
 			if [ ! -e "$AM_APK_TMP_PATH" ]; then
@@ -45,7 +45,7 @@ else
 
 	if ! $HAS_TERMUX_AM; then
 		echo "Terminating all sessions..."
-		/system/bin/killall -9 "${SHELL:-sh}" 2>/dev/null || true
+		/system/bin/killall -9 "$SHELL"
 	else
 		# - https://github.com/termux/TermuxAm/commit/598a9c06
 		if [ -w "$AM_APK_TMP_PATH" ]; then
@@ -53,6 +53,6 @@ else
 		fi
 
 		export CLASSPATH="$AM_APK_TMP_PATH"
-		/system/bin/app_process -Xnoimage-dex2oat / "com.termux.termuxam.Am" stopservice "@TERMUX_APP_PACKAGE@/@TERMUX_APP_PACKAGE@.app.TermuxService" || echo "Failed to stop TermuxService; restart manually" >&2
+		/system/bin/app_process -Xnoimage-dex2oat / "com.termux.termuxam.Am" stopservice "@TERMUX_APP_PACKAGE@/@TERMUX_APP_PACKAGE@.app.TermuxService"
 	fi
 fi

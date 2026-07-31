@@ -2,15 +2,12 @@
 
 # There needs to be a folder at $ANDROID_DATA/dalvik-cache
 export ANDROID_DATA="@TERMUX_PREFIX@/var/android/"
-mkdir -p "$ANDROID_DATA/dalvik-cache" || exit 1
+mkdir -p "$ANDROID_DATA/dalvik-cache"
 
 if [ -x /apex/com.android.art/bin/dalvikvm ]; then
 	DALVIKVM="/apex/com.android.art/bin/dalvikvm"
-elif [ -x /system/bin/dalvikvm ]; then
-	DALVIKVM="/system/bin/dalvikvm"
 else
-	echo "dalvikvm not found" >&2
-	exit 1
+	DALVIKVM="/system/bin/dalvikvm"
 fi
 
 unset LD_LIBRARY_PATH LD_PRELOAD
