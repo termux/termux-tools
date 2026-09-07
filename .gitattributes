@@ -1,0 +1,5 @@
+
+# File syntax
+completions/bash/* linguist-language=bash
+completions/fish/* linguist-language=fish
+completions/zsh/* linguist-language=zsh

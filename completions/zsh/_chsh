@@ -1,0 +1,27 @@
+#compdef chsh
+
+_chsh_shells() {
+    local -a known_shells=(
+        ash bash beanshell bsh cicada csh dash eltclsh elvish etsh
+        fish hilbish ksh loksh mksh nu osh pwsh rc sh tcsh tsh xonsh ysh zsh
+    )
+    local sh
+    local -a installed_shells=()
+    for sh in "${known_shells[@]}"; do
+        (( $+commands[$sh] )) && installed_shells+=("$sh")
+    done
+    _wanted shells expl 'login shell' compadd -a installed_shells
+}
+
+_arguments \
+    '-s[Specify login shell]:login shell:_chsh_shells' \
+    '(-h --help)'{-h,--help}'[Show usage information]' && return 0
+
+if [[ "$words[CURRENT]" != -* && "$words[CURRENT-1]" != "-s" ]]; then
+    local -a flags=(
+        '-s:Specify login shell'
+        '-h:Show usage information'
+        '--help:Show usage information'
+    )
+    _describe -t options 'option' flags
+fi
