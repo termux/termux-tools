@@ -1,0 +1,8 @@
+_termux_info() {
+    local cur
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $(compgen -W "--no-set-clipboard -h --help" -- "$cur") )
+    fi
+}
+complete -F _termux_info termux-info

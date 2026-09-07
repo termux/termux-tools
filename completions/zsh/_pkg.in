@@ -1,0 +1,99 @@
+#compdef pkg
+
+_pkg_package_manager() {
+    if [[ -z "${TERMUX_APP_PACKAGE_MANAGER-}" ]]; then
+        local setup_pm="@TERMUX_PREFIX@/bin/termux-setup-package-manager"
+        if [[ -r "$setup_pm" ]]; then
+            local pm
+            pm="$(bash -c '. "$0" &>/dev/null && echo "$TERMUX_APP_PACKAGE_MANAGER"' "$setup_pm" 2>/dev/null)"
+            if [[ -n "$pm" ]]; then
+                export TERMUX_APP_PACKAGE_MANAGER="$pm"
+                echo "$pm"
+                return
+            fi
+        fi
+    else
+        echo "$TERMUX_APP_PACKAGE_MANAGER"
+        return
+    fi
+
+    if (( $+commands[pacman] )) && ! (( $+commands[apt-cache] )); then
+        echo "pacman"
+    else
+        echo "apt"
+    fi
+}
+
+_pkg_installed_packages() {
+    local -a pkgs
+    local pm="$(_pkg_package_manager)"
+    if [[ "$pm" == "pacman" ]]; then
+        pkgs=(${(f)"$(pacman -Qq 2>/dev/null)"})
+    else
+        pkgs=(${(f)"$(dpkg-query -W -f='${Package}\n' 2>/dev/null)"})
+    fi
+    compadd -a pkgs
+}
+
+_pkg_available_packages() {
+    local -a pkgs
+    local pm="$(_pkg_package_manager)"
+    if [[ "$pm" == "pacman" ]]; then
+        pkgs=(${(f)"$(pacman -Slq 2>/dev/null)"})
+    else
+        pkgs=(${(f)"$(apt-cache pkgnames 2>/dev/null)"})
+    fi
+    compadd -a pkgs
+}
+
+_pkg() {
+    local curcontext="$curcontext" state line
+    typeset -A opt_args
+
+    local -a commands=(
+        'autoclean:Remove outdated packages from cache'
+        'clean:Remove all packages from cache'
+        'files:Show all files installed by packages'
+        'help:Show usage information'
+        'install:Install specified packages'
+        'list-all:List all packages available in repositories'
+        'list-installed:List installed packages'
+        'reinstall:Reinstall specified installed packages'
+        'search:Search package by query'
+        'show:Show package metadata'
+        'uninstall:Uninstall specified packages'
+        'upgrade:Upgrade all installed packages'
+        'update:Update package databases'
+    )
+
+    _arguments -C \
+        '--check-mirror[Force mirror availability re-check]' \
+        '(-h --help)'{-h,--help}'[Show usage information]' \
+        '1:subcommand:->subcmd' \
+        '*::args:->args' && return 0
+
+    case $state in
+        subcmd)
+            _describe -t commands 'pkg command' commands
+            ;;
+        args)
+            case $line[1] in
+                add|i*)
+                    _pkg_available_packages
+                    ;;
+                f*|rei*|un*|rem*|rm|del*)
+                    _pkg_installed_packages
+                    ;;
+                sh*|inf*)
+                    _pkg_available_packages
+                    ;;
+                se*)
+                    ;;
+                *)
+                    ;;
+            esac
+            ;;
+    esac
+}
+
+_pkg "$@"

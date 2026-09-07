@@ -1,0 +1,110 @@
+_pkg_available_packages() {
+    local cur="$1"
+    local pkg_mgr="$2"
+    if [ "$pkg_mgr" = "apt" ]; then
+        if [ -n "$cur" ]; then
+            apt-cache pkgnames "$cur" 2>/dev/null
+        else
+            apt-cache pkgnames 2>/dev/null
+        fi
+    elif [ "$pkg_mgr" = "pacman" ]; then
+        if [ -n "$cur" ]; then
+            pacman -Ssq "^$cur" 2>/dev/null
+        else
+            pacman -Slq 2>/dev/null
+        fi
+    fi
+}
+
+_pkg_installed_packages() {
+    local cur="$1"
+    local pkg_mgr="$2"
+    if [ "$pkg_mgr" = "apt" ]; then
+        if [ -n "$cur" ]; then
+            dpkg-query -W -f='${Package}\n' "${cur}*" 2>/dev/null
+        else
+            dpkg-query -W -f='${Package}\n' 2>/dev/null
+        fi
+    elif [ "$pkg_mgr" = "pacman" ]; then
+        pacman -Qq 2>/dev/null | grep -E "^${cur}"
+    fi
+}
+
+_pkg() {
+    local cur prev words cword
+    if declare -F _init_completion &>/dev/null; then
+        _init_completion || return
+    else
+        COMPREPLY=()
+        cur="${COMP_WORDS[COMP_CWORD]}"
+        prev="${COMP_WORDS[COMP_CWORD-1]}"
+        words=("${COMP_WORDS[@]}")
+        cword=$COMP_CWORD
+    fi
+
+    local commands="autoclean clean files help install list-all list-installed reinstall search show uninstall update upgrade"
+    local options="--check-mirror -h --help"
+
+    local cmd=""
+    local i
+    for (( i=1; i < cword; i++ )); do
+        case "${words[i]}" in
+            --check-mirror)
+                ;;
+            -*)
+                ;;
+            *)
+                cmd="${words[i]}"
+                break
+                ;;
+        esac
+    done
+
+    if [ -z "$cmd" ]; then
+        if [[ "$cur" == -* ]]; then
+            COMPREPLY=( $(compgen -W "$options" -- "$cur") )
+        else
+            COMPREPLY=( $(compgen -W "$commands" -- "$cur") )
+        fi
+        return 0
+    fi
+
+    if [ -z "${TERMUX_APP_PACKAGE_MANAGER-}" ]; then
+        local setup_pm="@TERMUX_PREFIX@/bin/termux-setup-package-manager"
+        if [ -r "$setup_pm" ]; then
+            local detected_pm
+            detected_pm="$(bash -c '. "$0" &>/dev/null && echo "$TERMUX_APP_PACKAGE_MANAGER"' "$setup_pm" 2>/dev/null)"
+            if [ -n "$detected_pm" ]; then
+                export TERMUX_APP_PACKAGE_MANAGER="$detected_pm"
+            fi
+        fi
+    fi
+
+    local pkg_mgr="${TERMUX_APP_PACKAGE_MANAGER:-}"
+    if [ -z "$pkg_mgr" ]; then
+        if command -v pacman &>/dev/null && ! command -v apt-cache &>/dev/null; then
+            pkg_mgr="pacman"
+        else
+            pkg_mgr="apt"
+        fi
+    fi
+
+    case "$cmd" in
+        add|i*)
+            COMPREPLY=( $(compgen -W "$(_pkg_available_packages "$cur" "$pkg_mgr")" -- "$cur") )
+            ;;
+        f*|rei*|un*|rem*|rm|del*)
+            COMPREPLY=( $(compgen -W "$(_pkg_installed_packages "$cur" "$pkg_mgr")" -- "$cur") )
+            ;;
+        sh*|inf*)
+            COMPREPLY=( $(compgen -W "$(_pkg_available_packages "$cur" "$pkg_mgr")" -- "$cur") )
+            ;;
+        se*)
+            COMPREPLY=()
+            ;;
+        *)
+            COMPREPLY=()
+            ;;
+    esac
+}
+complete -F _pkg pkg

@@ -1,0 +1,5 @@
+#compdef termux-restore
+
+_arguments \
+    '(-h --help)'{-h,--help}'[Show usage information]' \
+    '1:input archive:_files'

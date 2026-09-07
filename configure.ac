@@ -94,7 +94,7 @@ AC_SUBST(termux_package_manager)
 
 AC_PROG_LN_S
 
-AC_CONFIG_FILES([Makefile scripts/Makefile doc/Makefile
+AC_CONFIG_FILES([Makefile completions/Makefile scripts/Makefile doc/Makefile
 mirrors/Makefile motds/Makefile src/Makefile])
 
 AC_OUTPUT

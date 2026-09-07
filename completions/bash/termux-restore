@@ -1,0 +1,10 @@
+_termux_restore() {
+    local cur
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $(compgen -W "-h --help" -- "$cur") )
+        return 0
+    fi
+    _filedir 2>/dev/null || COMPREPLY=( $(compgen -f -- "$cur") )
+}
+complete -F _termux_restore termux-restore
