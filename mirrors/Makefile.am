@@ -41,6 +41,9 @@ pkgdata_OCEANIA_MIRRORS = mirrors.middlendian.com
 # Mirrors in Russia
 pkgdata_RUSSIA_MIRRORS = mirror.mephi.ru repository.su
 
+# Mirrors in South America
+pkgdata_SOUTH_AMERICA_MIRRORS = apps.fgs.cl
+
 
 # Removed, renamed or moved mirrors
 # Mirrors files are marked as conffiles and they are manually deleted
@@ -116,6 +119,7 @@ $(eval $(call install-mirror-rule,europe,EUROPE))
 $(eval $(call install-mirror-rule,north_america,NORTH_AMERICA))
 $(eval $(call install-mirror-rule,oceania,OCEANIA))
 $(eval $(call install-mirror-rule,russia,RUSSIA))
+$(eval $(call install-mirror-rule,south_america,SOUTH_AMERICA))
 
 $(eval $(call uninstall-mirror-rule,asia,ASIA))
 $(eval $(call uninstall-mirror-rule,chinese_mainland,CHINESE_MAINLAND))
@@ -123,6 +127,7 @@ $(eval $(call uninstall-mirror-rule,europe,EUROPE))
 $(eval $(call uninstall-mirror-rule,north_america,NORTH_AMERICA))
 $(eval $(call uninstall-mirror-rule,oceania,OCEANIA))
 $(eval $(call uninstall-mirror-rule,russia,RUSSIA))
+$(eval $(call uninstall-mirror-rule,south_america,SOUTH_AMERICA))
 
 
 
@@ -154,10 +159,11 @@ create-deb-control-files:
 
 
 
-install-data-local: uninstall-removed-mirrors install-default install-asia install-chinese_mainland install-europe install-north_america install-oceania install-russia create-deb-control-files
+install-data-local: uninstall-removed-mirrors install-default install-asia install-chinese_mainland install-europe install-north_america install-oceania install-russia install-south_america create-deb-control-files
 
-uninstall-local: uninstall-removed-mirrors uninstall-default uninstall-asia uninstall-chinese_mainland uninstall-europe uninstall-north_america uninstall-oceania uninstall-russia
+uninstall-local: uninstall-removed-mirrors uninstall-default uninstall-asia uninstall-chinese_mainland uninstall-europe uninstall-north_america uninstall-oceania uninstall-russia uninstall-south_america
 
 EXTRA_DIST = $(pkgdata_MIRRORS) $(pkgdata_ASIA_MIRRORS)		\
 $(pkgdata_CHINESE_MAINLAND_MIRRORS) $(pkgdata_EUROPE_MIRRORS)		\
-$(pkgdata_NORTH_AMERICA_MIRRORS) $(pkgdata_OCEANIA_MIRRORS)	
+$(pkgdata_NORTH_AMERICA_MIRRORS) $(pkgdata_OCEANIA_MIRRORS)	\
+$(pkgdata_RUSSIA_MIRRORS) $(pkgdata_SOUTH_AMERICA_MIRRORS)	
