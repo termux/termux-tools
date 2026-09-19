@@ -17,7 +17,7 @@ jobs:
 
     steps:
     - name: Check out repository
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
 
     - name: Check mirror files
       run: |
@@ -54,7 +54,7 @@ jobs:
 
     steps:
     - name: Check out repository
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
 
     - name: Set up SSH key
       env:
