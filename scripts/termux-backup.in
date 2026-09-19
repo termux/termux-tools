@@ -1,37 +1,26 @@
 #!@TERMUX_PREFIX@/bin/bash
 ##
-## Termux script for backing up $PREFIX (package installation dir).
+## Termux script for backing up $HOME and/or $PREFIX (package installation dir).
 ## For restore script, see "termux-restore".
-##
-## Why it doesn't implement support for backing up $HOME: that's all
-## about implementation of termux-restore script:
-##
-##  * termux-restore can't selectively restore files due to tar option
-##     --recursive-unlink, that will erase file tree before extracting.
-##
-##  * termux-restore has to maintain support of piped input. Therefore
-##    we can't allow optional backup of home by termux-backup. Here is
-##    why: with piped input it is not possible to check contents of
-##    backup file (you can't seek piped content twice). We must be
-##    sure that all directories selected for restore are present
-##    inside archive and this is possible only with hardcoded
-##    configuration (e.g. backup only $PREFIX). Otherwise, for example,
-##    restore procedure may fail or even worse, erase all directories
-##    (potentially user data) that are not present in backup.
-##
-## Considering the mentioned 2 major issues, should be obvious that
-## we have literally 2 choices: either backup only $PREFIX or backup
-## both $HOME and $PREFIX unconditionally, to ensure consistency of
-## data passed to termux-restore.
-##
-## However the current choice is to stick to backing up only $PREFIX,
-## to leave responsibility of managing files in $HOME to user (as said
-## above, termux-restore script ERASES DATA before restore).
 ##
 
 set -e -u
+shopt -s dotglob nullglob
 
 export PREFIX="@TERMUX_PREFIX@"
+export HOME="@TERMUX_HOME@"
+ROOTFS="@TERMUX_BASE_DIR@"
+
+# Tar member names for $HOME and $PREFIX, relative to $ROOTFS.
+HOME_MEMBER=".${HOME#"${ROOTFS%/}"}"
+PREFIX_MEMBER=".${PREFIX#"${ROOTFS%/}"}"
+
+# $HOME may be placed inside $PREFIX in layouts without 'usr' merge,
+# e.g. when $PREFIX is same as $ROOTFS.
+HOME_IN_PREFIX=false
+if [[ "$HOME" == "$PREFIX"/* ]]; then
+	HOME_IN_PREFIX=true
+fi
 
 msg() {
 	echo "$*" >&2
@@ -39,38 +28,50 @@ msg() {
 
 show_usage() {
 	msg
-	msg "Usage: termux-backup [options] [output file]"
+	msg "Usage: termux-backup [options] <output file>"
 	msg
-	msg "Script for backing up Termux installation directory, \$PREFIX."
-	msg "It WILL NOT backup your home directory."
+	msg "Script for backing up Termux directories to a TAR archive."
+	msg "By default, both \$HOME and \$PREFIX are included (full backup)."
 	msg
 	msg "Options:"
 	msg
 	msg " -h, --help             Show this information."
 	msg " -f, --force            Force write operations."
+	msg " --home                 Include \$HOME in backup."
+	msg " --packages             Include \$PREFIX in backup."
 	msg " --ignore-read-failure  Suppress read permission denials."
 	msg
-	msg "Backup is performed as TAR archive. Compression is determined"
-	msg "by output file extension. If file name is '-', then tarball is"
-	msg "written to stdout and is uncompressed."
+	msg "If neither --home nor --packages is specified, both are backed up."
+	msg "Compression is determined by output file extension."
 	msg
 }
 
-if [ ! -d "$PREFIX" ]; then
-	msg "[!] $PREFIX: directory does not exist."
-	exit 1
-fi
-
-if [ $# -lt 1 ]; then
-	msg
-	msg "[!] Not enough arguments."
-	show_usage
-	exit 1
-fi
+# Add contents of directory $1 to BACKUP_DIRS, except directory $2
+# nested inside it. Directories on the path from $1 to $2 are not
+# added themselves, only their contents. This is what makes restoring
+# with 'tar --recursive-unlink' safe when $HOME is inside $PREFIX: tar
+# erases only directories that are present in archive, so $HOME is
+# never wiped along with $PREFIX.
+add_dir_contents() {
+	local entry
+	for entry in "$1"/*; do
+		if [ "$entry" = "$2" ]; then
+			continue
+		elif [[ "$2" == "$entry"/* ]]; then
+			add_dir_contents "$entry" "$2"
+		else
+			BACKUP_DIRS+=(".${entry#"${ROOTFS%/}"}")
+		fi
+	done
+}
 
 BACKUP_FILE_PATH=
 TAR_EXTRA_OPTS=
 FORCE_WRITE=false
+BACKUP_HOME=false
+BACKUP_PACKAGES=false
+BACKUP_DIRS=()
+
 while (($# >= 1)); do
 	case "$1" in
 		--) shift 1; break;;
@@ -81,8 +82,14 @@ while (($# >= 1)); do
 		-f|--force)
 			FORCE_WRITE=true
 			;;
+		--home)
+			BACKUP_HOME=true
+			;;
+		--packages)
+			BACKUP_PACKAGES=true
+			;;
 		--ignore-read-failure)
-			TAR_EXTRA_OPTS="--ignore-failed-read --warning=no-failed-read"
+			TAR_EXTRA_OPTS="$TAR_EXTRA_OPTS --ignore-failed-read --warning=no-failed-read"
 			;;
 		*)
 			if [ -z "$1" ]; then
@@ -92,8 +99,6 @@ while (($# >= 1)); do
 				exit 1
 			fi
 
-			# Filter all previously unrecognized options except '-', which is
-			# a valid backup output specification.
 			if [[ $1 =~ ^-.+ ]]; then
 				msg
 				msg "[!] Unknown option passed: ${1}"
@@ -114,26 +119,57 @@ while (($# >= 1)); do
 	shift 1
 done
 
-if [ "$BACKUP_FILE_PATH" != "-" ]; then
-	TAR_EXTRA_OPTS="$TAR_EXTRA_OPTS --auto-compress"
-	if [ -e "$BACKUP_FILE_PATH" ] && ! $FORCE_WRITE; then
-		msg
-		msg "[!] Refusing to overwrite existing file without --force option: '$BACKUP_FILE_PATH'."
-		msg
-		exit 1
-	fi
-else
-	if [ -t 1 ]; then
-		msg
-		msg "[!] Refusing to write archive data to console."
-		msg
+# Default: full backup if neither flag was given.
+if ! $BACKUP_HOME && ! $BACKUP_PACKAGES; then
+	BACKUP_HOME=true
+	BACKUP_PACKAGES=true
+fi
+
+if [ -z "$BACKUP_FILE_PATH" ]; then
+	msg
+	msg "[!] No backup file path specified."
+	show_usage
+	exit 1
+fi
+
+if $BACKUP_HOME; then
+	BACKUP_DIRS+=("$HOME_MEMBER")
+
+	if [ ! -d "$HOME" ]; then
+		msg "[!] $HOME: directory does not exist."
 		exit 1
 	fi
 fi
 
-msg "Ensure that all files and directories are accessible..."
-find "@TERMUX_BASE_DIR@/usr" -type d,f -print0 | xargs -0 -r chmod u+rX || true
+if $BACKUP_PACKAGES; then
+	if [ ! -d "$PREFIX" ]; then
+		msg "[!] $PREFIX: directory does not exist."
+		exit 1
+	fi
 
-msg "Backing up installed packages..."
-tar --warning=no-file-ignored $TAR_EXTRA_OPTS -c \
-	-f "$BACKUP_FILE_PATH" -C "@TERMUX_BASE_DIR@" ./usr
+	if $HOME_IN_PREFIX; then
+		add_dir_contents "$PREFIX" "$HOME"
+	else
+		BACKUP_DIRS+=("$PREFIX_MEMBER")
+	fi
+fi
+
+if [ -e "$BACKUP_FILE_PATH" ] && ! $FORCE_WRITE; then
+	msg
+	msg "[!] Refusing to overwrite existing file without --force option: '$BACKUP_FILE_PATH'."
+	msg
+	exit 1
+fi
+
+msg "Ensuring all files and directories are accessible..."
+if $BACKUP_HOME; then
+	find "$HOME" -type d,f -print0 | xargs -0 -r chmod u+rX || true
+fi
+if $BACKUP_PACKAGES; then
+	find "$PREFIX" -type d,f -print0 | xargs -0 -r chmod u+rX || true
+fi
+
+msg "Backing up: ${BACKUP_DIRS[*]}"
+tar --warning=no-file-ignored $TAR_EXTRA_OPTS --auto-compress \
+	-c -f "$BACKUP_FILE_PATH" -C "$ROOTFS" \
+	"${BACKUP_DIRS[@]}"
