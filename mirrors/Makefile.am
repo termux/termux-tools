@@ -21,13 +21,13 @@ mirror.sjtu.edu.cn mirrors.hust.edu.cn mirrors.cernet.edu.cn
 # Mirrors in Europe
 pkgdata_EUROPE_MIRRORS = grimler.se			\
 packages.termux.dev termux.librehat.com \
-mirrors.de.sahilister.net termux.cdn.lumito.net	\
+mirror.cutie.dating termux.cdn.lumito.net	\
 termux.3san.dev mirror.accum.se			\
 md.mirrors.hacktegic.com ftp.fau.de is.mirror.flokinet.net		\
 ro.mirror.flokinet.net mirrors.medzik.dev	\
 mirror.sunred.org mirror.autkin.net mirror.bouwhuis.network		\
 mirror.leitecastro.com ftp.agdsn.de	ftp.icm.edu.pl		        \
-nl.mirror.flokinet.net mirror.cutie.dating
+nl.mirror.flokinet.net 
 
 # Mirrors in North America
 pkgdata_NORTH_AMERICA_MIRRORS = plug-mirror.rcac.purdue.edu          \
@@ -81,6 +81,7 @@ europe/mirror.polido.pt \
 europe/mirror.termux.dev \
 europe/mirror.termux.dv \
 europe/mirrors.cfe.re \
+europe/mirrors.de.sahilister.net \
 europe/termux.astra.in.ua \
 europe/termux.mentality.rip \
 europe/termux.sahilister.in \
