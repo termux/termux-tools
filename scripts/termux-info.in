@@ -130,6 +130,8 @@ termux-tools version:
 @PACKAGE_VERSION@
 Android version:
 $(getprop ro.build.version.release)
+Android security patch:
+$(getprop ro.build.version.security_patch)
 Kernel build information:
 $(uname -a)
 Device manufacturer:
