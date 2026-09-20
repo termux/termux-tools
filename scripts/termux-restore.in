@@ -139,10 +139,24 @@ if $RESTORE_PACKAGES; then
 
 	# When $HOME is inside $PREFIX, archive made by 'termux-backup' holds
 	# contents of $PREFIX as separate members rather than $PREFIX itself,
-	# so --recursive-unlink cannot wipe $HOME. Additionally leave $HOME
-	# members alone if they are in archive but were not requested.
-	if $HOME_IN_PREFIX && ! $RESTORE_HOME; then
-		TAR_EXCLUDE_OPTS="--anchored --no-wildcards --exclude=$HOME_MEMBER"
+	# so --recursive-unlink cannot wipe $HOME. Archive of unexpected
+	# structure may still contain $PREFIX or a directory between it and
+	# $HOME as a member, which would be recursively unlinked. Skip such
+	# members: --no-recursion makes --exclude match by exact name, so
+	# their contents are still restored. Additionally leave $HOME members
+	# alone if they are in archive but were not requested.
+	if $HOME_IN_PREFIX; then
+		TAR_EXCLUDE_OPTS="--anchored --no-wildcards --no-recursion"
+		DIR="${HOME%/*}"
+		while [ "$DIR" = "$PREFIX" ] || [[ "$DIR" == "$PREFIX"/* ]]; do
+			TAR_EXCLUDE_OPTS="$TAR_EXCLUDE_OPTS --exclude=.${DIR#"${ROOTFS%/}"}"
+			DIR="${DIR%/*}"
+		done
+		TAR_EXCLUDE_OPTS="$TAR_EXCLUDE_OPTS --recursion"
+
+		if ! $RESTORE_HOME; then
+			TAR_EXCLUDE_OPTS="$TAR_EXCLUDE_OPTS --exclude=$HOME_MEMBER"
+		fi
 	fi
 fi
 
