@@ -20,8 +20,8 @@
 bin_SCRIPTS = chsh dalvikvm login pkg su termux-backup			\
 termux-change-repo termux-fix-shebang termux-info termux-open		\
 termux-open-url termux-reload-settings termux-reset termux-restore	\
-termux-setup-package-manager termux-setup-storage termux-wake-lock	\
-termux-wake-unlock
+termux-setup-dns termux-setup-package-manager termux-setup-proxy	\
+termux-setup-storage termux-wake-lock termux-wake-unlock
 
 # wrappers around tools in /system/bin:
 bin_SCRIPTS += df getprop logcat ping ping6 pm settings top
@@ -75,7 +75,9 @@ $(eval $(call tool-rule,termux-open-url))
 $(eval $(call tool-rule,termux-reload-settings))
 $(eval $(call tool-rule,termux-reset))
 $(eval $(call tool-rule,termux-restore))
+$(eval $(call tool-rule,termux-setup-dns))
 $(eval $(call tool-rule,termux-setup-package-manager))
+$(eval $(call tool-rule,termux-setup-proxy))
 $(eval $(call tool-rule,termux-setup-storage))
 $(eval $(call tool-rule,termux-wake-lock))
 $(eval $(call tool-rule,termux-wake-unlock))
