@@ -133,7 +133,7 @@ if $RESTORE_HOME; then
 fi
 if $RESTORE_PACKAGES; then
 	if [ -d "$PREFIX" ]; then
-		find "$PREFIX" -type d,f -print0 | xargs -0 -r chmod u+rwX
+		find "$PREFIX" -path "$HOME" -prune -o -type d,f -print0 | xargs -0 -r chmod u+rwX
 	fi
 	RESTORE_DIRS+=("$PREFIX_MEMBER")
 
@@ -142,7 +142,7 @@ if $RESTORE_PACKAGES; then
 	# so --recursive-unlink cannot wipe $HOME. Additionally leave $HOME
 	# members alone if they are in archive but were not requested.
 	if $HOME_IN_PREFIX && ! $RESTORE_HOME; then
-		TAR_EXCLUDE_OPTS="--anchored --exclude=$HOME_MEMBER"
+		TAR_EXCLUDE_OPTS="--anchored --no-wildcards --exclude=$HOME_MEMBER"
 	fi
 fi
 

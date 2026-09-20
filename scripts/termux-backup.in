@@ -54,6 +54,10 @@ show_usage() {
 # never wiped along with $PREFIX.
 add_dir_contents() {
 	local entry
+	if [ ! -r "$1" ] || [ ! -x "$1" ]; then
+		msg "[!] $1: directory is not accessible."
+		exit 1
+	fi
 	for entry in "$1"/*; do
 		if [ "$entry" = "$2" ]; then
 			continue
@@ -146,12 +150,6 @@ if $BACKUP_PACKAGES; then
 		msg "[!] $PREFIX: directory does not exist."
 		exit 1
 	fi
-
-	if $HOME_IN_PREFIX; then
-		add_dir_contents "$PREFIX" "$HOME"
-	else
-		BACKUP_DIRS+=("$PREFIX_MEMBER")
-	fi
 fi
 
 if [ -e "$BACKUP_FILE_PATH" ] && ! $FORCE_WRITE; then
@@ -167,6 +165,16 @@ if $BACKUP_HOME; then
 fi
 if $BACKUP_PACKAGES; then
 	find "$PREFIX" -type d,f -print0 | xargs -0 -r chmod u+rX || true
+fi
+
+# Selected after fixing permissions: contents of unreadable directories
+# would be silently missed by add_dir_contents otherwise.
+if $BACKUP_PACKAGES; then
+	if $HOME_IN_PREFIX; then
+		add_dir_contents "$PREFIX" "$HOME"
+	else
+		BACKUP_DIRS+=("$PREFIX_MEMBER")
+	fi
 fi
 
 msg "Backing up: ${BACKUP_DIRS[*]}"
