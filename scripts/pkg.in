@@ -33,6 +33,8 @@ show_help() {
 	echo "  autoclean            - Remove all outdated packages from $TERMUX_APP_PACKAGE_MANAGER"
 	echo '                         cache.'
 	echo
+	echo "  autoremove           - Remove unneeded packages that were installed as dependencies."
+	echo
 	echo "  clean                - Remove all packages from $TERMUX_APP_PACKAGE_MANAGER cache."
 	[ -n "$cache_size" ] &&
 	echo "                         Using $cache_size now."
@@ -430,6 +432,16 @@ update_apt_cache() {
 	fi
 }
 
+pacman_autoremove() {
+	local orphans
+	orphans=$(pacman -Qdtq 2>/dev/null || true)
+	if [ -n "$orphans" ]; then
+		pacman -Rns $orphans "$@"
+	else
+		echo "No unused packages found."
+	fi
+}
+
 force_check_mirror=false
 if [ "${1-}" = "--check-mirror" ]; then
 	force_check_mirror=true
@@ -451,6 +463,7 @@ case "$TERMUX_APP_PACKAGE_MANAGER" in
 			sh*|inf*) apt show "$@";;
 			add|i*) select_mirror; update_apt_cache; apt install "$@";;
 			autoc*) apt autoclean;;
+			autor*) apt autoremove "$@";;
 			cl*) apt clean;;
 			list-a*) apt list "$@";;
 			list-i*) apt list --installed "$@";;
@@ -467,6 +480,7 @@ case "$TERMUX_APP_PACKAGE_MANAGER" in
 			sh*|inf*) pacman -Qi "$@";;
 			add|i*) pacman -Sy --needed "$@";;
 			autoc*) pacman -Sc;;
+			autor*) pacman_autoremove "$@";;
 			cl*) pacman -Scc;;
 			list-a*) pacman -Sl "$@";;
 			list-i*) pacman -Q "$@";;
