@@ -1,0 +1,25 @@
+_termux_open() {
+    local cur prev
+    if declare -F _init_completion &>/dev/null; then
+        _init_completion || return
+    else
+        COMPREPLY=()
+        cur="${COMP_WORDS[COMP_CWORD]}"
+        prev="${COMP_WORDS[COMP_CWORD-1]}"
+    fi
+
+    case "$prev" in
+        --content-type)
+            return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $(compgen -W "--send --view --chooser --content-type -h --help" -- "$cur") )
+        return 0
+    fi
+
+    _filedir 2>/dev/null || COMPREPLY=( $(compgen -f -- "$cur") )
+}
+complete -F _termux_open termux-open
+complete -F _termux_open xdg-open

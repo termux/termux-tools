@@ -16,7 +16,7 @@
 # along with termux-tools.  If not, see
 # <https://www.gnu.org/licenses/>.
 
-SUBDIRS = . scripts doc mirrors motds src
+SUBDIRS = . completions scripts doc mirrors motds src
 
 CONFFILES = \
 etc/motd \

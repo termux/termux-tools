@@ -1,0 +1,54 @@
+_chsh() {
+    local cur prev
+    if declare -F _init_completion &>/dev/null; then
+        _init_completion || return
+    else
+        COMPREPLY=()
+        cur="${COMP_WORDS[COMP_CWORD]}"
+        prev="${COMP_WORDS[COMP_CWORD-1]}"
+    fi
+
+    case "$prev" in
+        -s)
+            local -a known_shells=(
+                ash
+                bash
+                beanshell
+                bsh
+                cicada
+                csh
+                dash
+                eltclsh
+                elvish
+                etsh
+                fish
+                hilbish
+                ksh
+                loksh
+                mksh
+                nu
+                osh
+                pwsh
+                rc
+                sh
+                tcsh
+                tsh
+                xonsh
+                ysh
+                zsh
+            )
+            local sh
+            local -a installed_shells=()
+            for sh in "${known_shells[@]}"; do
+                command -v "$sh" &>/dev/null && installed_shells+=("$sh")
+            done
+            COMPREPLY=( $(compgen -W "${installed_shells[*]}" -- "$cur") )
+            return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $(compgen -W "-s -h --help" -- "$cur") )
+    fi
+}
+complete -F _chsh chsh

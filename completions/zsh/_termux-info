@@ -1,0 +1,5 @@
+#compdef termux-info
+
+_arguments \
+    '--no-set-clipboard[Do not copy output to clipboard]' \
+    '(-h --help)'{-h,--help}'[Show usage information]'
