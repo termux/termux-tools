@@ -158,6 +158,11 @@ install-data-local: uninstall-removed-mirrors install-default install-asia insta
 
 uninstall-local: uninstall-removed-mirrors uninstall-default uninstall-asia uninstall-chinese_mainland uninstall-europe uninstall-north_america uninstall-oceania uninstall-russia
 
-EXTRA_DIST = $(pkgdata_MIRRORS) $(pkgdata_ASIA_MIRRORS)		\
-$(pkgdata_CHINESE_MAINLAND_MIRRORS) $(pkgdata_EUROPE_MIRRORS)		\
-$(pkgdata_NORTH_AMERICA_MIRRORS) $(pkgdata_OCEANIA_MIRRORS)	
+EXTRA_DIST = \
+	$(pkgdata_MIRRORS) \
+	asia \
+	chinese_mainland \
+	europe \
+	north_america \
+	oceania \
+	russia
