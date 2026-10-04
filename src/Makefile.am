@@ -18,6 +18,8 @@
 
 AM_CFLAGS = -Wall -Wextra -pedantic
 
-bin_PROGRAMS = cmd
+bin_PROGRAMS = cmd termux-ip
 
 cmd_SOURCES = cmd.c
+
+termux_ip_SOURCE = termux-ip.c
