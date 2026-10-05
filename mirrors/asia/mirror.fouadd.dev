@@ -1,0 +1,5 @@
+# Lebanon (fouadd.dev)
+# Relies on cloudflare caching, with backup alternative.
+# Synced hourly
+WEIGHT=1
+MAIN="https://mirror.fouadd.dev/"
