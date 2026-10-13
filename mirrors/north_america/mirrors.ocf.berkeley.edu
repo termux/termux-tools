@@ -1,0 +1,6 @@
+# This file is sourced by pkg
+# Mirror by Berkeley Open Computing Facility, in Berkeley, US
+WEIGHT=1
+MAIN="https://mirrors.ocf.berkeley.edu/termux/termux-main"
+ROOT="https://mirrors.ocf.berkeley.edu/termux/termux-root"
+X11="https://mirrors.ocf.berkeley.edu/termux/termux-x11"
