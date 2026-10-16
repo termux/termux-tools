@@ -1,0 +1,8 @@
+# This file is sourced by pkg
+# Mirror by Federal University of São Carlos. São Carlos, Brazil.
+# Federal University of São Carlos : https://github.com/ufscar/mirror
+# Hosted in São Carlos, São Paulo, Brazil. Updated every 1 hours. 20Gbp/s and support IPV4 and IPV6.
+WEIGHT=1
+MAIN="https://mirror.ufscar.br/termux/termux-main/"
+ROOT="https://mirror.ufscar.br/termux/termux-root/"
+X11="https://mirror.ufscar.br/termux/termux-x11/"
