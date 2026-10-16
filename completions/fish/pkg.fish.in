@@ -1,0 +1,91 @@
+complete -c pkg -f
+
+complete -c pkg -l check-mirror -d "Force mirror availability re-check"
+complete -c pkg -s h -l help -d "Show usage information"
+
+function __fish_pkg_subcommand
+    set -l tokens (commandline -poc)
+    set -e tokens[1]
+    while test (count $tokens) -gt 0
+        switch $tokens[1]
+            case '-*'
+                set -e tokens[1]
+            case '*'
+                break
+        end
+    end
+
+    test (count $tokens) -ge 1; or return 1
+
+    set -l cur (commandline -ct)
+    if test (count $tokens) -eq 1 -a "$tokens[1]" = "$cur"
+        return 1
+    end
+
+    echo $tokens[1]
+    return 0
+end
+
+function __fish_pkg_package_manager
+    if not set -q TERMUX_APP_PACKAGE_MANAGER
+        set -l setup_pm "@TERMUX_PREFIX@/bin/termux-setup-package-manager"
+        if test -r "$setup_pm"
+            set -gx TERMUX_APP_PACKAGE_MANAGER (bash -c '. "$0" &>/dev/null && echo "$TERMUX_APP_PACKAGE_MANAGER"' "$setup_pm")
+        end
+    end
+    if set -q TERMUX_APP_PACKAGE_MANAGER; and test -n "$TERMUX_APP_PACKAGE_MANAGER"
+        echo $TERMUX_APP_PACKAGE_MANAGER
+    else if type -q pacman; and not type -q apt
+        echo pacman
+    else
+        echo apt
+    end
+end
+
+function __fish_pkg_available_packages
+    set -l pm (__fish_pkg_package_manager)
+    if test "$pm" = "pacman"
+        pacman -Slq 2>/dev/null
+    else
+        apt-cache pkgnames 2>/dev/null
+    end
+end
+
+function __fish_pkg_installed_packages
+    set -l pm (__fish_pkg_package_manager)
+    if test "$pm" = "pacman"
+        pacman -Qq 2>/dev/null
+    else
+        dpkg-query -W -f='${Package}\n' 2>/dev/null
+    end
+end
+
+function __fish_pkg_packages
+    set -l cmd (__fish_pkg_subcommand)
+    or return
+
+    switch $cmd
+        case 'add' 'i*'
+            __fish_pkg_available_packages
+        case 'f*' 'rei*' 'un*' 'rem*' 'rm' 'del*'
+            __fish_pkg_installed_packages
+        case 'sh*' 'inf*'
+            __fish_pkg_available_packages
+    end
+end
+
+complete -c pkg -n "not __fish_pkg_subcommand" -a autoclean -d "Remove outdated packages from cache"
+complete -c pkg -n "not __fish_pkg_subcommand" -a clean -d "Remove all packages from cache"
+complete -c pkg -n "not __fish_pkg_subcommand" -a files -d "Show all files installed by packages"
+complete -c pkg -n "not __fish_pkg_subcommand" -a help -d "Show usage information"
+complete -c pkg -n "not __fish_pkg_subcommand" -a install -d "Install specified packages"
+complete -c pkg -n "not __fish_pkg_subcommand" -a list-all -d "List available packages"
+complete -c pkg -n "not __fish_pkg_subcommand" -a list-installed -d "List installed packages"
+complete -c pkg -n "not __fish_pkg_subcommand" -a reinstall -d "Reinstall specified installed packages"
+complete -c pkg -n "not __fish_pkg_subcommand" -a search -d "Search package by query"
+complete -c pkg -n "not __fish_pkg_subcommand" -a show -d "Show package metadata"
+complete -c pkg -n "not __fish_pkg_subcommand" -a uninstall -d "Uninstall specified packages"
+complete -c pkg -n "not __fish_pkg_subcommand" -a update -d "Update package databases"
+complete -c pkg -n "not __fish_pkg_subcommand" -a upgrade -d "Upgrade all installed packages"
+
+complete -c pkg -n "__fish_pkg_subcommand" -a "(__fish_pkg_packages)"

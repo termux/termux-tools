@@ -1,0 +1,14 @@
+#compdef termux-info
+
+_arguments \
+    '--no-set-clipboard[Do not copy output to clipboard]' \
+    '(-h --help)'{-h,--help}'[Show usage information]' && return 0
+
+if [[ "$words[CURRENT]" != -* ]]; then
+    local -a flags=(
+        '--no-set-clipboard:Do not copy output to clipboard'
+        '-h:Show usage information'
+        '--help:Show usage information'
+    )
+    _describe -t options 'option' flags
+fi
