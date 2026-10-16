@@ -1,7 +1,7 @@
 # This file is sourced by pkg
 # Mirror by GNLUG. Hosted in Virginia, US
 # GNLUG | https://gnlug.org/
-# Hosted in Ashburn, VA, United States. Updated every 6 hours, 1 Gbps and support IPV4/IPV6/RSYNC.
+# Hosted in Vint Hill, VA, United States. Updated every 4 hours, 500 Mbps and support IPV4/IPV6/RSYNC.
 WEIGHT=1
 MAIN="https://gnlug.org/pub/termux/termux-main"
 ROOT="https://gnlug.org/pub/termux/termux-root"
