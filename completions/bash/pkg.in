@@ -1,0 +1,170 @@
+_pkg_detect_pm() {
+    if [ -z "${TERMUX_APP_PACKAGE_MANAGER-}" ]; then
+        local setup_pm="@TERMUX_PREFIX@/bin/termux-setup-package-manager"
+        if [ -r "$setup_pm" ]; then
+            local detected_pm
+            detected_pm="$(bash -c '. "$0" &>/dev/null && echo "$TERMUX_APP_PACKAGE_MANAGER"' "$setup_pm" 2>/dev/null)"
+            if [ -n "$detected_pm" ]; then
+                export TERMUX_APP_PACKAGE_MANAGER="$detected_pm"
+            fi
+        fi
+    fi
+
+    if [ -n "${TERMUX_APP_PACKAGE_MANAGER:-}" ]; then
+        echo "$TERMUX_APP_PACKAGE_MANAGER"
+    elif command -v pacman &>/dev/null && ! command -v apt-cache &>/dev/null; then
+        echo "pacman"
+    else
+        echo "apt"
+    fi
+}
+
+_pkg_available_packages() {
+    local cur="$1"
+    local pkg_mgr="$2"
+    if [ "$pkg_mgr" = "apt" ]; then
+        apt-cache --no-generate pkgnames "$cur" 2>/dev/null
+    elif [ "$pkg_mgr" = "pacman" ]; then
+        if [ -n "$cur" ]; then
+            pacman -Ssq "^$cur" 2>/dev/null
+        else
+            pacman -Slq 2>/dev/null
+        fi
+    fi
+}
+
+_pkg_installed_packages() {
+    local cur="$1"
+    local pkg_mgr="$2"
+    if [ "$pkg_mgr" = "apt" ]; then
+        if [ -n "$cur" ]; then
+            dpkg-query -W -f='${Package}\n' "${cur}*" 2>/dev/null
+        else
+            dpkg-query -W -f='${Package}\n' 2>/dev/null
+        fi
+    elif [ "$pkg_mgr" = "pacman" ]; then
+        pacman -Qq 2>/dev/null | grep -E "^${cur}"
+    fi
+}
+
+_pkg_load_completion_func() {
+    local target="$1"
+    comp_func="$(complete -p "$target" 2>/dev/null | sed -nE 's/.*-F ([^ ]+).*/\1/p')"
+    if [ -z "$comp_func" ]; then
+        if declare -F _comp_load &>/dev/null; then
+            _comp_load "$target" 2>/dev/null
+        elif declare -F _completion_loader &>/dev/null; then
+            _completion_loader "$target" 2>/dev/null
+        elif [ -f "@TERMUX_PREFIX@/share/bash-completion/completions/$target" ]; then
+            . "@TERMUX_PREFIX@/share/bash-completion/completions/$target" 2>/dev/null
+        fi
+        comp_func="$(complete -p "$target" 2>/dev/null | sed -nE 's/.*-F ([^ ]+).*/\1/p')"
+    fi
+    [ -n "$comp_func" ] && declare -F "$comp_func" &>/dev/null
+}
+
+_pkg() {
+    local cur prev words cword
+    if declare -F _init_completion &>/dev/null; then
+        _init_completion || return
+    else
+        COMPREPLY=()
+        cur="${COMP_WORDS[COMP_CWORD]}"
+        prev="${COMP_WORDS[COMP_CWORD-1]}"
+        words=("${COMP_WORDS[@]}")
+        cword=$COMP_CWORD
+    fi
+
+    local commands="autoclean clean files help install list-all list-installed reinstall search show uninstall update upgrade"
+    local options="--check-mirror -h --help"
+
+    local cmd=""
+    local cmd_idx=0
+    local i
+    for (( i=1; i < cword; i++ )); do
+        case "${words[i]}" in
+            --check-mirror|-*)
+                ;;
+            *)
+                cmd="${words[i]}"
+                cmd_idx=$i
+                break
+                ;;
+        esac
+    done
+
+    if [ -z "$cmd" ]; then
+        if [[ "$cur" == -* ]]; then
+            COMPREPLY=( $(compgen -W "$options" -- "$cur") )
+        else
+            COMPREPLY=( $(compgen -W "$commands" -- "$cur") )
+        fi
+        return 0
+    fi
+
+    local pkg_mgr
+    pkg_mgr="$(_pkg_detect_pm)"
+
+    local -a delegated_words=()
+    if [ "$pkg_mgr" = "pacman" ]; then
+        case "$cmd" in
+            add|i*)               delegated_words=(pacman -S) ;;
+            autoc*)               delegated_words=(pacman -Sc) ;;
+            autor*)               delegated_words=(pacman -Rns) ;;
+            cl*)                  delegated_words=(pacman -Scc) ;;
+            f*)                   delegated_words=(pacman -Ql) ;;
+            list-a*)              delegated_words=(pacman -Sl) ;;
+            list-i*)              delegated_words=(pacman -Q) ;;
+            rei*)                 delegated_words=(pacman -S) ;;
+            se*)                  delegated_words=(pacman -Ss) ;;
+            sh*|inf*)             delegated_words=(pacman -Si) ;;
+            un*|rem*|rm|del*)     delegated_words=(pacman -Rcns) ;;
+            upd*)                 delegated_words=(pacman -Sy) ;;
+            up|upg*)              delegated_words=(pacman -Syu) ;;
+        esac
+    else
+        case "$cmd" in
+            add|i*)               delegated_words=(apt install) ;;
+            autoc*)               delegated_words=(apt autoclean) ;;
+            autor*)               delegated_words=(apt autoremove) ;;
+            cl*)                  delegated_words=(apt clean) ;;
+            f*)                   delegated_words=(dpkg -L) ;;
+            list-a*)              delegated_words=(apt list) ;;
+            list-i*)              delegated_words=(apt list --installed) ;;
+            rei*)                 delegated_words=(apt reinstall) ;;
+            se*)                  delegated_words=(apt search) ;;
+            sh*|inf*)             delegated_words=(apt show) ;;
+            un*|rem*|rm|del*)     delegated_words=(apt remove) ;;
+            upd*)                 delegated_words=(apt update) ;;
+            up|upg*)              delegated_words=(apt full-upgrade) ;;
+        esac
+    fi
+
+    if [ "${#delegated_words[@]}" -gt 0 ]; then
+        local comp_func=""
+        if _pkg_load_completion_func "${delegated_words[0]}"; then
+            local -a new_words=("${delegated_words[@]}" "${COMP_WORDS[@]:$((cmd_idx + 1))}")
+            local new_cword=$(( COMP_CWORD - cmd_idx + ${#delegated_words[@]} - 1 ))
+            local prefix_line="${new_words[*]:0:$((new_cword + 1))}"
+
+            COMP_WORDS=("${new_words[@]}")
+            COMP_CWORD=$new_cword
+            COMP_LINE="${new_words[*]}"
+            COMP_POINT=${#prefix_line}
+
+            "$comp_func" "${COMP_WORDS[0]}" "$cur" "${COMP_WORDS[$((COMP_CWORD - 1))]}"
+        fi
+    fi
+
+    if [ "${#COMPREPLY[@]}" -eq 0 ] && [[ "$cur" != -* ]]; then
+        case "$cmd" in
+            add|i*|sh*|inf*|list-a*)
+                COMPREPLY=( $(compgen -W "$(_pkg_available_packages "$cur" "$pkg_mgr")" -- "$cur") )
+                ;;
+            f*|rei*|un*|rem*|rm|del*|list-i*)
+                COMPREPLY=( $(compgen -W "$(_pkg_installed_packages "$cur" "$pkg_mgr")" -- "$cur") )
+                ;;
+        esac
+    fi
+}
+complete -F _pkg pkg

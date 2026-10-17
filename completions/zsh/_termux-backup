@@ -1,0 +1,7 @@
+#compdef termux-backup
+
+_arguments \
+    '(-h --help)'{-h,--help}'[Show usage information]' \
+    '(-f --force)'{-f,--force}'[Force write operations]' \
+    '--ignore-read-failure[Suppress read permission denials]' \
+    '1:output archive:_files'
