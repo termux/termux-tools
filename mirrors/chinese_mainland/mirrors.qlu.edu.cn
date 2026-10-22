@@ -1,0 +1,8 @@
+# This file is sourced by pkg
+# Mirror by Qilu University of Technology. Hosted in Jinan, China.
+# Qilu University of Technology | https://mirrors.qlu.edu.cn/
+# Synced from packages.termux.dev every 4 hours, with IPv4/IPv6 support.
+WEIGHT=1
+MAIN="https://mirrors.qlu.edu.cn/termux/termux-main/"
+ROOT="https://mirrors.qlu.edu.cn/termux/termux-root/"
+X11="https://mirrors.qlu.edu.cn/termux/termux-x11/"
