@@ -13,6 +13,7 @@ mirror.meowsmp.net
 # Mirrors in Chinese Mainland
 pkgdata_CHINESE_MAINLAND_MIRRORS = mirrors.tuna.tsinghua.edu.cn      \
 mirror.iscas.ac.cn mirrors.nju.edu.cn mirrors.pku.edu.cn             \
+mirrors.qlu.edu.cn \
 mirrors.ustc.edu.cn mirrors.bfsu.edu.cn	mirrors.aliyun.com           \
 mirrors.cqupt.edu.cn mirror.nyist.edu.cn mirrors.sau.edu.cn	         \
 mirrors.sdu.edu.cn mirrors.sustech.edu.cn mirrors.zju.edu.cn         \
