@@ -1,0 +1,157 @@
+#compdef pkg
+
+_pkg_detect_pm() {
+    if [[ -z "${TERMUX_APP_PACKAGE_MANAGER:-}" ]]; then
+        local setup_pm="@TERMUX_PREFIX@/bin/termux-setup-package-manager"
+        if [[ -r "$setup_pm" ]]; then
+            local detected_pm
+            detected_pm="$(bash -c '. "$0" &>/dev/null && echo "$TERMUX_APP_PACKAGE_MANAGER"' "$setup_pm" 2>/dev/null)"
+            if [[ -n "$detected_pm" ]]; then
+                export TERMUX_APP_PACKAGE_MANAGER="$detected_pm"
+            fi
+        fi
+    fi
+
+    if [[ -n "${TERMUX_APP_PACKAGE_MANAGER:-}" ]]; then
+        echo "$TERMUX_APP_PACKAGE_MANAGER"
+    elif (( $+commands[pacman] )) && ! (($+commands[apt-cache] )); then
+        echo "pacman"
+    else
+        echo "apt"
+    fi
+}
+
+_pkg_available_packages() {
+    local pkg_mgr="$1"
+    local -a pkgs
+    if [[ "$pkg_mgr" == "apt" ]]; then
+        pkgs=( ${(f)"$(apt-cache --no-generate pkgnames 2>/dev/null)"} )
+    elif [[ "$pkg_mgr" == "pacman" ]]; then
+        pkgs=( ${(f)"$(pacman -Slq 2>/dev/null)"} )
+    fi
+    _wanted packages expl 'available package' compadd -a pkgs
+}
+
+_pkg_installed_packages() {
+    local pkg_mgr="$1"
+    local -a pkgs
+    if [[ "$pkg_mgr" == "apt" ]]; then
+        pkgs=( ${(f)"$(dpkg-query -W -f='${Package}\n' 2>/dev/null)"} )
+    elif [[ "$pkg_mgr" == "pacman" ]]; then
+        pkgs=( ${(f)"$(pacman -Qq 2>/dev/null)"} )
+    fi
+    _wanted packages expl 'installed package' compadd -a pkgs
+}
+
+_pkg() {
+    local cmd=""
+    local cmd_idx=0
+    local i
+    for (( i=2; i < CURRENT; i++ )); do
+        case "${words[i]}" in
+            --check-mirror|-*)
+                ;;
+            *)
+                cmd="${words[i]}"
+                cmd_idx=$i
+                break
+                ;;
+        esac
+    done
+
+    if (( ! cmd_idx )); then
+        local -a options commands
+        options=(
+            '--check-mirror:Force mirror availability re-check'
+            '-h:Show usage information'
+            '--help:Show usage information'
+        )
+        commands=(
+            'autoclean:Remove outdated packages from cache'
+            'clean:Remove all packages from cache'
+            'files:Show all files installed by packages'
+            'help:Show usage information'
+            'install:Install specified packages'
+            'list-all:List all packages available in repositories'
+            'list-installed:List installed packages'
+            'reinstall:Reinstall specified installed packages'
+            'search:Search package by query'
+            'show:Show package metadata'
+            'uninstall:Uninstall specified packages'
+            'update:Update package databases'
+            'upgrade:Upgrade all installed packages'
+        )
+        if [[ "$PREFIX" == -* ]]; then
+            _describe -t options 'pkg option' options
+        else
+            _describe -t commands 'pkg command' commands
+        fi
+        return
+    fi
+
+    local pkg_mgr
+    pkg_mgr="$(_pkg_detect_pm)"
+
+    local -a delegated_words=()
+    if [[ "$pkg_mgr" == "pacman" ]]; then
+        case "$cmd" in
+            add|i*)               delegated_words=(pacman -S) ;;
+            autoc*)               delegated_words=(pacman -Sc) ;;
+            autor*)               delegated_words=(pacman -Rns) ;;
+            cl*)                  delegated_words=(pacman -Scc) ;;
+            f*)                   delegated_words=(pacman -Ql) ;;
+            list-a*)              delegated_words=(pacman -Sl) ;;
+            list-i*)              delegated_words=(pacman -Q) ;;
+            rei*)                 delegated_words=(pacman -S) ;;
+            se*)                  delegated_words=(pacman -Ss) ;;
+            sh*|inf*)             delegated_words=(pacman -Si) ;;
+            un*|rem*|rm|del*)     delegated_words=(pacman -Rcns) ;;
+            upd*)                 delegated_words=(pacman -Sy) ;;
+            up|upg*)              delegated_words=(pacman -Syu) ;;
+        esac
+    else
+        case "$cmd" in
+            add|i*)               delegated_words=(apt install) ;;
+            autoc*)               delegated_words=(apt autoclean) ;;
+            autor*)               delegated_words=(apt autoremove) ;;
+            cl*)                  delegated_words=(apt clean) ;;
+            f*)                   delegated_words=(dpkg -L) ;;
+            list-a*)              delegated_words=(apt list) ;;
+            list-i*)              delegated_words=(apt list --installed) ;;
+            rei*)                 delegated_words=(apt reinstall) ;;
+            se*)                  delegated_words=(apt search) ;;
+            sh*|inf*)             delegated_words=(apt show) ;;
+            un*|rem*|rm|del*)     delegated_words=(apt remove) ;;
+            upd*)                 delegated_words=(apt update) ;;
+            up|upg*)              delegated_words=(apt full-upgrade) ;;
+        esac
+    fi
+
+    local ret=1
+    if (( ${#delegated_words[@]} > 0 )); then
+        if [[ "${delegated_words[1]}" == "apt" && "$PREFIX" == -* ]]; then
+            # Zsh's _apt regex state machine only completes flags before the subcommand
+            words=( apt "${words[CURRENT]}" )
+            CURRENT=2
+        else
+            words[1,cmd_idx]=( "${delegated_words[@]}" )
+            (( CURRENT = CURRENT - cmd_idx + ${#delegated_words[@]} ))
+        fi
+        _normal && ret=0
+    fi
+
+    if (( ret != 0 )) && [[ "$PREFIX" != -* ]]; then
+        case "$cmd" in
+            add|i*|sh*|inf*|list-a*)
+                _pkg_available_packages "$pkg_mgr" && ret=0
+                ;;
+            f*|rei*|un*|rem*|rm|del*|list-i*)
+                _pkg_installed_packages "$pkg_mgr" && ret=0
+                ;;
+        esac
+    fi
+
+    return $ret
+}
+
+_pkg "$@"

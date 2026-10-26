@@ -1,0 +1,173 @@
+function __fish_pkg_detect_pm
+    if set -q TERMUX_APP_PACKAGE_MANAGER; and test -n "$TERMUX_APP_PACKAGE_MANAGER"
+        echo "$TERMUX_APP_PACKAGE_MANAGER"
+        return
+    end
+
+    set -l setup_pm "@TERMUX_PREFIX@/bin/termux-setup-package-manager"
+    if test -r "$setup_pm"
+        set -l detected_pm (bash -c '. "$0" &>/dev/null && echo "$TERMUX_APP_PACKAGE_MANAGER"' "$setup_pm" 2>/dev/null)
+        if test -n "$detected_pm"
+            set -gx TERMUX_APP_PACKAGE_MANAGER "$detected_pm"
+            echo "$detected_pm"
+            return
+        end
+    end
+
+    if command -sq pacman; and not command -sq apt-cache
+        echo "pacman"
+    else
+        echo "apt"
+    end
+end
+
+function __fish_pkg_no_subcommand
+    set -l tokens (commandline -opc)
+    set -e tokens[1]
+    for token in $tokens
+        switch "$token"
+            case '--check-mirror' '-*'
+                continue
+            case '*'
+                return 1
+        end
+    end
+    return 0
+end
+
+function __fish_pkg_delegate
+    set -l tokens (commandline -opc)
+    set -e tokens[1]
+    set -l cur (commandline -ct)
+    set -l cmd ""
+    set -l cmd_idx 0
+
+    for i in (seq (count $tokens))
+        switch "$tokens[$i]"
+            case '--check-mirror' '-*'
+                continue
+            case '*'
+                set cmd "$tokens[$i]"
+                set cmd_idx $i
+                break
+        end
+    end
+
+    test -z "$cmd"; and return
+
+    set -e tokens[1..$cmd_idx]
+
+    set -l pkg_mgr (__fish_pkg_detect_pm)
+    set -l delegated ""
+
+    if test "$pkg_mgr" = "pacman"
+        switch "$cmd"
+            case 'add' 'i*'
+                set delegated "pacman -S"
+            case 'autoc*'
+                set delegated "pacman -Sc"
+            case 'autor*'
+                set delegated "pacman -Rns"
+            case 'cl*'
+                set delegated "pacman -Scc"
+            case 'f*'
+                set delegated "pacman -Ql"
+            case 'list-a*'
+                set delegated "pacman -Sl"
+            case 'list-i*'
+                set delegated "pacman -Q"
+            case 'rei*'
+                set delegated "pacman -S"
+            case 'se*'
+                set delegated "pacman -Ss"
+            case 'sh*' 'inf*'
+                set delegated "pacman -Si"
+            case 'un*' 'rem*' 'rm' 'del*'
+                set delegated "pacman -Rcns"
+            case 'upd*'
+                set delegated "pacman -Sy"
+            case 'up' 'upg*'
+                set delegated "pacman -Syu"
+        end
+    else
+        switch "$cmd"
+            case 'add' 'i*'
+                set delegated "apt install"
+            case 'autoc*'
+                set delegated "apt autoclean"
+            case 'autor*'
+                set delegated "apt autoremove"
+            case 'cl*'
+                set delegated "apt clean"
+            case 'f*'
+                set delegated "dpkg -L"
+            case 'list-a*'
+                set delegated "apt list"
+            case 'list-i*'
+                set delegated "apt list --installed"
+            case 'rei*'
+                set delegated "apt reinstall"
+            case 'se*'
+                set delegated "apt search"
+            case 'sh*' 'inf*'
+                set delegated "apt show"
+            case 'un*' 'rem*' 'rm' 'del*'
+                set delegated "apt remove"
+            case 'upd*'
+                set delegated "apt update"
+            case 'up' 'upg*'
+                set delegated "apt full-upgrade"
+        end
+    end
+
+    set -l results
+    if test -n "$delegated"
+        set -l trailing ""
+        if test (count $tokens) -gt 0
+            set trailing (string join " " -- $tokens)" "
+        end
+        set results (complete -C "$delegated $trailing$cur" 2>/dev/null)
+    end
+
+    if test (count $results) -gt 0
+        printf "%s\n" $results
+        return
+    end
+
+    if not string match -q -- '-*' "$cur"
+        switch "$cmd"
+            case 'add' 'i*' 'sh*' 'inf*' 'list-a*'
+                if test "$pkg_mgr" = "pacman"
+                    pacman -Slq 2>/dev/null
+                else
+                    apt-cache --no-generate pkgnames "$cur" 2>/dev/null
+                end
+            case 'f*' 'rei*' 'un*' 'rem*' 'rm' 'del*' 'list-i*'
+                if test "$pkg_mgr" = "pacman"
+                    pacman -Qq 2>/dev/null
+                else
+                    dpkg-query -W -f='${Package}\n' 2>/dev/null
+                end
+        end
+    end
+end
+
+complete -c pkg -f
+complete -c pkg -n __fish_pkg_no_subcommand -l check-mirror -d 'Force mirror availability re-check'
+complete -c pkg -n __fish_pkg_no_subcommand -s h -l help -d 'Show usage information'
+
+complete -c pkg -n __fish_pkg_no_subcommand -a autoclean -d 'Remove outdated packages from cache'
+complete -c pkg -n __fish_pkg_no_subcommand -a clean -d 'Remove all packages from cache'
+complete -c pkg -n __fish_pkg_no_subcommand -a files -d 'Show all files installed by packages'
+complete -c pkg -n __fish_pkg_no_subcommand -a help -d 'Show usage information'
+complete -c pkg -n __fish_pkg_no_subcommand -a install -d 'Install specified packages'
+complete -c pkg -n __fish_pkg_no_subcommand -a list-all -d 'List available packages'
+complete -c pkg -n __fish_pkg_no_subcommand -a list-installed -d 'List installed packages'
+complete -c pkg -n __fish_pkg_no_subcommand -a reinstall -d 'Reinstall specified installed packages'
+complete -c pkg -n __fish_pkg_no_subcommand -a search -d 'Search package by query'
+complete -c pkg -n __fish_pkg_no_subcommand -a show -d 'Show package metadata'
+complete -c pkg -n __fish_pkg_no_subcommand -a uninstall -d 'Uninstall specified packages'
+complete -c pkg -n __fish_pkg_no_subcommand -a update -d 'Update package databases'
+complete -c pkg -n __fish_pkg_no_subcommand -a upgrade -d 'Upgrade all installed packages'
+
+complete -c pkg -n 'not __fish_pkg_no_subcommand' -a '(__fish_pkg_delegate)'
