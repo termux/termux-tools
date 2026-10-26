@@ -1,0 +1,9 @@
+#compdef termux-open xdg-open
+
+_arguments \
+    '--send[Share the file for sending]' \
+    '--view[Share the file for viewing]' \
+    '--chooser[Always show an app chooser]' \
+    '--content-type[Specify content type]:MIME type:' \
+    '(-h --help)'{-h,--help}'[Show usage information]' \
+    '*:file or URL:_files'
