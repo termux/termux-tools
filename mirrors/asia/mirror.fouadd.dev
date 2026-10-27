@@ -4,3 +4,5 @@
 # Mirror hosted on a personal homelab with Cloudflare edge caching, synced hourly via rsync.
 WEIGHT=1
 MAIN="https://mirror.fouadd.dev/termux/"
+X11="https://mirror.fouadd.dev/termux-x11/"
+ROOT="https://mirror.fouadd.dev/termux-root/"
