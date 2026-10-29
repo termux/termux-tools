@@ -1,40 +1,25 @@
 #!@TERMUX_PREFIX@/bin/bash
 ##
-## Termux script for restoring $PREFIX (package installation dir).
+## Termux script for restoring $HOME and/or $PREFIX from a backup archive.
 ## For backup script, see "termux-backup".
-##
-## Why it doesn't implement support for restoring $HOME:
-##
-##  * It can't selectively restore files due to tar option
-##    --recursive-unlink, that will erase file tree before extracting.
-##
-##  * It has to maintain support of piped input. Therefore we can't
-##    allow optional backup of home by termux-backup. Here is why:
-##    with piped input it is not possible to check contents of backup
-##    file (you can't seek piped content twice). We must be sure that
-##    all directories selected for restore are present inside archive
-##    and this is possible only with hardcoded configuration
-##    (e.g. backup only $PREFIX). Otherwise, restore procedure may
-##    fail or even worse, erase all directories (potentially user
-##    data) that are not present in backup.
-##
-## Considering the mentioned 2 major issues, should be obvious that
-## we have literally 2 choices: either backup/restore only $PREFIX
-## or backup/restore both $HOME and $PREFIX unconditionally, to
-## ensure consistency of data passed to termux-restore.
-##
-## However the current choice is to stick to backing up only $PREFIX,
-## to leave responsibility of managing files in $HOME to user (as said
-## above, termux-restore script ERASES DATA before restore).
-##
-## On side note, why data should be erased before restore:
-##
-##  * Perform a complete rollback to state exactly as in archive.
-##
-##  * Get rid of files that are not tracked by package manager.
 ##
 
 set -e -u
+
+export PREFIX="@TERMUX_PREFIX@"
+export HOME="@TERMUX_HOME@"
+ROOTFS="@TERMUX_BASE_DIR@"
+
+# Tar member names for $HOME and $PREFIX, relative to $ROOTFS.
+HOME_MEMBER=".${HOME#"${ROOTFS%/}"}"
+PREFIX_MEMBER=".${PREFIX#"${ROOTFS%/}"}"
+
+# $HOME may be placed inside $PREFIX in layouts without 'usr' merge,
+# e.g. when $PREFIX is same as $ROOTFS.
+HOME_IN_PREFIX=false
+if [[ "$HOME" == "$PREFIX"/* ]]; then
+	HOME_IN_PREFIX=true
+fi
 
 msg() {
 	echo "$*" >&2
@@ -42,17 +27,22 @@ msg() {
 
 show_usage() {
 	msg
-	msg "Usage: termux-restore [input file]"
+	msg "Usage: termux-restore [options] <input file>"
 	msg
-	msg "Script for restoring Termux installation directory (\$PREFIX)"
-	msg "from the given TAR archive."
+	msg "Script for restoring Termux directories from a TAR archive created"
+	msg "by 'termux-backup'. By default, only \$PREFIX is restored."
 	msg
-	msg "It is expected that backup file was made by 'termux-backup'."
-	msg "Restoring procedure will erase all files in \$PREFIX directory"
-	msg "that are not present in the given backup file. Be careful."
+	msg "Restoring erases all files in the target directory that are not"
+	msg "present in the archive. Pass --no-clean to skip this behavior."
 	msg
-	msg "Backup contents may be supplied via stdin by specifying input"
-	msg "file as '-'. Note that piped TAR archive must be uncompressed."
+	msg "Options:"
+	msg
+	msg " -h, --help     Show this information."
+	msg " --home         Restore \$HOME from backup."
+	msg " --packages     Restore \$PREFIX from backup."
+	msg " --no-clean     Do not erase target directories before restoring."
+	msg
+	msg "If neither --home nor --packages is specified, only \$PREFIX is restored."
 	msg
 }
 
@@ -61,46 +51,121 @@ if [ "$(id -u)" = "0" ]; then
 	exit 1
 fi
 
-if [ $# -lt 1 ]; then
-	msg
-	msg "[!] Input file path is not specified."
-	show_usage
-	exit 1
-fi
+BACKUP_FILE_PATH=
+RESTORE_HOME=false
+RESTORE_PACKAGES=false
+RECURSIVE_UNLINK=true
 
-if [ $# -gt 1 ]; then
+while (($# >= 1)); do
+	case "$1" in
+		--) shift 1; break;;
+		-\?|-h|--help|--usage)
+			show_usage
+			exit 0
+			;;
+		--home)
+			RESTORE_HOME=true
+			;;
+		--packages)
+			RESTORE_PACKAGES=true
+			;;
+		--no-clean)
+			RECURSIVE_UNLINK=false
+			;;
+		*)
+			if [ -z "$1" ]; then
+				msg
+				msg "[!] Input file path should not be an empty string."
+				show_usage
+				exit 1
+			fi
+
+			if [[ $1 =~ ^-.+ ]]; then
+				msg
+				msg "[!] Unknown option passed: ${1}"
+				show_usage
+				exit 1
+			fi
+
+			if [ -z "$BACKUP_FILE_PATH" ]; then
+				BACKUP_FILE_PATH=$1
+			else
+				msg
+				msg "[!] Redundant input file path specified: ${1}"
+				show_usage
+				exit 1
+			fi
+			;;
+	esac
 	shift 1
+done
+
+if [ -z "$BACKUP_FILE_PATH" ]; then
 	msg
-	msg "[!] Got extra arguments: $*"
+	msg "[!] No backup file path specified."
 	show_usage
 	exit 1
 fi
 
-case "$1" in
-	-\?|-h|--help|--usage) show_usage; exit 0;;
-	*) BACKUP_FILE_PATH="$1";;
-esac
-
-if [ "$BACKUP_FILE_PATH" != "-" ] && [ ! -e "$BACKUP_FILE_PATH" ]; then
-	msg
-	msg "[!] File '$BACKUP_FILE_PATH' does not exist."
-	msg
+if [ ! -e "$BACKUP_FILE_PATH" ]; then
+	msg "[!] $BACKUP_FILE_PATH: file does not exist."
 	exit 1
-else
-	if [ "$BACKUP_FILE_PATH" != "-" ] && [ ! -f "$BACKUP_FILE_PATH" ]; then
-		msg
-		msg "[!] Path '$BACKUP_FILE_PATH' is not a regular file."
-		msg
-		exit 1
+fi
+
+if [ ! -f "$BACKUP_FILE_PATH" ]; then
+	msg "[!] $BACKUP_FILE_PATH: path is not a regular file."
+	exit 1
+fi
+
+# Default: restore packages only.
+if ! $RESTORE_HOME && ! $RESTORE_PACKAGES; then
+	RESTORE_PACKAGES=true
+fi
+
+msg "Fixing read-write access to files where necessary..."
+RESTORE_DIRS=()
+TAR_EXCLUDE_OPTS=
+if $RESTORE_HOME; then
+	if [ -d "$HOME" ]; then
+		find "$HOME" -type d,f -print0 | xargs -0 -r chmod u+rwX
+	fi
+	RESTORE_DIRS+=("$HOME_MEMBER")
+fi
+if $RESTORE_PACKAGES; then
+	if [ -d "$PREFIX" ]; then
+		find "$PREFIX" -path "$HOME" -prune -o -type d,f -print0 | xargs -0 -r chmod u+rwX
+	fi
+	RESTORE_DIRS+=("$PREFIX_MEMBER")
+
+	# When $HOME is inside $PREFIX, archive made by 'termux-backup' holds
+	# contents of $PREFIX as separate members rather than $PREFIX itself,
+	# so --recursive-unlink cannot wipe $HOME. Archive of unexpected
+	# structure may still contain $PREFIX or a directory between it and
+	# $HOME as a member, which would be recursively unlinked. Skip such
+	# members: --no-recursion makes --exclude match by exact name, so
+	# their contents are still restored. Additionally leave $HOME members
+	# alone if they are in archive but were not requested.
+	if $HOME_IN_PREFIX; then
+		TAR_EXCLUDE_OPTS="--anchored --no-wildcards --no-recursion"
+		DIR="${HOME%/*}"
+		while [ "$DIR" = "$PREFIX" ] || [[ "$DIR" == "$PREFIX"/* ]]; do
+			TAR_EXCLUDE_OPTS="$TAR_EXCLUDE_OPTS --exclude=.${DIR#"${ROOTFS%/}"}"
+			DIR="${DIR%/*}"
+		done
+		TAR_EXCLUDE_OPTS="$TAR_EXCLUDE_OPTS --recursion"
+
+		if ! $RESTORE_HOME; then
+			TAR_EXCLUDE_OPTS="$TAR_EXCLUDE_OPTS --exclude=$HOME_MEMBER"
+		fi
 	fi
 fi
 
-# Ensure that prefix doesn't contain read-only files.
-msg "Fixing read-write access to files where necessary..."
-find "@TERMUX_PREFIX@" -type d,f -print0 | xargs -0 -r chmod u+rwX
+TAR_UNLINK_OPT=
+if $RECURSIVE_UNLINK; then
+	TAR_UNLINK_OPT="--recursive-unlink"
+fi
 
-# --recursive-unlink is added intentionally to delete all orphan/extra files
-# in $PREFIX. It must be restored to a clean state as in backup tarball.
-msg "Erasing current \$PREFIX and restoring one from archive..."
-tar -x -C "@TERMUX_BASE_DIR@" -f "$BACKUP_FILE_PATH" \
-	--recursive-unlink --preserve-permissions ./usr
+msg "Restoring: ${RESTORE_DIRS[*]}"
+tar -x -C "$ROOTFS" -f "$BACKUP_FILE_PATH" \
+	$TAR_UNLINK_OPT $TAR_EXCLUDE_OPTS --preserve-permissions \
+	"${RESTORE_DIRS[@]}"
