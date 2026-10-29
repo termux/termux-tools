@@ -1,0 +1,6 @@
+# This file is sourced by pkg
+# Mirror by Init7 (Schweiz) AG. Hosted in Winterthur, Switzerland.
+WEIGHT=1
+MAIN="https://mirror.init7.net/termux/termux-main"
+ROOT="https://mirror.init7.net/termux/termux-root"
+X11="https://mirror.init7.net/termux/termux-x11"
