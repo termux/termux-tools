@@ -1,0 +1,97 @@
+#!/bin/sh
+
+# This file is originally MIT licensed from Alpine Linux's alpine-conf package.
+# https://gitlab.alpinelinux.org/alpine/alpine-conf/-/blob/master/LICENSE
+# https://gitlab.alpinelinux.org/alpine/alpine-conf/-/blob/master/libalpine.sh.in
+# https://gitlab.alpinelinux.org/alpine/alpine-conf/-/blob/master/setup-proxy.in
+
+_ask() {
+	local _redo=0
+
+	read -r resp
+	case "$resp" in
+	!)	echo "Type 'exit' to return to setup."
+		sh
+		_redo=1
+		;;
+	!*)	eval "${resp#?}"
+		_redo=1
+		;;
+	esac
+	return $_redo
+}
+
+ask() {
+	local _question="$1" _default="$2"
+
+	while :; do
+		printf %s "$_question "
+		[ -z "$_default" ] || printf "[%s] " "$_default"
+		_ask && : "${resp:=$_default}" && break
+	done
+}
+
+usage() {
+	cat <<-__EOF__
+		usage: termux-setup-proxy [-hq] [PROXYURL]
+
+		Setup http proxy
+
+		options:
+		 -h  Show this help
+		 -q  Quiet mode
+
+		If PROXYURL is not specified user will be prompted.
+	__EOF__
+	exit "$1"
+}
+
+while getopts "hp:q" opt; do
+	case "$opt" in
+		q) quiet=1;;
+		h) usage 0;;
+		p) PREFIX=$OPTARG;;
+		'?') usage "1" >&2;;
+	esac
+done
+shift $(( $OPTIND - 1))
+
+proxyurl="$1"
+
+PROFILE="$PREFIX/etc/profile.d/proxy.sh"
+
+if [ -f "$PROFILE" ] ; then
+	. "$PROFILE"
+fi
+
+suggest=${http_proxy:-none}
+while [ $# -eq 0 ]; do
+	case "$proxyurl" in
+		http://*|https://*) break;;
+		none) break;;
+	esac
+	ask "HTTP/FTP proxy URL? (e.g. 'http://proxy:8080', or 'none')" "$suggest"
+	proxyurl=$resp
+done
+
+if [ "$proxyurl" = "none" ]; then
+	rm -f "$PROFILE"
+else
+	mkdir -p "${PROFILE%/*}"
+	cat >"$PROFILE" <<-__EOF__
+		# this file was generated with and might get overwritten by setup-proxy
+
+		export http_proxy=$proxyurl
+		export https_proxy=$proxyurl
+		export ftp_proxy=$proxyurl
+		export no_proxy=localhost
+	__EOF__
+fi
+
+if [ -z "$quiet" ] && [ "$proxyurl" != "none" ]; then
+	cat <<-__EOF__
+
+		To make changes active please do login again or source $PROFILE
+		with ". $PROFILE"
+	__EOF__
+fi

@@ -1,0 +1,92 @@
+#!/bin/sh
+
+# This file is originally MIT licensed from Alpine Linux's alpine-conf package.
+# https://gitlab.alpinelinux.org/alpine/alpine-conf/-/blob/master/LICENSE
+# https://gitlab.alpinelinux.org/alpine/alpine-conf/-/blob/master/libalpine.sh.in
+# https://gitlab.alpinelinux.org/alpine/alpine-conf/-/blob/master/setup-dns.in
+
+_ask() {
+	local _redo=0
+
+	read -r resp
+	case "$resp" in
+	!)	echo "Type 'exit' to return to setup."
+		sh
+		_redo=1
+		;;
+	!*)	eval "${resp#?}"
+		_redo=1
+		;;
+	esac
+	return $_redo
+}
+
+ask() {
+	local _question="$1" _default="$2"
+
+	while :; do
+		printf %s "$_question "
+		[ -z "$_default" ] || printf "[%s] " "$_default"
+		_ask && : "${resp:=$_default}" && break
+	done
+}
+
+usage() {
+	cat <<-__EOF__
+		usage: termux-setup-dns [-h] [-d DOMAINNAME] [IPADDR...]
+
+		Setup $PREFIX/etc/resolv.conf DNS settings
+
+		options:
+		 -h  Show this help
+		 -d  specify search domain name
+
+		The optional IPADDR are a list of DNS servers to use.
+	__EOF__
+	exit "$1"
+}
+
+while getopts "d:n:h" opt; do
+	case $opt in
+		d) DOMAINNAME="$OPTARG";;
+		h) usage 0;;
+		n) NAMESERVERS="$OPTARG";;
+		'?') usage "1" >&2;;
+	esac
+done
+shift $(($OPTIND - 1))
+
+
+conf="$PREFIX/etc/resolv.conf"
+
+if [ -f "$conf" ] ; then
+	domain=$(awk '/^domain/ {print $2}' "$conf")
+	dns=$(awk '/^nameserver/ {printf "%s ",$2}' "$conf")
+fi
+
+if [ -n "$DOMAINNAME" ]; then
+	domain="$DOMAINNAME"
+elif [ $# -eq 0 ]; then
+	ask "DNS domain name? (e.g 'bar.com')" "$domain"
+	domain="$resp"
+fi
+
+if [ -n "$NAMESERVERS" ] || [ $# -gt 0 ];then
+	dns="$NAMESERVERS"
+else
+	ask "DNS nameserver(s)?" "${dns% }"
+	dns="$(echo "$resp" | tr ',' ' ')"
+fi
+
+if [ -n "$domain" ]; then
+	mkdir -p "${conf%/*}"
+	echo "search $domain" > "$conf"
+fi
+
+if [ -n "$dns" ] || [ $# -gt 0 ] && [ -f "$conf" ]; then
+	sed -i -e '/^nameserver/d' "$conf"
+fi
+for i in $dns "$@"; do
+	mkdir -p "${conf%/*}"
+	echo "nameserver $i" >> "$conf"
+done
