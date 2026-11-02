@@ -11,6 +11,11 @@ fi
 # shellcheck source=/dev/null
 source "@TERMUX_PREFIX@/bin/termux-setup-package-manager" || exit 1
 
+# Ensure apt/dpkg use the prefix they were configured for. This matters for
+# relocated prefixes (forks, app sandboxes) where compiled-in paths differ.
+export APT_CONFIG="${APT_CONFIG:-@TERMUX_PREFIX@/etc/apt/apt.conf}"
+export DPKG_ADMINDIR="${DPKG_ADMINDIR:-@TERMUX_PREFIX@/var/lib/dpkg}"
+
 MIRROR_BASE_DIR="@TERMUX_PREFIX@/etc/termux/mirrors"
 
 show_help() {
