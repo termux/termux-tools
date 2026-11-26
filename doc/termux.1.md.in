@@ -844,6 +844,23 @@ values.
     As Termux does not support locales, changing this variable is not
     recommended and may have unexpected effects.
 
+TOOLS
+=====
+
+Tools bundled with termux-tools
+
+`termux-logout`
+:   Run cleanup commands when executed from last remaining Termux session. Intended to be run from
+
+    ~/.bash_logout
+    termux-logout
+
+`termux-title`
+:   Update Termux tab titles similar to tmux. Run with termux-services package from
+
+    $SVDIR/title/run
+    exec termux-title
+
 FILES
 =====
 
